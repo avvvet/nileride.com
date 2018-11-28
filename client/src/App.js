@@ -1,30 +1,42 @@
 import React, { Component } from 'react';
+import { render } from 'react-dom';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
+
+import Menu from './components/menu';
+import PickUp from './components/pick_up';
+import DropOff from './components/drop_off';
 import './App.css';
 
-class App extends Component {
-  constructor() {
-   super();
-   this.state = {
-     list: []
-   }
-  }
-  
-  componentDidMount(){
-    this.getList();
-  }
 
-   // Retrieves the list of items from the Express app
-   getList = () => {
-    fetch('/api/getList')
-    .then(res => res.json())
-    .then(list => this.setState({ list }))
+class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      lat: 9.0089,
+      lng: 38.7629,
+      zoom: 16
+    }
   }
 
   render() {
+    const position = [this.state.lat, this.state.lng];
+    const positionTwo = [9.0092, 38.7645];
+    
     return (
+
       <div>
-        {this.state.list}
+        <BrowserRouter>
+          <div>
+            <Menu />
+            <Switch>
+                <Route path="/" component={PickUp} exact />
+                <Route path="/drop-off" render={()=><DropOff/>} />
+            </Switch>
+          </div>
+        </BrowserRouter>  
+        
       </div>
+      
     );
   }
 }

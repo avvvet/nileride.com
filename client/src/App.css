@@ -1,32 +1,100 @@
-.App {
+.leaflet-container {
+  
+  height: 100%;
+    width: 100vw;
+}
+
+.navbar {
+  margin-bottom: 0px;
+}
+
+.div-map {
+  position: relative;
+}
+.div-pickup {
+  color: black;
+  position: absolute;
+  bottom: 100px;
+  right: 50%;
+  width: 260px;
+  height: auto;
+  border: 2px solid white;
+  background-color: white;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding: 5px;
+  margin: 2px;
   text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+.div-ride-price {
+  color: black;
+  position: absolute;
+  bottom: 100px;
+  right: 50%;
+  width: 260px;
+  height: 100px;
+  border: 2px solid white;
+  background-color: white;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding: 5px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  box-sizing: border-box;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.div-request {
+  color: #454242;
+  position: absolute;
+  bottom: 205px;
+  right: 50%;
+  width: 260px;
+  height: 100px;
+  border: 2px solid white;
+  background-color: #eef9e9;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding: 5px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  box-sizing: border-box;
+  visibility: hidden;
 }
 
-.App-link {
-  color: #61dafb;
+.div-pickup-btn-box {
+  margin: 5px;
+  bottom: 5px;
+  text-align: center;
+  left: 25%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.div-pickup-address {
+  line-height: 17px;
+  padding: 10px;
+  font-size: 12px;
+  color: rgb(59, 58, 58);
 }
+
+.style-1 {
+  color: green;
+}
+
+.mapid {   
+  height: 865px;
+  width: 100%; 
+}
+
+.popup-title {
+  color: #000000;
+}
+
+.popup-content {
+  color:#4ea74e;
+}
+
+
