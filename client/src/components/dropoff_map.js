@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
+import $ from 'jquery';
 import {Button, Image, Badge, Grid, Row, Col} from 'react-bootstrap';
 import * as Nominatim from "nominatim-browser";
 import GeometryUtil from 'leaflet-geometryutil';
@@ -22,11 +23,40 @@ class DropOffMap extends Component {
                 lng: 38.7645
             },
             map : '',
-            markersLayer: ''
+            markersLayer: '',
+            driver: {
+                id: '',
+                driver_name: '',
+                driver_phone: '',
+                model: '',
+                plate: '',
+                car_pic : '',
+                driver_pic : ''
+            }
         }
+
+        this.getNearestDriver = this.getNearestDriver.bind(this);
+    }
+
+    getNearestDriver = (latlng) => {
+        $.ajax({ 
+            type:"POST",
+            url:"/driver/getNearestDriver",
+            data: JSON.stringify(latlng), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+                console.log("Nearest driver", data);
+                document.getElementById('div-request').style.visibility = 'visible';
+                this.setState({driver: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
     }
 
     onRequest = () => {
+       fetch('/driver/getNearestDriver', {})
        document.getElementById('div-process').innerHTML='';
        //send ajax request pickup address and wait for driver - this will return the driver
        document.getElementById('div-request').style.visibility = 'visible';
@@ -116,6 +146,45 @@ class DropOffMap extends Component {
            return hDisplay + mDisplay; 
         }
     }
+    
+    NearestDriverComponent = ({driver}) => {
+        return(
+            <div>
+            <Grid fluid={true}>
+                <Row>
+                    <Col xs={6} md={6}>
+                       <Image src={driver.car_pic} height={45} circle></Image>  
+                    </Col>
+
+                    <Col xs={6} md={6}>
+                       <Image src={driver.driver_pic} height={45} circle></Image>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col xs={6} md={6}>
+                        {driver.model}
+                    </Col>
+
+                    <Col xs={6} md={6}>
+                        {driver.driver_name}
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col xs={6} md={6}>
+                      {driver.plate}
+                    </Col>
+
+                    <Col xs={6} md={6}>
+                      {driver.driver_phone}
+                    </Col>
+                </Row>
+
+            </Grid>
+            </div>
+        );
+    }
 
     render(){    
         return(
@@ -123,42 +192,7 @@ class DropOffMap extends Component {
             <div>
               <div className="mapid" id="mapid"></div>
               <div className="div-request" id="div-request">
-                    <div>
-                    <Grid fluid={true}>
-                        <Row>
-                            <Col xs={6} md={6}>
-                               <Image src="/assets/awet-ride.jpeg" height={45} circle></Image>  
-                            </Col>
-
-                            <Col xs={6} md={6}>
-                               <Image src="/assets/awet-ride-driver.jpeg" height={45} circle></Image>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col xs={6} md={6}>
-                                Lifan x345 i
-                            </Col>
-
-                            <Col xs={6} md={6}>
-                                Nati Sahle
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col xs={6} md={6}>
-                                A34587
-                            </Col>
-
-                            <Col xs={6} md={6}>
-                               0911003994
-                            </Col>
-                        </Row>
-
-                    </Grid>
-                    </div>
-                       
-                    
+                   <this.NearestDriverComponent driver={this.state.driver}></this.NearestDriverComponent>
                 </div>
 
                 <div className="div-ride-price">
@@ -180,7 +214,7 @@ class DropOffMap extends Component {
                   </Grid>
                   </div>
                   <div id="div-process" className="div-process">
-                   <div className="div-pickup-btn-box"><Button  onClick={this.onRequest} bsStyle="success" bsSize="small">Request Driver</Button></div> 
+                   <div className="div-pickup-btn-box"><Button  onClick={(e) => this.getNearestDriver(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small">Request Driver</Button></div> 
                   </div>
               </div>
             </div>

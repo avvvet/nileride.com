@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import L from 'leaflet';
 import {Button} from 'react-bootstrap';
 import * as Nominatim from "nominatim-browser";
-
+import $ from 'jquery';
 
 class PickUpMap extends Component {
     constructor(){
@@ -16,10 +16,18 @@ class PickUpMap extends Component {
                 lng: 0
             },
             map : '',
-            markersLayer: ''
+            markersLayer: '',
+            list: []
         }
     }
-
+    
+    getList = () => {
+        var obj = { name: "John", age: 30, city: "New York" }; 
+        fetch('/api/getList')
+        .then(res => res.json())
+        .then(list => this.setState({ list }))
+    }
+    
     componentDidMount(){
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
        // map.locate({setView: true, maxZoom: 17});
