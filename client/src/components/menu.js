@@ -23,7 +23,7 @@ class Menu extends Component {
                 <NavLink to="/">Home</NavLink>
                 </NavItem>
                 <NavItem>
-                <NavLink to="/map">Map</NavLink>
+                <NavLink to="/dropoff">Map</NavLink>
                 </NavItem>
                 <NavItem>
                 <NavLink to="/about">About</NavLink>
