@@ -30,7 +30,7 @@ class App extends React.Component {
             <Menu />
             <Switch>
                 <Route path="/" component={PickUp} exact />
-                <Route path="/drop-off" component={PickUp} exact/>
+                <Route path="/drop-off" component={DropOff} exact/>
             </Switch>
           </div>
         </BrowserRouter>  
