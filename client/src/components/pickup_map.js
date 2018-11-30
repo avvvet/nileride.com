@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
 import {Button} from 'react-bootstrap';
+import {NavLink} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
 
@@ -99,7 +100,7 @@ class PickUpMap extends Component {
                 <div className="div-pickup">
                 <div className="style-1"><h6>First step : Pickup location</h6></div>
                 <div className="div-pickup-address">{this.state.pickup_location}</div>
-                <div className="div-pickup-btn-box"><Button href="/drop-off" bsStyle="success" bsSize="large" block>Continue</Button></div> 
+                <div className="div-pickup-btn-box"><NavLink to="/dropoff"><Button bsStyle="success" bsSize="small" block>Continue</Button></NavLink></div> 
               </div>
             </div>
         );
