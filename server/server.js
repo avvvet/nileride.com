@@ -43,6 +43,14 @@ app.post('/driver/getNearestDriver', (req, res) => {
     res.json(driver);
 });
 
+io.on('connect', (socket)=> {
+   console.log('Client connected');
+   
+   socket.on('request_driver', function(){
+       console.log('driver requested')
+   })
+});
+
 server.listen(port, () => {
     console.log(`Express server is up on port ${port}`);
 });
