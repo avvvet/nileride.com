@@ -97,7 +97,7 @@ class PickUpMap extends Component {
         return(
             <div>
               <div className="mapid" id="mapid"></div>
-                <div className="div-pickup">
+              <div className="div-pickup">
                 <div className="style-1"><h6>First step : Pickup location</h6></div>
                 <div className="div-pickup-address">{this.state.pickup_location}</div>
                 <div className="div-pickup-btn-box"><NavLink to="/dropoff"><Button bsStyle="success" bsSize="small" block>Continue</Button></NavLink></div> 

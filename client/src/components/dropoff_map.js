@@ -25,6 +25,9 @@ class DropOffMap extends Component {
                 lat: 9.0092,
                 lng: 38.7645
             },
+            route_price : 0,
+            route_distance : 0,
+            route_time : 0,
             map : '',
             markersLayer: '',
             driver: {
@@ -39,14 +42,25 @@ class DropOffMap extends Component {
             socket_data : ''
         }
 
-        this.getNearestDriver = this.getNearestDriver.bind(this);
+        this.rideRequest = this.rideRequest.bind(this);
     }
 
-    getNearestDriver = (latlng) => {
+    rideRequest = (latlng) => {
+        var objRideRequest = {
+            user_id: '4141',
+            driver_id: '0',
+            pickup_latlng: this.state.pickup_latlng,
+            dropoff_latlng: this.state.dropoff_latlng,
+            distance: this.state.route_distance,
+            route_time: this.state.route_time,
+            price: this.state.route_price,
+            status: 1
+        };
+
         $.ajax({ 
             type:"POST",
-            url:"/driver/getNearestDriver",
-            data: JSON.stringify(latlng), 
+            url:"/ride/rideRequest",
+            data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                 console.log("Nearest driver", data);
@@ -60,13 +74,6 @@ class DropOffMap extends Component {
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
-    }
-
-    onRequest = () => {
-       fetch('/driver/getNearestDriver', {})
-       document.getElementById('div-process').innerHTML='';
-       //send ajax request pickup address and wait for driver - this will return the driver
-       document.getElementById('div-request').style.visibility = 'visible';
     }
 
     componentDidMount(){
@@ -131,7 +138,13 @@ class DropOffMap extends Component {
                 _distance = Number.parseFloat(_distance/1000).toFixed(2);
                 _ride_time = timeConvert(Number.parseInt(_ride_time));
 
-                var price_per_km = 25;
+                this.setState({
+                    route_distance : _distance,
+                    route_price : _ride_price,
+                    route_time : _ride_time 
+                });
+                
+                var price_per_km = 19;
                 var _ride_price = Number.parseFloat(_distance * price_per_km).toFixed(2);
                 
                 document.getElementById('ride_price').innerHTML = _ride_price + ' Birr';
@@ -222,7 +235,7 @@ class DropOffMap extends Component {
                   </Grid>
                   </div>
                   <div id="div-process" className="div-process">
-                   <div className="div-pickup-btn-box"><Button  onClick={(e) => this.getNearestDriver(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small">Request Driver</Button></div> 
+                   <div className="div-pickup-btn-box"><Button  onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small">Request Driver</Button></div> 
                   </div>
               </div>
             </div>

@@ -11,6 +11,7 @@
 .div-map {
   position: relative;
 }
+
 .div-pickup {
   color: black;
   position: absolute;
@@ -18,6 +19,23 @@
   right: 50%;
   width: 260px;
   height: auto;
+  border: 2px solid white;
+  background-color: white;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding: 5px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  box-sizing: border-box;
+}
+.driver-box {
+  color: black;
+  position: absolute;
+  bottom: 100px;
+  right: 50%;
+  width: 300px;
+  height: 100px;
   border: 2px solid white;
   background-color: white;
   transform: translate(50%, 50%);
