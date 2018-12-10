@@ -33,19 +33,21 @@ app.post('/api/postList', (req, res) => {
 
 app.post('/ride/rideRequest', (req, res) => {
    console.log('ride request', req.body);
-   var p = Sequelize.fn('ST_GeomFromText', 'POINT(52.458415 16.904740)');
-   req.body.pickup_latlng = p;
-   req.body.dropoff_latlng = p;
-   console.log('p',p);
+   //var p = Sequelize.fn('ST_GeomFromText', 'POINT(52.458415 16.904740)');
+   var _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
+   var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
+
+   req.body.pickup_latlng = _pickup_latlng;
+   req.body.dropoff_latlng = _dropoff_latlng;
+   console.log('p',_pickup_latlng);
    const ride_request = models.riderequests.build(req.body); 
    ride_request.save().then(() => {
       console.log('ride request ', 'saved');
+      models.riderequests.findOne({ where: {user_id: '7141'} }).then(ride => {
+        console.log('resutl', ride.dataValues.pickup_latlng);
+       });
    });
 
-   models.riderequests.findOne({ where: {user_id: '4141'} }).then(project => {
-    // project will be the first entry of the Projects table with the title 'aProject' || null
-    console.log('resutl', project.dataValues.pickup_latlng);
-  })
    var driver =  {
         id: '1',
         driver_name : 'Nati Sahle',

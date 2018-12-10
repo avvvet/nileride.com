@@ -47,13 +47,13 @@ class DropOffMap extends Component {
 
     rideRequest = (latlng) => {
         var objRideRequest = {
-            user_id: '4141',
+            user_id: '7141',
             driver_id: '0',
-            pickup_latlng: this.state.pickup_latlng,
-            dropoff_latlng: this.state.dropoff_latlng,
-            distance: this.state.route_distance,
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
+            route_distance: this.state.route_distance,
             route_time: this.state.route_time,
-            price: this.state.route_price,
+            route_price: this.state.route_price,
             status: 1
         };
 
