@@ -1,15 +1,20 @@
 const path = require('path');
 const http = require('http');
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const socketIO = require('socket.io');
 const models = require('./models');
 const Sequelize = require('sequelize');
-
+const {SHA256} = require('crypto-js');
+const jwt = require('jsonwebtoken');
 const publicPath = path.join(__dirname, '../client/build');
 
 const port = process.env.PORT || 5000;
 
+var validator = require('validator');
+var {authenticate} = require('./middleware/authenticate');
+var _ = require('lodash');
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
@@ -17,6 +22,9 @@ var io = socketIO(server);
 app.use(bodyParser.json());
 app.use(express.static(publicPath));
 
+app.get('/driver/ride', authenticate, (req, res) => {
+   res.send(req.driver);
+});
 
 // An api endpoint that returns a short list of items
 app.get('/api/getList', (req,res) => {
@@ -58,6 +66,46 @@ app.post('/ride/rideRequest', (req, res) => {
         driver_pic : '/assets/awet-ride-driver.jpeg'
     };
     res.json(driver);
+});
+
+//driver end point
+app.post('/driver', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password', 'token']);
+  body.token = jwt.sign(body.email, 'JESUSMYHEALER');
+  bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(body.password, salt, (err, hash) => {
+          body.password = hash;
+          console.log('hash', hash);
+      });
+  });
+  console.log('create driver', body);
+
+  var driver = models.drivers.build(body);
+  
+  driver.save().then((driver)=> {
+    res.header('x-auth', driver.token).send(driver);
+  }, (err) => {
+      console.log('er', err.errors[0]);
+      res.status(400).send(err.errors[0]);
+  }).catch((e) => {
+      res.status(400).send(e);
+  });
+});
+
+app.post('driver/status', (req, res) => {
+    console.log('online_status', req.body);
+    var driver_id = req.body.driver.driver_id;
+    //lets find the the driver id
+    models.drivers.findById(driver_id).then(driver => {
+        console.log(driver);
+    });
+
+    //update it 
+    task.title = 'foooo'
+    task.description = 'baaaaaar'
+    task.save({fields: ['title']}).then(() => {
+    // title will now be 'foooo' but description is the very same as before
+})
 });
 
 io.on('connect', (socket)=> {
