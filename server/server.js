@@ -69,6 +69,36 @@ app.post('/ride/rideRequest', (req, res) => {
 });
 
 //driver end point
+app.post('/driver/login', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  //lets get the driver by email
+  models.drivers.findOne({ where : {email: body.email}}).then( (driver) => {
+     if(!driver) {
+
+     }
+     
+     let PromisePasswordCompare = new Promise((resolve, reject) => {
+       bcrypt.compare(body.password, driver.password, (err, compareFlag) => {
+           if(err){
+               reject(err);
+           } else {
+               resolve(compareFlag);
+           }
+       });
+     });
+     
+     PromisePasswordCompare.then((compareFlag) => {
+         if(compareFlag === true){
+            res.header('x-auth', driver.token).send(driver);
+         } else {
+             res.status(401).send();
+         }
+     })
+
+  });
+ 
+});
+
 app.post('/driver', (req, res) => {
   var body = _.pick(req.body, ['email', 'password', 'token']);
   body.token = jwt.sign(body.email, 'JESUSMYHEALER');
