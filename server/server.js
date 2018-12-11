@@ -72,23 +72,30 @@ app.post('/ride/rideRequest', (req, res) => {
 app.post('/driver', (req, res) => {
   var body = _.pick(req.body, ['email', 'password', 'token']);
   body.token = jwt.sign(body.email, 'JESUSMYHEALER');
-  bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(body.password, salt, (err, hash) => {
-          body.password = hash;
-          console.log('hash', hash);
-      });
-  });
-  console.log('create driver', body);
-
-  var driver = models.drivers.build(body);
   
-  driver.save().then((driver)=> {
-    res.header('x-auth', driver.token).send(driver);
-  }, (err) => {
-      console.log('er', err.errors[0]);
-      res.status(400).send(err.errors[0]);
-  }).catch((e) => {
-      res.status(400).send(e);
+  let PromiseHashedPassword = new Promise((res, rej) => {
+    bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(body.password, salt, (err, hash) => {
+            if(err) {
+                rej(err);
+            } else {
+                body.password = hash;
+                res(body);
+            }
+        });
+    });
+  });
+ 
+  PromiseHashedPassword.then((_body) => {
+    var driver = models.drivers.build(_body);
+    driver.save().then((driver)=> {
+        res.header('x-auth', driver.token).send(driver);
+      }, (err) => {
+          console.log('er', err.errors[0]);
+          res.status(400).send(err.errors[0]);
+      }).catch((e) => {
+          res.status(400).send(e);
+      });
   });
 });
 
