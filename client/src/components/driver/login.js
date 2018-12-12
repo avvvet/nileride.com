@@ -1,11 +1,29 @@
 import React, { Component } from 'react';
 import {Button, Grid, Row, Col, PageHeader, FormGroup} from 'react-bootstrap';
 import ApplyToDrive from './apply_to_drive';
+import DriverLoginForm from './driver_login';
 
 class DriverLogin extends Component {
+  constructor(){
+    super();
+
+    this.state = {
+      auth: ''
+    }
+    localStorage.setItem("auth", '');
+  }
+
+
   render() {
+    const auth = localStorage.getItem("auth");
+    console.log('received token', auth);
     return(
-        <Grid>
+     <div>
+       {auth ? (
+         <div> Driver dashboard </div>
+       ) : (
+         <div>
+           <Grid>
             <Row>
               <Col xs={12} sm={6} md={12}>
                 <PageHeader>
@@ -16,14 +34,22 @@ class DriverLogin extends Component {
 
             <Row>
               <Col xs={12} sm={6} md={6}>
-                <ApplyToDrive></ApplyToDrive>
+                <div className="driverApplyBox">
+                  <ApplyToDrive></ApplyToDrive>
+                </div>
+                
               </Col>
 
               <Col xs={12} sm={6} md={6}>
-                 driver login
+                <div className="driverLoginBox">
+                  <DriverLoginForm></DriverLoginForm>
+                </div>
               </Col>
             </Row>
-        </Grid>
+          </Grid>
+         </div>
+       )} 
+     </div>
     );
 
   }

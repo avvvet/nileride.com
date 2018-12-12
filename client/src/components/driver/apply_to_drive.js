@@ -1,6 +1,7 @@
 import React , { Component } from 'react';
 import { render } from 'react-dom';
-import {Grid, Row, Col, FormGroup, FormControl, ControlLabel, HelpBlock, PageHeader, Button, Alert} from 'react-bootstrap';
+import  { Redirect } from 'react-router-dom'
+import {Grid, Row, Col, FormGroup, FormControl, ControlLabel, Tooltip, PageHeader, Button, Alert} from 'react-bootstrap';
 import $ from 'jquery';
 
 class ApplyToDrive extends Component {
@@ -14,7 +15,8 @@ class ApplyToDrive extends Component {
             password: '',
             re_password: '',
             plateNo: '',
-            errors: []
+            errors: [],
+            auth: false
         }
     }
 
@@ -95,7 +97,12 @@ class ApplyToDrive extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-              render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('applyFormError'));
+              this.setState({
+                  auth: data.token
+              })  
+              localStorage.setItem("auth", data.token);
+              console.log('token', data.token);
+              render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('applyFormError'));
               console.log("driver applied success", data);
               
             }.bind(this),
@@ -107,120 +114,127 @@ class ApplyToDrive extends Component {
 
 
     render(){
+        if(this.state.auth) {
+            return <Redirect to='/driver'  />
+        }
+        
         return(
-          <div>
-              <Grid fluid>
+            <div>
+                <Grid fluid>
                 <Row>
-                  <Col xs={12} sm={12} md={12}>
-                    <PageHeader>
-                      APPLY TO DRIVE
-                     </PageHeader>
-                  </Col>
+                    <Col xs={12} sm={12} md={12}>
+                    <div>
+                        <PageHeader>
+                            APPLY TO DRIVE
+                            <Tooltip placement="bottom" className="in" id="tooltip-bottom">
+                              New driver apply here.
+                            </Tooltip>
+                        </PageHeader>
+                    </div>
+                    </Col>
                 </Row> 
                 <form>
                 <Row>
-                  <Col xs={12} sm={12} md={12}>
+                    <Col xs={12} sm={12} md={12}>
                     <div id="applyFormError"></div>
-                  </Col> 
+                    </Col> 
                 </Row>
 
                 <Row>
-                  <Col xs={12} sm={6} md={6}>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>First Name</ControlLabel>
                     <FormControl
-                     name="firstName"
-                     type="text"
-                     value={this.state.firstName}
-                     placeholder="First Name"
-                     onChange={e => this.change(e)}
+                    name="firstName"
+                    type="text"
+                    value={this.state.firstName}
+                    placeholder="First Name"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
-                  <Col xs={12} sm={6} md={6}>
+                    </Col>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>Father Name</ControlLabel>
                     <FormControl
-                     name="middleName"
-                     type="text"
-                     value={this.state.middleName}
-                     placeholder="Father Name"
-                     onChange={e => this.change(e)}
+                    name="middleName"
+                    type="text"
+                    value={this.state.middleName}
+                    placeholder="Father Name"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
+                    </Col>
                 </Row>
 
                 <Row>
-                  <Col xs={12} sm={6} md={6}>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>Email</ControlLabel>
                     <FormControl
-                     name="email"
-                     type="text"
-                     value={this.state.email}
-                     placeholder="email address"
-                     onChange={e => this.change(e)}
+                    name="email"
+                    type="text"
+                    value={this.state.email}
+                    placeholder="email address"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
-                  <Col xs={12} sm={6} md={6}>
+                    </Col>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>Mobile</ControlLabel>
                     <FormControl
-                     name="mobile"
-                     type="text"
-                     value={this.state.mobile}
-                     placeholder="Mobile number"
-                     onChange={e => this.change(e)}
+                    name="mobile"
+                    type="text"
+                    value={this.state.mobile}
+                    placeholder="Mobile number"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
+                    </Col>
                 </Row>
 
                 <Row>
-                  <Col xs={12} sm={6} md={6}>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>Password</ControlLabel>
                     <FormControl
-                     name="password"
-                     type="password"
-                     value={this.state.password}
-                     placeholder="Password"
-                     onChange={e => this.change(e)}
+                    name="password"
+                    type="password"
+                    value={this.state.password}
+                    placeholder="Password"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
-                  <Col xs={12} sm={6} md={6}>
+                    </Col>
+                    <Col xs={12} sm={6} md={6}>
                     <FormGroup>
                     <ControlLabel>Retype Password</ControlLabel>
                     <FormControl
-                     name="re_password"
-                     type="password"
-                     value={this.state.re_password}
-                     placeholder="Retype password"
-                     onChange={e => this.change(e)}
+                    name="re_password"
+                    type="password"
+                    value={this.state.re_password}
+                    placeholder="Retype password"
+                    onChange={e => this.change(e)}
                     >
                     </FormControl>
                     </FormGroup>
-                  </Col>
+                    </Col>
                 </Row>
                 <Row className="text-center">
-                  <Col xs={12} sm={12} md={12}>
-                  <Button type="submit" bsSize="large" bsStyle="success" onClick={e => this.onDriverApply(e)}  >APPLY TO DRIVE</Button>
-                  </Col> 
+                    <Col xs={12} sm={12} md={12}>
+                    <Button type="submit" bsSize="large" bsStyle="success" onClick={e => this.onDriverApply(e)}  >APPLY TO DRIVE</Button>
+                    </Col> 
                 </Row>
 
-
                 </form>
-              </Grid>
-          </div>
-
+                </Grid>
+            </div>
         );
     }
 }
