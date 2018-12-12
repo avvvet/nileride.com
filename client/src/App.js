@@ -5,7 +5,9 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import Menu from './components/menu';
 import PickUp from './components/pick_up';
 import DropOff from './components/drop_off';
-import DriverLogin from './components/driver/driver_login';
+import DriverPage from './components/driver/driver_page';
+import DriverLogin from './components/driver/login';
+
 import './App.css';
 
 
@@ -32,7 +34,8 @@ class App extends React.Component {
                 <Route path="/" component={PickUp} exact />
                 <Route path="/dropoff" component={DropOff} exact/>
 
-                <Route path="/driver" component={DriverLogin} exact/>
+                <Route path="/driver" component={DriverPage} exact/>
+                <Route path="/driver/login" component={DriverLogin} exact/>
             </Switch>
           </div>
         </BrowserRouter>  

@@ -91,9 +91,9 @@ app.post('/driver/login', (req, res) => {
          if(compareFlag === true){
             res.header('x-auth', driver.token).send(driver);
          } else {
-             res.status(401).send();
+            res.status(401).send();
          }
-     })
+     });
 
   });
  
@@ -129,6 +129,38 @@ app.post('/driver', (req, res) => {
   });
 });
 
+//driver-apply
+app.post('/driver/apply', (req, res) => {
+    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'plateNo', 'password', 'token']);
+    body.token = jwt.sign(body.email, 'JESUSMYHEALER');
+    
+    let PromiseHashedPassword = new Promise((res, rej) => {
+      bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(body.password, salt, (err, hash) => {
+              if(err) {
+                  rej(err);
+              } else {
+                  body.password = hash;
+                  res(body);
+              }
+          });
+      });
+    });
+   
+    PromiseHashedPassword.then((_body) => {
+        console.log('new body', _body);
+      var driver = models.drivers.build(_body);
+      driver.save().then((driver)=> {
+          res.header('x-auth', driver.token).send(driver);
+        }, (err) => {
+            console.log('er', err.errors[0]);
+            res.status(400).send(err.errors[0]);
+        }).catch((e) => {
+            res.status(400).send(e);
+        });
+    });
+});
+  
 app.post('driver/status', (req, res) => {
     console.log('online_status', req.body);
     var driver_id = req.body.driver.driver_id;
@@ -142,7 +174,7 @@ app.post('driver/status', (req, res) => {
     task.description = 'baaaaaar'
     task.save({fields: ['title']}).then(() => {
     // title will now be 'foooo' but description is the very same as before
-})
+    })
 });
 
 io.on('connect', (socket)=> {
