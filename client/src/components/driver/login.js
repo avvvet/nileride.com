@@ -13,7 +13,6 @@ class DriverLogin extends Component {
     localStorage.setItem("auth", '');
   }
 
-
   render() {
     const auth = localStorage.getItem("auth");
     console.log('received token', auth);
@@ -25,10 +24,16 @@ class DriverLogin extends Component {
          <div>
            <Grid>
             <Row>
-              <Col xs={12} sm={6} md={12}>
+              <Col xs={12} sm={12} md={12}>
                 <PageHeader>
                     AWET
                 </PageHeader>
+              </Col>
+            </Row>
+
+            <Row className="text-center">
+              <Col xs={12} sm={12} md={12}>
+                <div id="FormError"></div>
               </Col>
             </Row>
 

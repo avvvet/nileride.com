@@ -74,7 +74,7 @@ app.post('/driver/login', (req, res) => {
   //lets get the driver by email
   models.drivers.findOne({ where : {email: body.email}}).then( (driver) => {
      if(!driver) {
-
+        res.status(401).send();
      }
      
      let PromisePasswordCompare = new Promise((resolve, reject) => {

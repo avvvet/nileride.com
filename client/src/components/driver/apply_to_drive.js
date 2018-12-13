@@ -65,7 +65,7 @@ class ApplyToDrive extends Component {
         const err = this.validateDriverApply();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('applyFormError'));
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
         } else {
             var driver = {
                 firstName: this.state.firstName,
@@ -102,7 +102,7 @@ class ApplyToDrive extends Component {
               })  
               localStorage.setItem("auth", data.token);
               console.log('token', data.token);
-              render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('applyFormError'));
+              render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('FormError'));
               console.log("driver applied success", data);
               
             }.bind(this),
@@ -125,7 +125,7 @@ class ApplyToDrive extends Component {
                     <Col xs={12} sm={12} md={12}>
                     <div>
                         <PageHeader>
-                            APPLY TO DRIVE
+                            NEW DRIVER
                             <Tooltip placement="bottom" className="in" id="tooltip-bottom">
                               New driver apply here.
                             </Tooltip>
@@ -134,12 +134,6 @@ class ApplyToDrive extends Component {
                     </Col>
                 </Row> 
                 <form>
-                <Row>
-                    <Col xs={12} sm={12} md={12}>
-                    <div id="applyFormError"></div>
-                    </Col> 
-                </Row>
-
                 <Row>
                     <Col xs={12} sm={6} md={6}>
                     <FormGroup>
