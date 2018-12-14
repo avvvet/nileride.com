@@ -18,7 +18,8 @@ class PickUpMap extends Component {
             },
             map : '',
             markersLayer: '',
-            list: []
+            list: [],
+            currentDrivers : []
         }
     }
     
@@ -29,6 +30,25 @@ class PickUpMap extends Component {
         .then(list => this.setState({ list }))
     }
     
+    getDrivers = (map) => {
+        $.ajax({ 
+            type:"GET",
+            url:"/drivers",
+            contentType: "application/json",
+            success: function(currentDrivers, textStatus, jqXHR) {
+             for (var i = 0; i < currentDrivers.length; i++) {
+                    L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]])
+                     .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
+                     .addTo(map);
+             }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.log('getdrivers error', err.toString());
+                
+            }.bind(this)
+        });  
+    }
+
     componentDidMount(){
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
        // map.locate({setView: true, maxZoom: 17});
@@ -58,6 +78,10 @@ class PickUpMap extends Component {
         }
         
         map.on('locationerror', onLocationError);
+
+        this.getDrivers(map);
+        
+        
         
     };
 

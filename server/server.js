@@ -163,6 +163,30 @@ app.post('/driver/updateLocation', (req, res) => {
     }
 });
 
+//get drivers location
+app.get('/drivers', (req, res) => {
+    models.drivers.findAll({ 
+        attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation'],
+        where: {status: null} 
+    }).then(drivers => {
+        let data = [];
+        var tmpObj;
+        let objDrivers = drivers.map(driver => {
+             tmpObj = {
+                 firstName: driver.firstName,
+                 middleName: driver.middleName,
+                 mobile: driver.mobile,
+                 plateNo: driver.plaleNO,
+                 currentLocation : driver.currentLocation.coordinates
+             }
+            return tmpObj;
+            
+        });
+       res.send(objDrivers);
+    });
+});
+
+
 //driver-get
 app.get('/driver/get', (req, res) => {
     var token = req.header('x-auth');

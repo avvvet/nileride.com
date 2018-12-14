@@ -114,60 +114,60 @@ class DropOffMap extends Component {
             .catch((error) =>
             {
                 console.error(error); 
-            });        
+            }); 
         }); 
 
         if(this.state.dropoff_flag && this.state.pickup_flag) {
             var latlng1 = this.state.pickup_latlng;
             var latlng2 = this.state.dropoff_latlng;
-            shortesRoute(latlng1, latlng2);
-        }
- 
-        function shortesRoute(latlng1, latlng2){
-            L.Routing.control({
-                waypoints: [
-                 latlng1,
-                 latlng2
-                ]
-            })
-            .on('routesfound', function(e) {
-                var routes = e.routes;
-                var _distance = routes[0].summary.totalDistance;
-                var _ride_time = routes[0].summary.totalTime;
-                
-                _distance = Number.parseFloat(_distance/1000).toFixed(2);
-                _ride_time = timeConvert(Number.parseInt(_ride_time));
-
-                this.setState({
-                    route_distance : _distance,
-                    route_price : _ride_price,
-                    route_time : _ride_time 
-                });
-                
-                var price_per_km = 19;
-                var _ride_price = Number.parseFloat(_distance * price_per_km).toFixed(2);
-                
-                document.getElementById('ride_price').innerHTML = _ride_price + ' Birr';
-                document.getElementById('distance').innerHTML = _distance + ' km';
-                document.getElementById('ride_time').innerHTML = _ride_time;
-            })
-            .addTo(map);  
-
-        }
-
-       function timeConvert(n) {
-           var num = n;
-           var hours = (num / 3600);
-           var rhours = Math.floor(hours);
-           var minutes = (hours - rhours) * 60;
-           var rminutes = Math.round(minutes);
-           
-           var hDisplay = rhours > 0 ? rhours + " hr" : "";
-           var mDisplay = rminutes > 0 ? rminutes + " min" : "";
-           return hDisplay + mDisplay; 
+            this.shortesRoute(latlng1, latlng2);
         }
     }
+
+    shortesRoute = (latlng1, latlng2) => {
+        var map = this.state.map;
+        L.Routing.control({
+            waypoints: [
+             latlng1,
+             latlng2
+            ]
+        })
+        .on('routesfound', this.routeFound)
+        .addTo(map);  
+    }
     
+    routeFound =(e) => {
+        var routes = e.routes;
+        var _distance = routes[0].summary.totalDistance;
+        var _ride_time = routes[0].summary.totalTime;
+        
+        _distance = Number.parseFloat(_distance/1000).toFixed(2);
+       var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+
+        this.setState({
+             route_distance : Number.parseFloat(_distance).toFixed(2),
+             route_price : _ride_price,
+             route_time : _ride_time 
+         });
+
+        function timeConvert(n) {
+            var num = n;
+            var hours = (num / 3600);
+            var rhours = Math.floor(hours);
+            var minutes = (hours - rhours) * 60;
+            var rminutes = Math.round(minutes);
+            
+            var hDisplay = rhours > 0 ? rhours + " hr" : "";
+            var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+            return hDisplay + mDisplay; 
+         }
+        var price_per_km = 19;
+        var _ride_price = Number.parseFloat(_distance * price_per_km).toFixed(2);
+        
+        document.getElementById('ride_price').innerHTML = _ride_price + ' Birr';
+        document.getElementById('distance').innerHTML = _distance + ' km';
+        document.getElementById('ride_time').innerHTML = _ride_time_string;
+    }
     NearestDriverComponent = ({driver}) => {
         return(
             <div>
