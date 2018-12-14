@@ -70,9 +70,13 @@ app.post('/ride/rideRequest', (req, res) => {
 
 //driver end point
 app.post('/driver/login', (req, res) => {
+  console.log('reqqqqq', req.body);
+
   var body = _.pick(req.body, ['email', 'password']);
+  console.log('data', body);
   //lets get the driver by email
   models.drivers.findOne({ where : {email: body.email}}).then( (driver) => {
+    console.log('driveeeeerrr', driver);
      if(!driver) {
         res.status(401).send();
      }
@@ -93,6 +97,9 @@ app.post('/driver/login', (req, res) => {
          } else {
             res.status(401).send();
          }
+     },(r) => {
+         console.log('rrr', r);
+
      });
 
   });
@@ -127,6 +134,51 @@ app.post('/driver', (req, res) => {
           res.status(400).send(e);
       });
   });
+});
+
+//driver location updatet
+app.post('/driver/updateLocation', (req, res) => {
+    console.log("hi hi");
+    var token = req.header('x-auth');
+    var _latlng = Sequelize.fn('ST_GeomFromText', req.body._latlng);
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'JESUSMYHEALER');
+        models.drivers.findOne({ where: {email: decoded} }).then(driver => {
+          if(!driver) {
+            res.send(401).send();
+          }
+          
+          models.drivers.update(
+            { currentLocation: _latlng },
+            { where: { email: decoded } }
+          ).then(result => {
+             console.log('update result', result);
+          }).catch(err => {
+             console.log('update error', err);
+          });
+        });
+    } catch (e) {
+      res.status(401).send();
+    }
+});
+
+//driver-get
+app.get('/driver/get', (req, res) => {
+    var token = req.header('x-auth');
+    console.log('yesyes',token);
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'JESUSMYHEALER');
+        models.drivers.findOne({ where: {email: decoded} }).then(driver => {
+          if(!driver) {
+            res.send(401).send();
+          }
+          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'status']));  
+        });
+    } catch (e) {
+      res.status(401).send();
+    }
 });
 
 //driver-apply

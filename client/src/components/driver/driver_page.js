@@ -13,6 +13,7 @@ class DriverLogin extends Component {
    }
 
    render(){
+       console.log('driver page');
        return(
            <div>
               <DriverLocation ></DriverLocation>

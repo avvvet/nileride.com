@@ -97,12 +97,13 @@ class ApplyToDrive extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+              localStorage.setItem("auth", data.token);
               this.setState({
                   auth: data.token
               })  
-              localStorage.setItem("auth", data.token);
+              
               console.log('token', data.token);
-              render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('FormError'));
+              //render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('FormError'));
               console.log("driver applied success", data);
               
             }.bind(this),
