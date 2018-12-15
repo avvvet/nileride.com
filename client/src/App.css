@@ -66,6 +66,26 @@
   box-sizing: border-box;
 }
 
+.user-dashboard {
+  color: #5d5555;
+  position: absolute;
+  top: -53px;
+  right: 50%;
+  width: 260px;
+  height: 120px;
+  border: 2px solid white;
+  background-color: #b1e08e;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 17px;
+  padding-left: 5px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  box-sizing: border-box;
+}
+
 .badge.charge {
   background-color: #f86d20;
 }

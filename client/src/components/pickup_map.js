@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
-import {Button} from 'react-bootstrap';
+import {Button, Grid, Row, Col, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
 import {NavLink} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
@@ -10,16 +10,23 @@ class PickUpMap extends Component {
     constructor(){
         super();
         this.state = {
-            pickup_flag: false,
+            pickup_flag: 'off',
+            dropoff_flag: 'off',
             pickup_location : 'Select your pickup location',
             pickup_latlng : {
+                lat: 0,
+                lng: 0
+            },
+            dropoff_latlng : {
                 lat: 0,
                 lng: 0
             },
             map : '',
             markersLayer: '',
             list: [],
-            currentDrivers : []
+            currentDrivers : [],
+            pickupText : '',
+            dropoffText : ''
         }
     }
     
@@ -31,13 +38,23 @@ class PickUpMap extends Component {
     }
     
     getDrivers = (map) => {
+        var awetRideIcon = L.icon({
+            iconUrl: '/assets/awet-ride-marker-1.png',
+            shadowUrl: '',
+        
+            iconSize:     [80, 49], // size of the icon
+            shadowSize:   [50, 64], // size of the shadow
+            iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62],  // the same for the shadow
+            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+        });
         $.ajax({ 
             type:"GET",
             url:"/drivers",
             contentType: "application/json",
             success: function(currentDrivers, textStatus, jqXHR) {
              for (var i = 0; i < currentDrivers.length; i++) {
-                    L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]])
+                    L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
                      .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
                      .addTo(map);
              }
@@ -98,17 +115,29 @@ class PickUpMap extends Component {
             })
             .then((result : NominatimResponse) =>
             {
-                
-                markersLayer.clearLayers();
-                marker = L.marker(e.latlng).addTo(markersLayer).bindPopup("<div class='popup-title'> Your pickup location is </div>" + "<div class='popup-content'>" + result.display_name + "</div>" ).openPopup();
-                markersLayer.addLayer(marker); 
-                this.setState({
-                    pickup_location: result.display_name,
-                    pickup_latlng : e.latlng, 
-                    pickup_flag: true,
-                });
-                var session_pickup = e.latlng;
-                localStorage.setItem("session_pickup", JSON.stringify(session_pickup));
+                if(this.state.pickup_flag === 'off'){
+                    //markersLayer.clearLayers();
+                    marker = L.marker(e.latlng).addTo(markersLayer).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
+                    markersLayer.addLayer(marker); 
+                    this.setState({
+                        pickupText: result.display_name,
+                        pickup_latlng : e.latlng, 
+                        pickup_flag: 'on',
+                    });
+                    var session_pickup = e.latlng;
+                    localStorage.setItem("session_pickup", JSON.stringify(session_pickup));
+                } else if(this.state.pickup_flag === 'on' && this.state.dropoff_flag === 'off'){
+                    marker = L.marker(e.latlng).addTo(markersLayer).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
+                    markersLayer.addLayer(marker); 
+                    this.setState({
+                        dropoffText: result.display_name,
+                        dropoff_latlng : e.latlng, 
+                        dropoff_flag: 'on',
+                    });
+                }
+
+                console.log('pickup', this.state.pickup_flag);
+                console.log('dropoff', this.state.dropoff_flag);
             })
             .catch((error) =>
             {
@@ -116,16 +145,58 @@ class PickUpMap extends Component {
             });        
         }); 
     }
-    
+
+    change = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
     render(){    
         return(
             <div>
-              <div className="mapid" id="mapid"></div>
-              <div className="div-pickup">
-                <div className="style-1"><h6>First step : Pickup location</h6></div>
-                <div className="div-pickup-address">{this.state.pickup_location}</div>
-                <div className="div-pickup-btn-box"><NavLink to="/dropoff"><Button bsStyle="success" bsSize="small" block>Continue</Button></NavLink></div> 
+              <div className="user-dashboard">
+                 <Grid fluid>
+                   <Row>
+                       <Col xs={9} sm={9} md={9}>
+                            <FormGroup>
+                            <FormControl
+                            bsSize="sm"
+                            name="pickupText"
+                            type="text"
+                            value={this.state.pickupText}
+                            placeholder="Select pickup"
+                            onChange={e => this.change(e)}
+                            >
+                            </FormControl>
+                            </FormGroup>
+                            </Col>
+                       <Col xs={1} sm={1} md={1}>
+                          <Button bsSize="sm" bsStyle="link">Cancel</Button>
+                       </Col>
+                   </Row>
+
+                   <Row>
+                       <Col xs={9} sm={9} md={9}>
+                            <FormGroup>
+                            <FormControl
+                            bsSize="sm"
+                            name="dropoffText"
+                            type="text"
+                            value={this.state.dropoffText}
+                            placeholder="Select your dropoff"
+                            onChange={e => this.change(e)}
+                            >
+                            </FormControl>
+                            </FormGroup>
+                            </Col>
+                       <Col xs={1} sm={1} md={1}>
+                           <Button bsSize="sm" bsStyle="link">Cancel</Button>
+                       </Col>
+                   </Row>
+                 </Grid>
               </div>
+              <div className="mapid" id="mapid"></div>
             </div>
         );
     }

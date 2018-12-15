@@ -28,6 +28,7 @@ class DropOffMap extends Component {
             route_price : 0,
             route_distance : 0,
             route_time : 0,
+            isRouteFound : false,
             map : '',
             markersLayer: '',
             driver: {
@@ -117,19 +118,19 @@ class DropOffMap extends Component {
             }); 
         }); 
 
-        if(this.state.dropoff_flag && this.state.pickup_flag) {
+        if(this.state.dropoff_flag && this.state.pickup_flag & this.state.isRouteFound === false) {
             var latlng1 = this.state.pickup_latlng;
             var latlng2 = this.state.dropoff_latlng;
-            this.shortesRoute(latlng1, latlng2);
+            this.findRoute(latlng1, latlng2);
         }
     }
 
-    shortesRoute = (latlng1, latlng2) => {
+    findRoute = (latlng1, latlng2) => {
         var map = this.state.map;
         L.Routing.control({
             waypoints: [
-             latlng1,
-             latlng2
+             L.latLng(latlng1),
+             L.latLng(latlng2)
             ]
         })
         .on('routesfound', this.routeFound)
@@ -147,7 +148,8 @@ class DropOffMap extends Component {
         this.setState({
              route_distance : Number.parseFloat(_distance).toFixed(2),
              route_price : _ride_price,
-             route_time : _ride_time 
+             route_time : _ride_time,
+             isRouteFound : true 
          });
 
         function timeConvert(n) {
@@ -168,6 +170,7 @@ class DropOffMap extends Component {
         document.getElementById('distance').innerHTML = _distance + ' km';
         document.getElementById('ride_time').innerHTML = _ride_time_string;
     }
+
     NearestDriverComponent = ({driver}) => {
         return(
             <div>

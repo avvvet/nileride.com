@@ -32,7 +32,6 @@ class DriverLocation extends Component {
    }
    
    getDriver = (token) => {
-       console.log('gggggg', token);
     $.ajax({ 
         type:"GET",
         url:"/driver/get",
