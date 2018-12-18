@@ -30,7 +30,9 @@ class PickUpMap extends Component {
             list: [],
             currentDrivers : [],
             pickupText : '',
-            dropoffText : ''
+            dropoffText : '',
+            locationFoundFlag : false,
+            statusFlag : false
         }
     }
     
@@ -70,6 +72,26 @@ class PickUpMap extends Component {
         });  
     }
 
+    getNearestDrivers = (pickup_latlng) => {
+        console.log('test getNearestDriver function');
+        var objRideRequest = {
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/drivers/nearest",
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(drivers, textStatus, jqXHR) {
+                console.log("Nearest driver object", drivers);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error("erroorror", err.toString());
+            }.bind(this)
+        });  
+    }
+
     componentDidMount(){
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         map.locate({setView: true, maxZoom: 17});
@@ -84,10 +106,12 @@ class PickUpMap extends Component {
         this.setState({markersLayer: markersLayer});
 
         function onLocationFound(e) {
+            
+            console.log('current location', e.latlng);
             var radius = e.accuracy / 128;
         
             L.marker(e.latlng).addTo(map)
-                .bindPopup("YOU are" + radius + " meters from this point").openPopup();
+                .bindPopup("You are " + radius + " meters from this point").openPopup();
         
             //L.circle(e.latlng, radius).addTo(map);
         }
@@ -100,7 +124,8 @@ class PickUpMap extends Component {
         
         map.on('locationerror', onLocationError);
 
-        this.getDrivers(map);  
+        this.getDrivers(map);
+        
     };
 
     componentDidUpdate(){
@@ -125,8 +150,7 @@ class PickUpMap extends Component {
                         pickup_latlng : e.latlng, 
                         pickup_flag: 'on',
                     });
-                    var session_pickup = e.latlng;
-                    localStorage.setItem("session_pickup", JSON.stringify(session_pickup));
+                    this.getNearestDrivers(e.latlng);
                 } else if(this.state.pickup_flag === 'on' && this.state.dropoff_flag === 'off'){
                     marker = L.marker(e.latlng).addTo(markersLayer).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
                     markersLayer.addLayer(marker); 
@@ -218,10 +242,10 @@ class PickUpMap extends Component {
             data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-                console.log("Nearest driver", data);
-                document.getElementById('div-request').style.visibility = 'visible';
-                this.setState({driver: data});
-                
+                // setInterval(this.requestWait(true).bind(this), 1000)
+                 setInterval(this.requestWait, 1000);
+                console.log("ride request", data);
+    
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err.toString());
@@ -233,6 +257,17 @@ class PickUpMap extends Component {
         this.setState({
             [e.target.name]: e.target.value
         })
+    }
+    
+    requestWait = () => {
+        if(this.state.statusFlag){
+           document.getElementById("ride-request-dashboard").style.visibility = "hidden";
+           this.setState({statusFlag : false});
+        } else {
+            document.getElementById("ride-request-dashboard").style.visibility = "visible";
+            this.setState({statusFlag : true});
+        }
+        
     }
 
     render(){    
@@ -312,6 +347,11 @@ class PickUpMap extends Component {
                   <div id="div-process" className="div-process">
                    <div className="div-pickup-btn-box"></div> 
                   </div>
+              </div>
+              
+              <div className="ride-request-dashboard" id="ride-request-dashboard"> 
+                    Connecting drivers <br />
+                    wait !
               </div>
 
               <div className="mapid" id="mapid"></div>

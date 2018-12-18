@@ -27,7 +27,14 @@ class DriverLocation extends Component {
                email: '',
                mobile: '',
                status: ''
-           }
+           },
+           ridePrice: '',
+           rideDistance: '',
+           rideTime: '',
+           rideUser: '',
+           userMobile: '',
+           userPic: '',
+           checkForRideTimer : ''
        }
    }
    
@@ -98,7 +105,11 @@ class DriverLocation extends Component {
 
     var markersLayer = new L.LayerGroup().addTo(map);
     this.setState({markersLayer: markersLayer});
-    
+
+    this.setState({
+        checkForRideTimer : setInterval(this.checkForRide, 5000)
+    });
+        
    }
 
    componentDidUpdate() {
@@ -144,6 +155,44 @@ class DriverLocation extends Component {
     });  
    }
 
+   checkForRide = () => {
+        console.log('checking for ride',localStorage.getItem("auth"));
+        var driver = {
+            status : 1
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/check_ride",
+            headers: { 'x-auth': localStorage.getItem("auth")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+                 if(!data){
+                    let PromiseSetRideData = new Promise((res, rejects)=>{
+                        this.setState({
+                            ridePrice: "120 br",
+                            rideDistance: "18km",
+                            rideTime: "18sec",
+                            rideUser: 'Dawit',
+                            userMobile: "0911404040",
+                            userPic: "/assets/awet-ride-driver.jpeg"
+                         });
+                         res(true);
+                    }); 
+                    PromiseSetRideData.then(()=>{
+                        document.getElementById('check-ride-dashboard').style.visibility="visible";
+                        document.getElementById('div-accept-button').style.visibility="visible"; 
+                    });
+                     
+                 }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
     render(){
         
         return(
@@ -171,6 +220,31 @@ class DriverLocation extends Component {
                     </Row>
                 </Grid>
                 </div>
+
+                <div className="check-ride-dashboard" id="check-ride-dashboard"> 
+                <Grid fluid>
+                    <Row>
+                        <Col xs={4} sm={4} md={4}><Image src={this.state.userPic} height={45} circle></Image></Col>
+                        <Col xs={4} sm={4} md={4}>{this.state.rideUser}</Col>
+                        <Col xs={4} sm={4} md={4}>{this.state.userMobile}</Col>
+                    </Row>
+                    <Row>
+                        <Col xs={4} sm={4} md={4}>Price</Col>
+                        <Col xs={4} sm={4} md={4}>Distance</Col>
+                        <Col xs={4} sm={4} md={4}> time</Col>
+                    </Row>
+                    <Row>
+                        <Col xs={4} sm={4} md={4}>{this.state.ridePrice}</Col>
+                        <Col xs={4} sm={4} md={4}>{this.state.rideDistance}</Col>
+                        <Col xs={4} sm={4} md={4}>{this.state.rideTime}</Col>
+                    </Row>
+                </Grid>
+                </div>
+
+                <div id="div-accept-button"  className="div-accept-button">
+                   <Button  bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
+                </div>
+
                 <div className="mapid" id="mapid"></div>
                 
             </div>

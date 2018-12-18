@@ -104,6 +104,61 @@
   box-shadow: 10px 10px 10px gray;
   border-radius: 25px;
   box-sizing: border-box;
+  visibility: visible;
+}
+
+.ride-request-dashboard {
+  color: #ffffff;
+  position: absolute;
+  top: 203px;
+  right: 50%;
+  width: 260px;
+  height: 120px;
+  border: 2px solid white;
+  background-color: gray;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 17px;
+  padding-left: 5px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: visible;
+}
+
+.check-ride-dashboard {
+  color: #ffffff;
+  position: absolute;
+  top: 72px;
+  right: 50%;
+  width: 260px;
+  height: 120px;
+  border: 2px solid white;
+  background-color: #0dc7ef;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 17px;
+  padding-left: 5px;
+  padding-right: 15px;
+  margin: 2px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.div-accept-button {
+  position: absolute;
+  top: 203px;
+  right: 50%;
+  width: 260px;
+  height: 120px;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  margin: 2px;
   visibility: hidden;
 }
 
