@@ -195,14 +195,7 @@ class PickUpMap extends Component {
         var _ride_time = routes[0].summary.totalTime;
         
         _distance = Number.parseFloat(_distance/1000).toFixed(2);
-       var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-
-        this.setState({
-             route_distance : Number.parseFloat(_distance).toFixed(2),
-             route_price : _ride_price,
-             route_time : _ride_time,
-             isRouteFound : true 
-         });
+        var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
 
         function timeConvert(n) {
             var num = n;
@@ -218,6 +211,13 @@ class PickUpMap extends Component {
         var price_per_km = 19;
         var _ride_price = Number.parseFloat(_distance * price_per_km).toFixed(2);
         
+        this.setState({
+            route_distance : Number.parseFloat(_distance).toFixed(2),
+            route_price : _ride_price,
+            route_time : _ride_time,
+            isRouteFound : true 
+        });
+       //lord your are God of order, I beg you father not now.
         document.getElementById('ride-price-dashboard').style.visibility = "visible";
         document.getElementById('ride_price').innerHTML = _ride_price + ' Birr';
         document.getElementById('distance').innerHTML = _distance + ' km';
@@ -227,7 +227,7 @@ class PickUpMap extends Component {
     rideRequest = (latlng) => {
         var objRideRequest = {
             user_id: '7141',
-            driver_id: '0',
+            driver_id: 'eyJhbGciOiJIUzI1NiJ9.YXdldEBnbWFpbC5jb20.5Eu6IK9S86VYqJrrAKZK2I0wCDOFAsbPxbYfaIf4xog',
             pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
             dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
             route_distance: this.state.route_distance,
@@ -242,10 +242,8 @@ class PickUpMap extends Component {
             data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-                // setInterval(this.requestWait(true).bind(this), 1000)
-                 setInterval(this.requestWait, 1000);
+                setInterval(this.requestWait, 1000);
                 console.log("ride request", data);
-    
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err.toString());
@@ -270,6 +268,26 @@ class PickUpMap extends Component {
         
     }
 
+    checkRideStatus = () => {
+        var driver = {
+            status : 7
+        };
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/check_ride_user",
+            headers: { 'x-auth': localStorage.getItem("auth")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+               console.log('ride data ', data);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+
+    }
+    
     render(){    
         return(
             <div>

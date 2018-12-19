@@ -23,7 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.INTEGER
   }, {});
   drivers.associate = function(models) {
-    // PSALMS 91 
+    // PSALMS 91
+    drivers.hasMany(models.riderequests, {
+      foreignKey: 'driver_id'
+    });
   };
   
   return drivers;

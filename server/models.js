@@ -19,8 +19,13 @@ models.sequelize = sequelize;
 models.drivers = require('../models/drivers')(sequelize, Sequelize);
 models.riderequests = require('../models/ride_requests')(sequelize, Sequelize);
 
-//Relations
-//db.pets.belongsTo(db.owners);
-//db.owners.hasMany(db.pets);
+models.riderequests.belongsTo(models.drivers, {
+  foreignKey: 'driver_id',
+  targetKey: 'token'
+});
+models.drivers.hasMany(models.riderequests, {
+  foreignKey: 'driver_id',
+  sourceKey: 'token'
+});
 
 module.exports = models;

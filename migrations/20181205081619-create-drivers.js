@@ -26,7 +26,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       token: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
       },
       mobile: {
         type: Sequelize.STRING

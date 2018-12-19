@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.INTEGER
   }, {});
   ride_requests.associate = function(models) {
-    // associations can be defined here
+    riderequests.belongsTo(models.drivers, {
+      foreignKey: 'driver_id'
+    });
   };
   return ride_requests;
 };

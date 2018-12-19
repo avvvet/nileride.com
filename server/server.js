@@ -47,23 +47,63 @@ app.post('/ride/rideRequest', (req, res) => {
    req.body.dropoff_latlng = _dropoff_latlng;
    
    const ride_request = models.riderequests.build(req.body); 
-   ride_request.save().then(() => {
-      console.log('ride request ', 'saved');
-      models.riderequests.findOne({ where: {user_id: '7141'} }).then(ride => {
-        console.log('resutl', ride.dataValues.pickup_latlng);
-       });
+   ride_request.save().then((ride) => {
+      console.log('ride request ', ride);
+      res.send(ride);
+   }).catch(err => {
+       console.log('ride request save errr', err);
+       res.status(401).send();
    });
+ 
+});
 
-   var driver =  {
-        id: '1',
-        driver_name : 'Nati Sahle',
-        driver_phone : '0911003994',
-        model : 'Lifan x345 i',
-        plate : 'A47839',
-        car_pic : '/assets/awet-ride.jpeg',
-        driver_pic : '/assets/awet-ride-driver.jpeg'
-    };
-    res.json(driver);
+app.post('/ride/accepted', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {driver_id: token, status: 1}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 7 },
+                    { where: { driver_id: token } } ,
+                    {transaction: t}
+                  ).then(result => {
+                     return result;
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          console.log('trsancation commited ', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        console.log('trsancation rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
+});
+
+app.post('/ride/check_ride_user', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    //var token = req.header('x-auth');
+    var token = "7141";
+    models.riderequests.findOne({ 
+        where : {user_id: token, status: body.status},
+        include: [
+            { model: models.drivers, as: 'driver'}
+        ]
+    }).then( (driver) => {
+        console.log('tttttt',driver);
+        res.send(driver);
+    });
 });
 
 app.post('/ride/check_ride', (req, res) => {
@@ -77,7 +117,7 @@ app.post('/ride/check_ride', (req, res) => {
        res.send(ride);
     });
    
-  });
+});
 
 //driver end point
 app.post('/driver/login', (req, res) => {

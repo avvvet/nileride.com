@@ -167,14 +167,14 @@ class DriverLocation extends Component {
             headers: { 'x-auth': localStorage.getItem("auth")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
-            success: function(data, textStatus, jqXHR) {
-                 if(!data){
+            success: function(ride, textStatus, jqXHR) {
+                 if(ride){
                     let PromiseSetRideData = new Promise((res, rejects)=>{
                         this.setState({
-                            ridePrice: "120 br",
-                            rideDistance: "18km",
-                            rideTime: "18sec",
-                            rideUser: 'Dawit',
+                            ridePrice: ride.route_price,
+                            rideDistance: ride.route_distance,
+                            rideTime: ride.route_time,
+                            rideUser: ride.user_id,
                             userMobile: "0911404040",
                             userPic: "/assets/awet-ride-driver.jpeg"
                          });
@@ -183,14 +183,34 @@ class DriverLocation extends Component {
                     PromiseSetRideData.then(()=>{
                         document.getElementById('check-ride-dashboard').style.visibility="visible";
                         document.getElementById('div-accept-button').style.visibility="visible"; 
-                    });
-                     
+                    });      
                  }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
+    }
+
+    acceptRide = () => {
+        console.log('ride accepted',localStorage.getItem("auth"));
+        var driver = {
+            status : 7
+        };
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/accepted",
+            headers: { 'x-auth': localStorage.getItem("auth")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+               console.log('ride data ', data);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+
     }
 
     render(){
@@ -242,7 +262,7 @@ class DriverLocation extends Component {
                 </div>
 
                 <div id="div-accept-button"  className="div-accept-button">
-                   <Button  bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
+                   <Button  onClick={(e) => this.acceptRide()} bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
                 </div>
 
                 <div className="mapid" id="mapid"></div>

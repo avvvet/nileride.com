@@ -12,7 +12,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       driver_id: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        references: {
+          model: 'drivers',
+          key: 'token'
+        }
       },
       pickup_latlng: {
         type: Sequelize.GEOMETRY('POINT')
