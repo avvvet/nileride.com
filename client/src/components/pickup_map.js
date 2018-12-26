@@ -136,7 +136,6 @@ class PickUpMap extends Component {
         this.getDrivers(map);
 
         map.on('locationfound', (e) => {
-            alert('location found');
             var markerGroup = this.state.markerGroup;
             //this.updateDriverLocation(e.latlng, localStorage.getItem("auth"));
               var radius = e.accuracy / 1024;
@@ -156,8 +155,6 @@ class PickUpMap extends Component {
 
         //my Lord is greate  - Jesus I call your name 
         map.on('click', (e) => {
-            alert('map clicked');
-            
             var markerGroup = this.state.markerGroup;
             this.setState({first_time_flag: false});
             if(this.state.pickup_flag === 'off'){
