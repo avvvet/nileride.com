@@ -1,14 +1,14 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ride_requests', {
+    return queryInterface.createTable('payments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
+      pay_type: {
         type: Sequelize.INTEGER
       },
       driver_id: {
@@ -18,20 +18,21 @@ module.exports = {
           key: 'token'
         }
       },
-      pickup_latlng: {
-        type: Sequelize.GEOMETRY('POINT')
+      ride_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'ride_requests',
+          key: 'id'
+        }
       },
-      dropoff_latlng: {
-        type: Sequelize.GEOMETRY('POINT')
+      amount: {
+        type: Sequelize.DECIMAL(10,2)
       },
-      route_distance: {
-        type: Sequelize.DECIMAL(10, 2)
+      charge_dr: {
+        type: Sequelize.DECIMAL(10,2)
       },
-      route_time: {
-        type: Sequelize.INTEGER
-      },
-      route_price: {
-        type: Sequelize.DECIMAL(10, 2)
+      charge_cr: {
+        type: Sequelize.DECIMAL(10,2)
       },
       status: {
         type: Sequelize.INTEGER
@@ -47,6 +48,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ride_requests');
+    return queryInterface.dropTable('payments');
   }
 };

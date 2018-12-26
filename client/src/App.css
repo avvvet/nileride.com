@@ -88,18 +88,17 @@
 
 .ride-price-dashboard {
   color: #5d5555;
-  position: absolute;
-  top: 75px;
-  right: 50%;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 50%;
+  right: 14%;
   width: 260px;
-  height: 120px;
+  height: 128px;
   border: 2px solid white;
-  background-color: #f0c56e;
-  transform: translate(50%, 50%);
+  background-color: #f6b4d5;;
   z-index: 2000;
-  padding-top: 17px;
+  padding-top: 5px;
   padding-left: 5px;
-  margin: 2px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
   border-radius: 25px;
@@ -109,18 +108,18 @@
 
 .ride-request-dashboard {
   color: #ffffff;
-  position: absolute;
-  top: 203px;
-  right: 50%;
-  width: 260px;
-  height: 120px;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 57%;
+  right: 10%;
+  width: 299px;
+  height: 60px;
   border: 2px solid white;
-  background-color: gray;
+  background-color: #ba0860;
   transform: translate(50%, 50%);
   z-index: 2000;
-  padding-top: 17px;
+  padding-top: 6px;
   padding-left: 5px;
-  margin: 2px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
@@ -128,24 +127,148 @@
   visibility: hidden;
 }
 
-.check-ride-dashboard {
+.ride-route-status {
   color: #ffffff;
-  position: absolute;
-  top: 72px;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 57%;
   right: 50%;
-  width: 260px;
-  height: 120px;
+  width: 299px;
+  height: 60px;
   border: 2px solid white;
-  background-color: #0dc7ef;
+  background-color: #ba0860;
   transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 6px;
+  padding-left: 5px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.ride-route-try {
+  color: #ffffff;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 57%;
+  right: 51%;
+  width: 312px;
+  height: 72px;
+  border: 2px solid white;
+  background-color: #e7d25e;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 6px;
+  padding-right: 11px;
+  padding-left: 5px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.u-driver-dashboard {
+  color: #ffffff;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 50%;
+  right: 11%;
+  width: 305px;
+  height: 86px;
+  border: 2px solid white;
+  background-color: #16cead;
+  z-index: 2000;
+  padding-top: 6px;
+  padding-left: 4px;
+  padding-right: 9px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.u-driver-dashboard-2 {
+  color: #ffffff;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  bottom: 10%;
+  right: 11%;
+  width: 305px;
+  height: 86px;
+  border: 2px solid white;
+  background-color: #16cead;
+  z-index: 2000;
+  padding-top: 6px;
+  padding-left: 4px;
+  padding-right: 9px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.driver-pax-action {
+  color: #ffffff;
+  position: fixed;
+  bottom: 30px;
+  right: 20%;
+  width: 260px;
+  height: 133px;
+  border: 2px solid white;
+  background-color: #7d8189;
+  z-index: 2000;
+  padding-top: 2px;
+  padding-left: 5px;
+  padding-right: 7px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.driver-pax-end-action {
+  color: #000000;
+  position: fixed;
+  bottom: 30px;
+  right: 20%;
+  width: 260px;
+  height: 133px;
+  border: 2px solid white;
+  background-color: #d8f3da;
+  z-index: 2000;
+  padding-top: 2spx;
+  padding-left: 5px;
+  padding-right: 7px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.check-ride-dashboard {
+  height: 76px;
+  left: 38%;
+  position: fixed;
+  top: 50%;
+  width: 263px;
+  margin: -100px 0 0 -100px;
+  color: #ffffff;
+  border: 2px solid white;
+  background-color: #3a6469;
   z-index: 2000;
   padding-top: 17px;
   padding-left: 5px;
   padding-right: 15px;
-  margin: 2px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
-  border-radius: 25px;
+  border-radius: 60px;
   box-sizing: border-box;
   visibility: hidden;
 }
@@ -246,6 +369,13 @@ div.rowPadding {
     padding-bottom: 10px;
 }
 
+div.rowPaddingSm {
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
 .driverApplyBox {
    background-color: antiquewhite;
    padding-left: 15px;
@@ -280,4 +410,45 @@ div.rowPadding {
   padding-right: 3px;
 }
 
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.shake-ride-request {
+  animation: shake 0.5s;
+  animation-iteration-count: infinite;
+}
+
+.shake-finish-ride {
+  animation: shake 1.5s;
+  animation-iteration-count: infinite;
+}
+
+.shake-ride-to-pickup {
+  animation: shake 1s;
+  animation-iteration-count: infinite;
+}
+
+.notify-rider {
+  position: absolute;
+  top: -33px;
+  left: 39px;
+  color: #ef0606;
+  background-color: #ffffff;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  padding-right: 10px;
+  padding-left: 13px;
+  padding-bottom: 2px;
+}
 

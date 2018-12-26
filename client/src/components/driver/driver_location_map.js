@@ -1,14 +1,41 @@
 import React, { Component } from 'react';
+import  {Route, Redirect, BrowserRouter } from 'react-router-dom'
 import {Grid, Row, Col, Nav, Navbar, NavItem , NavDropdown, MenuItem, Image, Button, Badge} from 'react-bootstrap';
 import L from 'leaflet';
 import $ from 'jquery';
 import socketClient from 'socket.io-client';
-
 import DriverMenu from './driver_menu';
-
+import DriverDashBoard from './driver_dashboard'
+import { resolve } from 'path';
 
 const socket = socketClient('http://localhost:5000');
+const {Howl, Howler} = require('howler');
+const sound = new Howl({
+    src: ["/assets/sounds/awet-ride.mp3","/assets/sounds/awet-ride.ogg","/assets/sounds/awet-ride.m4r"],
+    autoplay: true,
+    loop: true,
+    volume: 0.0
+});
+var pickUpIcon = L.icon({
+    iconUrl: '/assets/awet-rider-m.png',
+    shadowUrl: '',
 
+    iconSize:     [50, 50], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 50], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
+});
+var dropOffIcon = L.icon({
+    iconUrl: '/assets/awet-ride-dropoff-marker.png',
+    shadowUrl: '',
+    iconSize:     [80, 80], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [0, 75], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -75] // point from which the popup should open relative to the iconAnchor
+});
+ 
 class DriverLocation extends Component {
    constructor() {
        super();
@@ -17,10 +44,13 @@ class DriverLocation extends Component {
                lat: 0,
                lng: 0
            },
+           pickup_latlng: '',
+           dropoff_latlng: '',
            driver_id: '',
-           markersLayer: '',
+           markerGroup: '',
            map : '',
            auth: false,
+           soundFlag : false,
            driver: {
                firstName: '',
                middleName: '',
@@ -34,10 +64,27 @@ class DriverLocation extends Component {
            rideUser: '',
            userMobile: '',
            userPic: '',
-           checkForRideTimer : ''
+           driverName : '',
+           amount: '',
+           charge: '',
+           total_rides: ''
+           
        }
+
+    this.checkForRide = this.checkForRide.bind(this);
+    this.getDriver = this.getDriver.bind(this);
+    this.updateDriverLocation = this.updateDriverLocation.bind(this);
+    this.acceptRide = this.acceptRide.bind(this);
+    this.rideCompleted = this.rideCompleted.bind(this);
+    this.showPickUpLocation = this.showPickUpLocation.bind(this);
+    this.showPickUpRoute = this.showPickUpRoute.bind(this);
+    this.showDropOffLocation = this.showDropOffLocation.bind(this);
+    this.showDropOffRoute = this.showDropOffRoute.bind(this);
+    this.timeConvert = this.timeConvert.bind(this);
+    this.driverRidesInfo = this.driverRidesInfo.bind(this);
    }
    
+
    getDriver = (token) => {
     $.ajax({ 
         type:"GET",
@@ -92,7 +139,7 @@ class DriverLocation extends Component {
         driver_id : 4141
     };
     
-    this.socketConnect(data);
+    //this.socketConnect(data);
 
     var map = L.map('mapid').setView([9.0092, 38.7645], 16);
     map.locate({setView: true, maxZoom: 17});
@@ -103,35 +150,44 @@ class DriverLocation extends Component {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    var markersLayer = new L.LayerGroup().addTo(map);
-    this.setState({markersLayer: markersLayer});
-
+    
     this.setState({
-        checkForRideTimer : setInterval(this.checkForRide, 5000)
+        markerGroup : new L.LayerGroup().addTo(map)
     });
-        
+   
+    this.timerCheckForRide = setInterval(this.checkForRide, 5000);
+
+    this.driverRidesInfo();
    }
 
    componentDidUpdate() {
     var map = this.state.map;
-    var marker;
-    var markersLayer = this.state.markersLayer;
-    
+    var markerGroup = this.state.markerGroup;
+    var currentLocationIcon = L.icon({
+        iconUrl: '/assets/awet-ride-marker-1.png',
+        shadowUrl: '',
+        iconSize:     [80, 49], // size of the icon
+        shadowSize:   [50, 64], // size of the shadow
+        iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 62],  // the same for the shadow
+        popupAnchor:  [20, -5] // point from which the popup should open relative to the iconAnchor
+    });
     map.on('locationfound', (e) => {
-        this.updateDriverLocation(e.latlng, localStorage.getItem("auth"));
-        var radius = e.accuracy / 128;
-        L.marker(e.latlng).addTo(map)
-            .bindPopup("You are " + radius + " meters from this point").openPopup();
-        L.circle(e.latlng, radius).addTo(map);
-        this.setState({
-            currentLatLng : e.latlng
-        });       
+    //this.updateDriverLocation(e.latlng, localStorage.getItem("auth"));
+      var radius = e.accuracy / 1024;
+      radius = radius.toFixed(2);
+      L.marker(e.latlng, {icon: currentLocationIcon}).addTo(markerGroup)
+      .bindPopup("You are " + radius + " meters from this point").openPopup();
+        
+      L.circle(e.latlng, radius).addTo(markerGroup);
+      map.setView(e.latlng,15);
     });
 
     function onLocationError(e) {
         alert(e.message);
     }
     map.on('locationerror', onLocationError);
+     
    }
 
    updateDriverLocation = (latlng, token) => {
@@ -155,45 +211,80 @@ class DriverLocation extends Component {
     });  
    }
 
+   driverRidesInfo = () => {
+    var driver = {
+        status : 777
+    };
+    $.ajax({ 
+        type:"POST",
+        url:"/driver/getRidesInfo",
+        headers: { 'x-auth': localStorage.getItem("auth")},
+        data: JSON.stringify(driver), 
+        contentType: "application/json",
+        success: (driver) => {
+            if(driver.length > 0){
+                console.log('driver info', driver);
+                this.setState({
+                    driverName : driver[0].firstName,
+                    amount : driver[0].amount,
+                    charge : driver[0].charge,
+                    total_rides: driver[0].total_rides
+                });
+            } else {
+                this.setState({
+                    driverName : this.state.driver.firstName,
+                    amount : 0.00,
+                    charge : 0.00,
+                    total_rides: 0
+                });
+            }  
+        },
+        error: function(xhr, status, err) {
+            console.error('ride completed error', err.toString());
+        }.bind(this)
+    });  
+   }
+
    checkForRide = () => {
-        console.log('checking for ride',localStorage.getItem("auth"));
+        console.log('check for a ride');
         var driver = {
             status : 1
         };
 
-        $.ajax({ 
+        $.ajax({
             type:"POST",
             url:"/ride/check_ride",
             headers: { 'x-auth': localStorage.getItem("auth")},
             data: JSON.stringify(driver), 
-            contentType: "application/json",
-            success: function(ride, textStatus, jqXHR) {
-                 if(ride){
-                    let PromiseSetRideData = new Promise((res, rejects)=>{
-                        this.setState({
-                            ridePrice: ride.route_price,
-                            rideDistance: ride.route_distance,
-                            rideTime: ride.route_time,
-                            rideUser: ride.user_id,
-                            userMobile: "0911404040",
-                            userPic: "/assets/awet-ride-driver.jpeg"
-                         });
-                         res(true);
-                    }); 
-                    PromiseSetRideData.then(()=>{
-                        document.getElementById('check-ride-dashboard').style.visibility="visible";
-                        document.getElementById('div-accept-button').style.visibility="visible"; 
-                    });      
-                 }
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(xhr, status, err.toString());
-            }.bind(this)
-        });  
+            contentType: "application/json"
+         })
+         .done( (ride) => {
+        
+         })
+         .fail(function (errorHandler, soapResponse, errorMsg) {
+             console.log('Error', errorMsg);
+         })
+         .always((ride) => {
+             if(ride) {
+                sound.volume(0.7, this.soundAccept);        
+                this.setState({
+                    ridePrice: ride.route_price,
+                    rideDistance: ride.route_distance,
+                    rideTime: ride.route_time,
+                    rideUser: ride.user_id,
+                    userMobile: "0911404040",
+                    userPic: "/assets/awet-ride-driver.jpeg",
+                });
+                document.getElementById('check-ride-dashboard').style.visibility="visible";
+                this.showPickUpLocation(ride.pickup_latlng.coordinates); 
+                clearInterval(this.timerCheckForRide);
+             }
+             
+         }); 
     }
 
     acceptRide = () => {
-        console.log('ride accepted',localStorage.getItem("auth"));
+        console.log('accept called');
         var driver = {
             status : 7
         };
@@ -203,21 +294,195 @@ class DriverLocation extends Component {
             headers: { 'x-auth': localStorage.getItem("auth")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
-            success: function(data, textStatus, jqXHR) {
-               console.log('ride data ', data);
+            success: function(ride, textStatus, jqXHR) {
+                if(ride){
+                   sound.volume(0,this.soundAccept); 
+                   let PromiseSlientAlert = new Promise((resolve, rejects) => {
+                    document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
+                    document.getElementById("driver-dashboard").style.visibility = "hidden";
+                    document.getElementById("driver-pax-action").style.visibility = "visible";
+                    sound.volume(0,this.soundAccept); 
+                    this.setState({
+                        pickup_latlng : ride.pickup_latlng.coordinates,
+                        dropoff_latlng: ride.dropoff_latlng.coordinates
+                    })
+                    resolve();
+                   });
+                    
+                   PromiseSlientAlert.then(()=>{
+                      //show the driver the pickup location 
+                      this.showPickUpLocation(ride.pickup_latlng.coordinates);
+                   });
+                }  
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(xhr, status, err.toString());
+                console.error('accept test case error', err.toString());
             }.bind(this)
         });  
-
     }
+
+    rideCompleted = () => {
+        var driver = {
+            status : 777
+        };
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/completed",
+            headers: { 'x-auth': localStorage.getItem("auth")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: (_ride) => {
+                console.log('payment returned', _ride);
+                if(_ride){
+                    let PromiseRemoveAll = new Promise((resolve, rejects) => {
+                        document.getElementById("driver-pax-action").style.visibility = "hidden";
+                        document.getElementById("driver-pax-end-action").style.visibility = "hidden";
+                        document.getElementById("check-ride-dashboard").style.visibility = "hidden";
+                        
+                        var map = this.state.map;
+                        var markerGroup = this.state.markerGroup;
+                        markerGroup.clearLayers();
+                        //map.removeControl(this.routeControl);
+                        //map.locate({setView: true, maxZoom: 17});
+                       
+                        this.setState({
+                            pickupRoutFlag : false
+                         });
+
+                        resolve(true);
+                    });
+
+                    PromiseRemoveAll.then(()=>{
+                        this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
+                        this.driverRidesInfo();
+                        document.getElementById("driver-dashboard").style.visibility = "visible"; 
+                    });
+                }  
+            },
+            error: function(xhr, status, err) {
+                console.error('ride completed error', err.toString());
+            }.bind(this)
+        });  
+    }
+
+    paxFound = () => {
+        var driver = {
+            status : 77
+        };
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/paxFound",
+            headers: { 'x-auth': localStorage.getItem("auth")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: (_ride) => {
+                if(_ride){
+                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng)
+                }  
+            },
+            error: function(xhr, status, err) {
+                console.error('ride completed error', err.toString());
+            }.bind(this)
+        });  
+    }
+
+    
+    showPickUpLocation = (latlng) => {
+        var map = this.state.map;
+        var markerGroup = this.state.markerGroup;
+        L.marker(latlng, {icon: pickUpIcon}).addTo(markerGroup)
+        .bindPopup("Pick passenger here.").openPopup();
+        map.setView(latlng,15);
+        this.showPickUpRoute(this.state.currentLatLng, latlng);
+    }
+
+    showPickUpRoute = (latlng1, latlng2) => {
+      if(!this.state.pickupRoutFlag){
+       var map = this.state.map;
+       if(this.routeControl){
+           map.removeControl(this.routeControl);
+           this.routeControl = null;
+       }
+       
+       this.routeControl = L.Routing.control({
+            waypoints: [
+             L.latLng(latlng1),
+             L.latLng(latlng2)
+            ],
+            routeWhileDragging: false,
+            addWaypoints : false, //disable adding new waypoints to the existing path
+            show: false,
+            createMarker: function (){
+                return null;
+            }
+        })
+        .on('routesfound', this.routeFound)
+        .addTo(map); 
+      }
+    }
+
+    routeFound = () => {
+        this.setState({
+            pickupRoutFlag : true
+         });
+    }
+
+    showDropOffLocation = (latlng1,latlng2) => {
+         let PromiseRemoveShowDropoff = new Promise((resolve, rejects) => {
+            document.getElementById("driver-pax-action").style.visibility = "hidden";
+            document.getElementById("driver-pax-end-action").style.visibility = "visible";
+            resolve(true);
+        });
+
+        PromiseRemoveShowDropoff.then(()=>{
+            var map = this.state.map;
+            var markerGroup = this.state.markerGroup;
+            L.marker(latlng1, {icon: pickUpIcon}).addTo(markerGroup)
+            .bindPopup("Pickup location.").openPopup();
+            L.marker(latlng2, {icon: dropOffIcon}).addTo(markerGroup)
+            .bindPopup("Final dropoff location.").openPopup();
+            map.setView(latlng2,15);
+            
+            this.showDropOffRoute(latlng1,latlng2);
+        });
+    }
+
+    showDropOffRoute = (latlng1, latlng2) => {
+        var map = this.state.map;
+        map.removeControl(this.routeControl);
+        this.routeControl = L.Routing.control({
+            waypoints: [
+             L.latLng(latlng1),
+             L.latLng(latlng2)
+            ],
+            routeWhileDragging: false,
+            addWaypoints : false, //disable adding new waypoints to the existing path
+            show: false,
+            createMarker: function (){
+                return null;
+            }
+        })
+        .on('routesfound', this.routeFound)
+        .addTo(map);  
+    }
+
+    timeConvert = (n) => {
+        var num = n;
+        var hours = (num / 3600);
+        var rhours = Math.floor(hours);
+        var minutes = (hours - rhours) * 60;
+        var rminutes = Math.round(minutes);
+        
+        var hDisplay = rhours > 0 ? rhours + " hr" : "";
+        var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+        return hDisplay + mDisplay; 
+     }
 
     render(){
         
         return(
             <div>
-                <div className="driver-dashboard">
+                <div className="driver-dashboard" id="driver-dashboard">
                 <Grid fluid>
                     <Row>
                         <Col xs={12} sm={12} md={12}><div id="driver_name">Hi, {this.state.driver.firstName}</div></Col>
@@ -227,42 +492,96 @@ class DriverLocation extends Component {
                         <Col xs={6} sm={6} md={6}>ride </Col>
                     </Row>
                     <Row>
-                        <Col xs={6} sm={6} md={6}><Badge>23,340 br</Badge></Col>
-                        <Col xs={6} sm={6} md={6}><Badge>170</Badge></Col>
+                        <Col xs={6} sm={6} md={6}><Badge>{this.state.amount + ' br'}</Badge></Col>
+                        <Col xs={6} sm={6} md={6}><Badge>{this.state.total_rides}</Badge></Col>
                     </Row>
                     <Row>
                         <Col xs={6} sm={6} md={6}>charge </Col>
                         <Col xs={6} sm={6} md={6}>account</Col>
                     </Row>
                     <Row>
-                        <Col xs={6} sm={6} md={6}><Badge className="charge">800 birr</Badge></Col>
+                        <Col xs={6} sm={6} md={6}><Badge className="charge">{this.state.charge}</Badge></Col>
                         <Col xs={6} sm={6} md={6}><Badge className="account">active</Badge></Col>
                     </Row>
                 </Grid>
                 </div>
 
-                <div className="check-ride-dashboard" id="check-ride-dashboard"> 
+                <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
                 <Grid fluid>
                     <Row>
-                        <Col xs={4} sm={4} md={4}><Image src={this.state.userPic} height={45} circle></Image></Col>
-                        <Col xs={4} sm={4} md={4}>{this.state.rideUser}</Col>
-                        <Col xs={4} sm={4} md={4}>{this.state.userMobile}</Col>
+                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
                     </Row>
+                    
                     <Row>
-                        <Col xs={4} sm={4} md={4}>Price</Col>
-                        <Col xs={4} sm={4} md={4}>Distance</Col>
-                        <Col xs={4} sm={4} md={4}> time</Col>
-                    </Row>
-                    <Row>
-                        <Col xs={4} sm={4} md={4}>{this.state.ridePrice}</Col>
-                        <Col xs={4} sm={4} md={4}>{this.state.rideDistance}</Col>
-                        <Col xs={4} sm={4} md={4}>{this.state.rideTime}</Col>
+                      <Col xs={12} sm={12} md={12}>
+                       <Button  onClick={(e) => this.acceptRide()} bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
+                      </Col>
                     </Row>
                 </Grid>
                 </div>
 
-                <div id="div-accept-button"  className="div-accept-button">
-                   <Button  onClick={(e) => this.acceptRide()} bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
+                <div id="driver-pax-action"  className="driver-pax-action shake-ride-to-pickup">
+                  <Grid fluid>
+                    <Row>
+                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
+                    </Row>
+                    <Row>
+                      <Col xs={6} sm={6} md={12}>
+                       {this.state.rideUser}
+                      </Col>
+                      <Col xs={6} sm={6} md={12}>
+                       {this.state.userMobile}
+                      </Col>
+                    </Row>
+                    
+                    <Row>
+                        <Col xs={12} sm={12} md={12}>
+                          <Button  onClick={(e) => this.paxFound()} bsStyle="success" bsSize="small" block>I FOUND THE PASSENGER</Button>
+                        </Col>
+                    </Row>
+                    <Row className="rowPadding">
+                        <Col xs={12} sm={12} md={12}>
+                          <Button  onClick={(e) => this.acceptRide()}  bsSize="small" block>CANCEL RIDE</Button>
+                        </Col>
+                    </Row>
+                  </Grid>
+                   
+                </div>
+
+                <div id="driver-pax-end-action"  className="driver-pax-end-action shake-finish-ride">
+                  <Grid fluid>
+                  <Row>
+                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
+                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
+                    </Row>
+                    <Row>
+                      <Col xs={6} sm={6} md={12}>
+                       {this.state.rideUser}
+                      </Col>
+                      <Col xs={6} sm={6} md={12}>
+                       {this.state.userMobile}
+                      </Col>
+                    </Row>
+                    <Row>
+                        <Col xs={12} sm={12} md={12}>
+                          <Button  onClick={(e) => this.rideCompleted()} bsStyle="danger" bsSize="small" block>RIDE COMPLETED</Button>
+                        </Col>
+                    </Row>
+                    <Row className="rowPadding">
+                        <Col xs={12} sm={12} md={12}>
+                          <Button  onClick={(e) => this.acceptRide()}  bsSize="small" block>CANCEL RIDE</Button>
+                        </Col>
+                    </Row>
+                  </Grid>
+                   
                 </div>
 
                 <div className="mapid" id="mapid"></div>

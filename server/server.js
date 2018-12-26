@@ -68,10 +68,20 @@ app.post('/ride/accepted', (req, res) => {
             if(ride){
               return models.riderequests.update(
                     { status: 7 },
-                    { where: { driver_id: token } } ,
+                    { where: { driver_id: token, status: 1} } ,
                     {transaction: t}
                   ).then(result => {
-                     return result;
+                     if(result){
+                         return models.riderequests.findOne({
+                             where : {driver_id: token, status: 7}
+                         }, {transaction: t}).then((_ride)=>{
+                             if(_ride){
+                                 return _ride;
+                             } else {
+                                 throw new Error('in transaction ride not found after update');
+                             }
+                         })
+                     }
                   }).catch(err => {
                     return err;
                   });
@@ -81,11 +91,102 @@ app.post('/ride/accepted', (req, res) => {
         });
       
       }).then(function (result) {
-          console.log('trsancation commited ', result);
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
         // Transaction has been committed
         // result is whatever the result of the promise chain returned to the transaction callback
       }).catch(function (err) {
+        res.sendStatus(400).send();
         console.log('trsancation rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
+});
+
+app.post('/ride/paxFound', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {driver_id: token, status: 7}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 77 },
+                    { where: { driver_id: token, status: 7} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         return ride;  /// update successfull return ride
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
+app.post('/ride/completed', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {driver_id: token, status: 77}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 777 },
+                    { where: { driver_id: token, status: 77 } } ,
+                    {transaction: t}
+                  ).then(result => {
+                     //return result;
+                     var paymentObj = {
+                         'pay_type': 1,
+                         'driver_id': ride.driver_id,
+                         'ride_id': ride.id,
+                         'amount': ride.route_price,
+                         'charge_dr': 0.00,
+                         'charge_cr': ride.route_price * 0.2,
+                         'status': 0
+                     }
+                     var body = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
+                     const payment = models.payments.build(body); 
+                    return payment.save().then((payment_data) => {
+                        console.log('payment data ', payment_data);
+                        return payment_data;
+                     }).catch(err => {
+                         throw new Error(err);
+                     });
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('ride completed t commited', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('ride completed rollback ', err);
         // Transaction has been rolled back
         // err is whatever rejected the promise chain returned to the transaction callback
       });
@@ -95,14 +196,23 @@ app.post('/ride/check_ride_user', (req, res) => {
     var body = _.pick(req.body, ['status']);
     //var token = req.header('x-auth');
     var token = "7141";
+    const Op = Sequelize.Op;
     models.riderequests.findOne({ 
-        where : {user_id: token, status: body.status},
+        where : {user_id: token, status: {[Op.ne]: 777}},
         include: [
-            { model: models.drivers, as: 'driver'}
+            { model: models.drivers,
+              attributes: ['firstName','middleName','mobile', 'plateNo']
+            }
         ]
-    }).then( (driver) => {
-        console.log('tttttt',driver);
-        res.send(driver);
+    }).then( (ride) => {
+        if(ride){
+          res.send(ride);  
+        } else {
+          var ride = {
+              status : 0  // custom status = no ride on progress 
+          }
+          res.send(ride);
+        }
     });
 });
 
@@ -120,6 +230,37 @@ app.post('/ride/check_ride', (req, res) => {
 });
 
 //driver end point
+app.post('/driver/getRidesInfo', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    var token = req.header('x-auth');
+
+    models.payments.findAll({ 
+        group: ['payments.driver_id'],
+        attributes:  [
+           'payments.driver_id', 
+          [Sequelize.fn('sum', Sequelize.col('amount')), 'amount'], 
+          [Sequelize.fn('sum', Sequelize.col('charge_dr')), 'charge_dr'],
+          [Sequelize.fn('sum', Sequelize.col('charge_cr')), 'charge_cr'],
+          [Sequelize.literal('SUM(charge_cr) - SUM(charge_dr)'), 'charge'],
+          [Sequelize.fn('count', Sequelize.col('payments.id')), 'total_rides']
+        ],
+        where : {'driver_id': token},
+        include: [
+            { 
+                model: models.drivers,
+                attributes: ['firstName','middleName','mobile']
+            }
+        ],
+        raw: true
+    }).then( (data) => {
+      console.log('ride request for this driver', data);
+       res.send(data);
+    });
+   
+});
+
+
+
 app.post('/driver/login', (req, res) => {
   console.log('reqqqqq', req.body);
 
@@ -262,7 +403,7 @@ app.get('/driver/get', (req, res) => {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
         models.drivers.findOne({ where: {email: decoded} }).then(driver => {
           if(!driver) {
-            res.send(401).send();
+            res.sendStatus(401).send();
           }
           res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'status']));  
         });
