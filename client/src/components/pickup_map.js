@@ -88,35 +88,34 @@ class PickUpMap extends Component {
     userCurrentLocation = () => {
         console.log('user current location');
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
-            if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
                 console.log('user current latlng', this.state.current_latlng, this.state.last_current_latlng);
                 var map = this.state.map;
                 map.locate({setView: true, maxZoom: 17});
-                this.setState({last_current_latlng : this.state.current_latlng})
                 resolve(true);
-            } else {
-                reject(true)
+        });
+
+        PromiseLocateDriver.then((r)=>{
+            if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
+                this.setState({last_current_latlng : this.state.current_latlng})
+                var current_latlng = {
+                    _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
+                };
+                var token = localStorage.getItem("_auth_user");
+                $.ajax({ 
+                    type:"POST",
+                    url:"/user/updateLocation",
+                    headers: { 'x-auth': token },
+                    data: JSON.stringify(current_latlng), 
+                    contentType: "application/json",
+                    success: function(data, textStatus, jqXHR) {
+                      
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                        console.error(xhr, status, err.toString());
+                    }.bind(this)
+                });
             }
             
-        });
-        PromiseLocateDriver.then((r)=>{
-            var current_latlng = {
-                _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
-            };
-            var token = localStorage.getItem("_auth_user");
-            $.ajax({ 
-                type:"POST",
-                url:"/user/updateLocation",
-                headers: { 'x-auth': token },
-                data: JSON.stringify(current_latlng), 
-                contentType: "application/json",
-                success: function(data, textStatus, jqXHR) {
-                  
-                }.bind(this),
-                error: function(xhr, status, err) {
-                    console.error(xhr, status, err.toString());
-                }.bind(this)
-            });
         }); 
     }
 
