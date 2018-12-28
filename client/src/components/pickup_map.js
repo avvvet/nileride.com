@@ -65,6 +65,7 @@ class PickUpMap extends Component {
             isRouteFound : false,
             map : '',
             markerGroup: '',
+            locationGroup: '',
             list: [],
             currentDrivers : [],
             pickupText : '',
@@ -198,20 +199,23 @@ class PickUpMap extends Component {
         }).addTo(map);
 
         this.setState({
-            markerGroup : new L.LayerGroup().addTo(map)
+            markerGroup : new L.LayerGroup().addTo(map),
+            locationGroup : new L.LayerGroup().addTo(map)
         });
     
         this.getDrivers(map);
 
         map.on('locationfound', (e) => {
-            var markerGroup = this.state.markerGroup;
+            var locationGroup = this.state.locationGroup;
+            locationGroup.clearLayers();
             this.setState({current_latlng : e.latlng});
               var radius = e.accuracy / 1024;
               radius = radius.toFixed(2);
-              L.marker(e.latlng, {icon: yourLocation}).addTo(markerGroup)
-              .bindPopup("You are " + radius + " meters from this point").openPopup();
+            //   L.marker(e.latlng, {icon: yourLocation}).addTo(locationGroup)
+            //   .bindPopup("You are " + radius + " meters from this point").openPopup();
                 
-              L.circle(e.latlng, radius).addTo(markerGroup);
+              L.circle(e.latlng, radius).addTo(locationGroup)
+              .bindPopup("You are " + radius + " meters from this point").openPopup();;
               map.setView(e.latlng,15);
               this.setState({currentLatLng : e.latlng});
         });
