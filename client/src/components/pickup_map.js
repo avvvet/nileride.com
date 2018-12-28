@@ -10,7 +10,7 @@ var yourLocation = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
     shadowUrl: '',
 
-    iconSize:     [50, 50], // size of the icon
+    iconSize:     [40, 40], // size of the icon
     shadowSize:   [50, 64], // size of the shadow
     iconAnchor:   [12, 50], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
@@ -21,6 +21,7 @@ class PickUpMap extends Component {
     constructor(){
         super();
         this.state = {
+            isLogedIn : false,
             pickup_flag: 'off',
             dropoff_flag: 'off',
             pickup_location : 'Select your pickup location',
@@ -35,6 +36,17 @@ class PickUpMap extends Component {
             currentLatLng : {
                 lat: 0,
                 lng: 0
+            },
+            _driverCurrentLocation : {
+                lat: 0,
+                lng: 0
+            },
+            user: {
+                firstName: '',
+                middleName: '',
+                email: '',
+                mobile: '',
+                status: ''
             },
             first_time_flag : false,
             route_price : 0,
@@ -58,7 +70,9 @@ class PickUpMap extends Component {
             _driverPlateNo: '',
             _driverMobile: '',
             _driverCarModel: '',
-            rideCompleteFlag: false
+            rideCompleteFlag: false,
+            _nearest_driver_token : '',
+            _nearest_driver_distance : 0 
         }
     }
     
@@ -80,17 +94,22 @@ class PickUpMap extends Component {
             shadowAnchor: [4, 62],  // the same for the shadow
             popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
         });
-        var markerGroup = this.state.markerGroup;
+        
         $.ajax({ 
             type:"GET",
             url:"/drivers",
             contentType: "application/json",
             success: function(currentDrivers, textStatus, jqXHR) {
-             for (var i = 0; i < currentDrivers.length; i++) {
-                    L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
-                     .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
-                     .addTo(markerGroup);
-             }
+                var markerGroup = this.state.markerGroup;
+                if(currentDrivers){
+                    
+                    for (var i = 0; i < currentDrivers.length; i++) {
+                        L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
+                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
+                        .addTo(markerGroup);
+                    }
+                }
+ 
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log('getdrivers error', err.toString());
@@ -100,7 +119,6 @@ class PickUpMap extends Component {
     }
 
     getNearestDrivers = (pickup_latlng) => {
-        console.log('test getNearestDriver function');
         var objRideRequest = {
             pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
         };
@@ -110,8 +128,14 @@ class PickUpMap extends Component {
             url:"/drivers/nearest",
             data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
-            success: function(drivers, textStatus, jqXHR) {
-                console.log("Nearest driver object", drivers);
+            success: function(driver, textStatus, jqXHR) {
+                console.log('nearest driver', driver, 'pickup', pickup_latlng);
+                if(driver.length > 0){
+                  this.setState({
+                      _nearest_driver_token : driver[0].token,
+                      _nearest_driver_distance : driver[0].distance
+                  })
+                }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error("erroorror", err.toString());
@@ -120,6 +144,7 @@ class PickUpMap extends Component {
     }
 
     componentDidMount(){
+        this.getUser(localStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         map.locate({setView: true, maxZoom: 17});
         
@@ -137,7 +162,7 @@ class PickUpMap extends Component {
 
         map.on('locationfound', (e) => {
             var markerGroup = this.state.markerGroup;
-            //this.updateDriverLocation(e.latlng, localStorage.getItem("auth"));
+            //this.updateDriverLocation(e.latlng, localStorage.getItem("_auth_driver"));
               var radius = e.accuracy / 1024;
               radius = radius.toFixed(2);
               L.marker(e.latlng, {icon: yourLocation}).addTo(markerGroup)
@@ -177,9 +202,12 @@ class PickUpMap extends Component {
             if(this.state.dropoff_flag === 'on' && this.state.pickup_flag ==='on' & this.state.isRouteFound === false) {
                 var latlng1 = this.state.pickup_latlng;
                 var latlng2 = this.state.dropoff_latlng;
-                document.getElementById('ride-route-status').innerHTML = 'Please wait ...';
-                document.getElementById('ride-route-status').style.visibility = 'visible';
+                document.getElementById('div-intro').style.visibility = "hidden"
                 this.findRoute(latlng1, latlng2);
+            }
+             
+            if(this.state.pickup_flag ==='on') {  //ready nearest driver
+                this.getNearestDrivers(this.state.pickup_latlng);
             }
         }); 
         
@@ -189,7 +217,33 @@ class PickUpMap extends Component {
        
     }
 
+    getUser = (token) => {
+        $.ajax({ 
+            type:"GET",
+            url:"/user/get",
+            headers: { 'x-auth': token },
+            contentType: "application/json",
+            success: function(user, textStatus, jqXHR) {
+              if(user){
+                this.setState({
+                    user: user,
+                    isLogedIn : true
+                });   
+              }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.log('getdriver', err.toString());
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
     findRoute = (latlng1, latlng2) => {
+        document.getElementById('ride-route-status').innerHTML = 'Please wait ...';
+        document.getElementById('ride-route-status').style.visibility = 'visible';
+        document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+        document.getElementById('ride-route-try').style.visibility = 'hidden';
+
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -256,32 +310,34 @@ class PickUpMap extends Component {
     }
 
     rideRequest = (latlng) => {
-        var objRideRequest = {
-            user_id: '7141',
-            driver_id: 'eyJhbGciOiJIUzI1NiJ9.YXdldEBnbWFpbC5jb20.5Eu6IK9S86VYqJrrAKZK2I0wCDOFAsbPxbYfaIf4xog',
-            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
-            dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
-            route_distance: this.state.route_distance,
-            route_time: this.state.route_time,
-            route_price: this.state.route_price,
-            status: 1
-        };
-
-        $.ajax({ 
-            type:"POST",
-            url:"/ride/rideRequest",
-            data: JSON.stringify(objRideRequest), 
-            contentType: "application/json",
-            success: function(data, textStatus, jqXHR) {
-                document.getElementById("ride-price-dashboard").style.visibility = "hidden";
-                document.getElementById("ride-request-dashboard").style.visibility = "visible";
-                this.timerB = setInterval(this.checkRideStatus, 5000);
-                console.log("ride request", data);
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(xhr, status, err.toString());
-            }.bind(this)
-        });  
+        
+            var user_token = localStorage.getItem("_auth_user");
+            var objRideRequest = {
+                user_id: user_token,
+                driver_id: this.state._nearest_driver_token,
+                pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+                dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
+                route_distance: this.state.route_distance,
+                route_time: this.state.route_time,
+                route_price: this.state.route_price,
+                status: 1
+            };
+    
+            $.ajax({ 
+                type:"POST",
+                url:"/ride/rideRequest",
+                data: JSON.stringify(objRideRequest), 
+                contentType: "application/json",
+                success: function(data, textStatus, jqXHR) {
+                    document.getElementById("ride-price-dashboard").style.visibility = "hidden";
+                    document.getElementById("ride-request-dashboard").style.visibility = "visible";
+                    this.timerB = setInterval(this.checkRideStatus, 7000);
+                    console.log("ride request", data);
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });  
     }
 
     change = (e) => {
@@ -297,7 +353,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/check_ride_user",
-            headers: { 'x-auth': localStorage.getItem("auth")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -313,7 +369,8 @@ class PickUpMap extends Component {
                             _driverName : ride.driver.firstName + ' ' + ride.driver.middleName,
                             _driverPlateNo: '02-B78098',
                             _driverMobile: ride.driver.mobile,
-                            _driverCarModel: 'LIFAN J450'
+                            _driverCarModel: 'LIFAN J450',
+                            _driverCurrentLocation : ride.driver.currentLocation.coordinates
                         });
                         res(true);
                     }); 
@@ -343,6 +400,7 @@ class PickUpMap extends Component {
 
     resetRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+        document.getElementById('ride-route-try').style.visibility = "hidden";
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -382,48 +440,25 @@ class PickUpMap extends Component {
     render(){    
         return(
             <div>
-              <div className="user-dashboard">
-                 <Grid fluid>
-                   <Row>
-                       <Col xs={9} sm={9} md={9}>
-                            <FormGroup>
-                            <FormControl
-                            bsSize="sm"
-                            name="pickupText"
-                            type="text"
-                            value={this.state.pickupText}
-                            placeholder="Select pickup"
-                            onChange={e => this.change(e)}
-                            >
-                            </FormControl>
-                            </FormGroup>
-                            </Col>
-                       <Col xs={1} sm={1} md={1}>
-                          <Button bsSize="sm" bsStyle="link">Cancel</Button>
-                       </Col>
-                   </Row>
-
-                   <Row>
-                       <Col xs={9} sm={9} md={9}>
-                            <FormGroup>
-                            <FormControl
-                            bsSize="sm"
-                            name="dropoffText"
-                            type="text"
-                            value={this.state.dropoffText}
-                            placeholder="Select your dropoff"
-                            onChange={e => this.change(e)}
-                            >
-                            </FormControl>
-                            </FormGroup>
-                            </Col>
-                       <Col xs={1} sm={1} md={1}>
-                           <Button bsSize="sm" bsStyle="link">Cancel</Button>
-                       </Col>
-                   </Row>
-                 </Grid>
-              </div>
+              <div className="user-info" id="user-info">
               
+                <Grid fluid>
+                    <Row>
+                      <Col xs={4} sm={3} sm={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
+                      <Col xs={4} sm={3} sm={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
+                      <Col xs={4} sm={3} sm={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
+                    </Row>
+                </Grid>
+              </div>
+
+              <div className="div-intro" id="div-intro">
+               <Grid fluid>
+                 <Row> 
+                     <Col xs={12} sm={12} sm={12}>For ride click your pickup and dropoff from the map.</Col>
+                 </Row>
+               </Grid>
+              </div>
+
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
                   <Grid fluid={true}>
@@ -480,7 +515,7 @@ class PickUpMap extends Component {
               </div>
 
               <div className="ride-route-try" id="ride-route-try"> 
-                <strong>Oh! </strong> Something wrong. Try again it will work.
+                <strong>Oh! </strong> Something wrong. Try again.
                 <p> 
                  <Grid fluid>
                      <Row className="rowPaddingSm">

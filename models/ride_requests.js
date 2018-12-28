@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const ride_requests = sequelize.define('ride_requests', {
-    user_id: DataTypes.INTEGER,
+    user_id: DataTypes.STRING,
     driver_id: DataTypes.STRING,
     pickup_latlng: DataTypes.GEOMETRY('POINT'),
     dropoff_latlng: DataTypes.GEOMETRY('POINT'),
@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.INTEGER
   }, {});
   ride_requests.associate = function(models) {
+    riderequests.belongsTo(models.users, {
+      foreignKey: 'user_id'
+    });
     riderequests.belongsTo(models.drivers, {
       foreignKey: 'driver_id'
     });

@@ -16,9 +16,19 @@ models.Sequelize = Sequelize;
 models.sequelize = sequelize;
 
 //Models/tables
+models.users = require('../models/users')(sequelize, Sequelize);
 models.drivers = require('../models/drivers')(sequelize, Sequelize);
 models.riderequests = require('../models/ride_requests')(sequelize, Sequelize);
 models.payments = require('../models/payments')(sequelize, Sequelize);
+
+models.riderequests.belongsTo(models.users, {
+  foreignKey: 'user_id',
+  targetKey: 'token'
+});
+models.users.hasMany(models.riderequests, {
+  foreignKey: 'user_id',
+  sourceKey: 'token'
+});
 
 models.riderequests.belongsTo(models.drivers, {
   foreignKey: 'driver_id',

@@ -10,11 +10,11 @@ class DriverLogin extends Component {
     this.state = {
       auth: ''
     }
-    localStorage.setItem("auth", '');
+    localStorage.removeItem('_auth_driver')
   }
 
   render() {
-    const auth = localStorage.getItem("auth");
+    const auth = localStorage.getItem("_auth_driver");
     console.log('received token', auth);
     return(
      <div>

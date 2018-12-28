@@ -9,7 +9,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       user_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
+        references: {
+          model: 'users',
+          key: 'token'
+        }
       },
       driver_id: {
         type: Sequelize.STRING,

@@ -84,6 +84,50 @@
   box-shadow: 10px 10px 10px gray;
   border-radius: 25px;
   box-sizing: border-box;
+  visibility: hidden;
+
+}
+
+.user-info {
+  color: #ffffff;
+  position: fixed;
+  top: 8%;
+  left: 55%;
+  width: 258px;
+  height: 44px;
+  border: 2px solid white;
+  background-color: #a9adac;
+  transform: translate(-55%, -55%);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 4px;
+  padding-right: 9px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: visible;
+}
+
+.div-intro {
+  color: #ffffff;
+  position: fixed;
+  top: 21%;
+  left: 55%;
+  width: 258px;
+  height: 52px;
+  border: 2px solid white;
+  background-color: #ef6a36;
+  transform: translate(-55%, -55%);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 11px;
+  padding-right: 9px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: visible;
 }
 
 .ride-price-dashboard {
@@ -149,7 +193,7 @@
 }
 
 .ride-route-try {
-  color: #ffffff;
+  color: #5f5b5b;
   position: fixed;
   margin: -100px 0 0 -100px;
   top: 57%;
@@ -157,12 +201,12 @@
   width: 312px;
   height: 72px;
   border: 2px solid white;
-  background-color: #e7d25e;
+  background-color: #f5e3a5;
   transform: translate(50%, 50%);
   z-index: 2000;
   padding-top: 6px;
   padding-right: 11px;
-  padding-left: 5px;
+  padding-left: 15px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
@@ -174,7 +218,7 @@
   color: #ffffff;
   position: fixed;
   margin: -100px 0 0 -100px;
-  top: 50%;
+  bottom: 10%;
   right: 11%;
   width: 305px;
   height: 86px;
@@ -195,12 +239,12 @@
   color: #ffffff;
   position: fixed;
   margin: -100px 0 0 -100px;
-  bottom: 10%;
+  bottom: 8%;
   right: 11%;
   width: 305px;
   height: 86px;
   border: 2px solid white;
-  background-color: #16cead;
+  background-color: #e6b939;
   z-index: 2000;
   padding-top: 6px;
   padding-left: 4px;
@@ -393,6 +437,35 @@ div.rowPaddingSm {
   padding-bottom: 94px;
   box-shadow: 10px 10px 10px gray;
 }
+
+.riderLoginBox {
+  background-color: #3ce9af;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 0px;
+  padding-bottom: 94px;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  width: 271px;
+  height: 331px;
+  color: white;
+  margin-left: 10%;
+  margin-bottom: 10%;
+}
+
+.riderApplyBox {
+  background-color: #c9c5c0;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 0px;
+  padding-bottom: 20px;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  width: 271px;
+  margin-left: 10%;
+  margin-bottom: 10%;
+}
+
 .boxHeader {
   color: #454242;
   font-size: 15px;
@@ -439,6 +512,11 @@ div.rowPaddingSm {
   animation-iteration-count: infinite;
 }
 
+.shake-intro {
+  animation: shake 5.5s;
+  animation-iteration-count: infinite;
+}
+
 .notify-rider {
   position: absolute;
   top: -33px;
@@ -450,5 +528,9 @@ div.rowPaddingSm {
   padding-right: 10px;
   padding-left: 13px;
   padding-bottom: 2px;
+}
+
+.colPadding {
+  padding-top: 5px;
 }
 

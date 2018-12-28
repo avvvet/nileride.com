@@ -18,10 +18,29 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      password: {
         type: Sequelize.STRING
+      },
+      token: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
       },
       mobile: {
         type: Sequelize.STRING
+      },
+      currentLocation: {
+        type: Sequelize.GEOMETRY('POINT')
+      },
+      isOnline: {
+        type: Sequelize.BOOLEAN
+      },
+      status: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

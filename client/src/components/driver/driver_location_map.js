@@ -3,6 +3,7 @@ import  {Route, Redirect, BrowserRouter } from 'react-router-dom'
 import {Grid, Row, Col, Nav, Navbar, NavItem , NavDropdown, MenuItem, Image, Button, Badge} from 'react-bootstrap';
 import L from 'leaflet';
 import $ from 'jquery';
+import _ from 'lodash';
 import socketClient from 'socket.io-client';
 import DriverMenu from './driver_menu';
 import DriverDashBoard from './driver_dashboard'
@@ -35,12 +36,25 @@ var dropOffIcon = L.icon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [-3, -75] // point from which the popup should open relative to the iconAnchor
 });
+var currentLocationIcon = L.icon({
+    iconUrl: '/assets/awet-ride-marker-1.png',
+    shadowUrl: '',
+    iconSize:     [80, 49], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [20, -5] // point from which the popup should open relative to the iconAnchor
+});
  
 class DriverLocation extends Component {
    constructor() {
        super();
        this.state = {
-           currentLatLng: {
+           current_latlng: {
+               lat: 0,
+               lng: 0
+           },
+           last_current_latlng : {
                lat: 0,
                lng: 0
            },
@@ -73,7 +87,7 @@ class DriverLocation extends Component {
 
     this.checkForRide = this.checkForRide.bind(this);
     this.getDriver = this.getDriver.bind(this);
-    this.updateDriverLocation = this.updateDriverLocation.bind(this);
+    this.driverCurrentLocation = this.driverCurrentLocation.bind(this);
     this.acceptRide = this.acceptRide.bind(this);
     this.rideCompleted = this.rideCompleted.bind(this);
     this.showPickUpLocation = this.showPickUpLocation.bind(this);
@@ -92,8 +106,6 @@ class DriverLocation extends Component {
         headers: { 'x-auth': token },
         contentType: "application/json",
         success: function(driver, textStatus, jqXHR) {
-            console.log('hi', driver);
-          //document.getElementById('driver_name').innerHTML = 'Hi, ' + driver.firstName;
           this.setState({
               driver: driver
           });   
@@ -130,9 +142,9 @@ class DriverLocation extends Component {
    }
 
    componentDidMount(){
-    this.getDriver(localStorage.getItem("auth"));   
+    this.getDriver(localStorage.getItem("_auth_driver"));   
     this.setState({
-        auth: localStorage.getItem("auth")
+        auth: localStorage.getItem("_auth_driver")
     });
 
     var data = {
@@ -141,7 +153,7 @@ class DriverLocation extends Component {
     
     //this.socketConnect(data);
 
-    var map = L.map('mapid').setView([9.0092, 38.7645], 16);
+    var map = L.map('mapid').setView([9.0092, 38.7645], 17);
     map.locate({setView: true, maxZoom: 17});
     
     this.setState({map : map});
@@ -156,59 +168,65 @@ class DriverLocation extends Component {
     });
    
     this.timerCheckForRide = setInterval(this.checkForRide, 5000);
+    this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);
 
     this.driverRidesInfo();
+
+    map.on('locationfound', (e) => {
+        var markerGroup = this.state.markerGroup;
+        this.setState({current_latlng : e.latlng});
+        var radius = e.accuracy / 1024;
+        radius = radius.toFixed(2);
+        L.marker(e.latlng, {icon: currentLocationIcon}).addTo(markerGroup)
+        .bindPopup("You are " + radius + " meters from this point").openPopup();
+        
+        L.circle(e.latlng, radius).addTo(markerGroup);
+        map.setView(e.latlng,17);
+    });
+    
+    function onLocationError(e) {
+            alert(e.message);
+    }
+    map.on('locationerror', onLocationError);
    }
 
    componentDidUpdate() {
-    var map = this.state.map;
-    var markerGroup = this.state.markerGroup;
-    var currentLocationIcon = L.icon({
-        iconUrl: '/assets/awet-ride-marker-1.png',
-        shadowUrl: '',
-        iconSize:     [80, 49], // size of the icon
-        shadowSize:   [50, 64], // size of the shadow
-        iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
-        shadowAnchor: [4, 62],  // the same for the shadow
-        popupAnchor:  [20, -5] // point from which the popup should open relative to the iconAnchor
-    });
-    map.on('locationfound', (e) => {
-    //this.updateDriverLocation(e.latlng, localStorage.getItem("auth"));
-      var radius = e.accuracy / 1024;
-      radius = radius.toFixed(2);
-      L.marker(e.latlng, {icon: currentLocationIcon}).addTo(markerGroup)
-      .bindPopup("You are " + radius + " meters from this point").openPopup();
-        
-      L.circle(e.latlng, radius).addTo(markerGroup);
-      map.setView(e.latlng,15);
-    });
-
-    function onLocationError(e) {
-        alert(e.message);
-    }
-    map.on('locationerror', onLocationError);
      
    }
 
-   updateDriverLocation = (latlng, token) => {
-       console.log('current latlng', latlng);
-    var current_latlng = {
-        _latlng : `POINT(${latlng.lat} ${latlng.lng})`, 
-    };
-
-    $.ajax({ 
-        type:"POST",
-        url:"/driver/updateLocation",
-        headers: { 'x-auth': token },
-        data: JSON.stringify(current_latlng), 
-        contentType: "application/json",
-        success: function(data, textStatus, jqXHR) {
-          
-        }.bind(this),
-        error: function(xhr, status, err) {
-            console.error(xhr, status, err.toString());
-        }.bind(this)
-    });  
+   driverCurrentLocation = () => {
+    let PromiseLocateDriver = new Promise((resolve, reject)=>{
+        if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
+            console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
+            var map = this.state.map;
+            map.locate({setView: true, maxZoom: 17});
+            this.setState({last_current_latlng : this.state.current_latlng})
+            resolve(true);
+        } else {
+            reject(true)
+        }
+        
+    });
+    PromiseLocateDriver.then((r)=>{
+        
+        var current_latlng = {
+            _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
+        };
+        var token = localStorage.getItem("_auth_driver");
+        $.ajax({ 
+            type:"POST",
+            url:"/driver/updateLocation",
+            headers: { 'x-auth': token },
+            data: JSON.stringify(current_latlng), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+              
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });
+    }); 
    }
 
    driverRidesInfo = () => {
@@ -218,7 +236,7 @@ class DriverLocation extends Component {
     $.ajax({ 
         type:"POST",
         url:"/driver/getRidesInfo",
-        headers: { 'x-auth': localStorage.getItem("auth")},
+        headers: { 'x-auth': localStorage.getItem("_auth_driver")},
         data: JSON.stringify(driver), 
         contentType: "application/json",
         success: (driver) => {
@@ -253,8 +271,8 @@ class DriverLocation extends Component {
 
         $.ajax({
             type:"POST",
-            url:"/ride/check_ride",
-            headers: { 'x-auth': localStorage.getItem("auth")},
+            url:"/ride/check_ride_driver",
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json"
          })
@@ -271,8 +289,8 @@ class DriverLocation extends Component {
                     ridePrice: ride.route_price,
                     rideDistance: ride.route_distance,
                     rideTime: ride.route_time,
-                    rideUser: ride.user_id,
-                    userMobile: "0911404040",
+                    rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+                    userMobile: ride.user.mobile,
                     userPic: "/assets/awet-ride-driver.jpeg",
                 });
                 document.getElementById('check-ride-dashboard').style.visibility="visible";
@@ -291,7 +309,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/accepted",
-            headers: { 'x-auth': localStorage.getItem("auth")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -328,7 +346,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/completed",
-            headers: { 'x-auth': localStorage.getItem("auth")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
@@ -353,8 +371,8 @@ class DriverLocation extends Component {
                     });
 
                     PromiseRemoveAll.then(()=>{
-                        this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
                         this.driverRidesInfo();
+                        this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
                         document.getElementById("driver-dashboard").style.visibility = "visible"; 
                     });
                 }  
@@ -372,7 +390,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/paxFound",
-            headers: { 'x-auth': localStorage.getItem("auth")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {

@@ -7,7 +7,7 @@ import PickUp from './components/pick_up';
 import DropOff from './components/drop_off';
 import DriverPage from './components/driver/driver_page';
 import DriverLogin from './components/driver/login';
-
+import RiderLogin from './components/rider/login';
 import './App.css';
 
 
@@ -26,7 +26,6 @@ class App extends React.Component {
     const positionTwo = [9.0092, 38.7645];
     
     return (
-
       <div>
         <BrowserRouter>
           <div>
@@ -36,6 +35,7 @@ class App extends React.Component {
 
                 <Route path="/driver" component={DriverPage} exact/>
                 <Route path="/driver/login" component={DriverLogin} exact/>
+                <Route path="/user/login" component={RiderLogin} exact/>
             </Switch>
           </div>
         </BrowserRouter>  

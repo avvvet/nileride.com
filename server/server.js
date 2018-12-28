@@ -39,6 +39,85 @@ app.post('/api/postList', (req, res) => {
     
 });
 
+app.get('/user/get', (req, res) => {
+    var token = req.header('x-auth');
+    console.log('yesyes',token);
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'JESUSMYHEALER');
+        models.users.findOne({ where: {email: decoded} }).then(user => {
+          if(!user) {
+            res.sendStatus(401).send();
+          }
+          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'status']));  
+        });
+    } catch (e) {
+      res.status(401).send();
+    }
+});
+//user-apply
+app.post('/user/apply', (req, res) => {
+    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'password', 'token']);
+    body.token = jwt.sign(body.email, 'JESUSMYHEALER');
+    
+    let PromiseHashedPassword = new Promise((res, rej) => {
+      bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(body.password, salt, (err, hash) => {
+              if(err) {
+                  rej(err);
+              } else {
+                  body.password = hash;
+                  res(body);
+              }
+          });
+      });
+    });
+   
+    PromiseHashedPassword.then((_body) => {
+      var users = models.users.build(_body);
+      users.save().then((user)=> {
+          res.header('x-auth', user.token).send(user);
+        }, (err) => {
+            res.status(400).send(err.errors[0]);
+        }).catch((e) => {
+            res.status(400).send(e);
+        });
+    });
+});
+
+
+app.post('/user/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    models.users.findOne({ where : {email: body.email}}).then( (user) => {
+       if(!user) {
+          res.status(401).send();
+       }
+       
+       let PromisePasswordCompare = new Promise((resolve, reject) => {
+         bcrypt.compare(body.password, user.password, (err, compareFlag) => {
+             if(err){
+                 reject(err);
+             } else {
+                 resolve(compareFlag);
+             }
+         });
+       });
+       
+       PromisePasswordCompare.then((compareFlag) => {
+           if(compareFlag === true){
+              res.header('x-auth', user.token).send(user);
+           } else {
+              res.status(401).send();
+           }
+       },(r) => {
+           console.log('rrr', r);
+       });
+  
+    });
+   
+});
+
+
 app.post('/ride/rideRequest', (req, res) => {
    var _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
    var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
@@ -194,14 +273,14 @@ app.post('/ride/completed', (req, res) => {
 
 app.post('/ride/check_ride_user', (req, res) => {
     var body = _.pick(req.body, ['status']);
-    //var token = req.header('x-auth');
-    var token = "7141";
+    var token = req.header('x-auth');
+    //THANK YOU JESUS THANK YOU 
     const Op = Sequelize.Op;
     models.riderequests.findOne({ 
         where : {user_id: token, status: {[Op.ne]: 777}},
         include: [
             { model: models.drivers,
-              attributes: ['firstName','middleName','mobile', 'plateNo']
+              attributes: ['firstName','middleName','mobile', 'plateNo', 'currentLocation']
             }
         ]
     }).then( (ride) => {
@@ -216,12 +295,17 @@ app.post('/ride/check_ride_user', (req, res) => {
     });
 });
 
-app.post('/ride/check_ride', (req, res) => {
+app.post('/ride/check_ride_driver', (req, res) => {
     var body = _.pick(req.body, ['status']);
     var token = req.header('x-auth');
 
     models.riderequests.findOne({ 
-        where : {driver_id: token, status: body.status}
+        where : {driver_id: token, status: body.status},
+        include: [
+            { model: models.users,
+              attributes: ['firstName','middleName','mobile']
+            }
+        ]
     }).then( (ride) => {
       console.log('ride request for this driver', ride);
        res.send(ride);
@@ -330,26 +414,19 @@ app.post('/driver', (req, res) => {
 
 //driver location updatet
 app.post('/driver/updateLocation', (req, res) => {
-    console.log("hi hi");
     var token = req.header('x-auth');
     var _latlng = Sequelize.fn('ST_GeomFromText', req.body._latlng);
     var decoded;
     try {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
-        models.drivers.findOne({ where: {email: decoded} }).then(driver => {
-          if(!driver) {
-            res.send(401).send();
-          }
-          
-          models.drivers.update(
+        models.drivers.update(
             { currentLocation: _latlng },
             { where: { email: decoded } }
           ).then(result => {
-             console.log('update result', result);
+             console.log('driver location updated', result);
           }).catch(err => {
              console.log('update error', err);
           });
-        });
     } catch (e) {
       res.status(401).send();
     }
@@ -361,7 +438,7 @@ app.post('/drivers/nearest', (req, res) => {
     console.log('pickup_latlng is ', _pickup_latlng);
     var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng);
     models.drivers.findAll({ 
-      attributes: ['firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
+      attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
       order: distance,
       limit: 3,
       logging: console.log

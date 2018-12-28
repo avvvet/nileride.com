@@ -97,7 +97,7 @@ class ApplyToDrive extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-              localStorage.setItem("auth", data.token);
+              localStorage.setItem("_auth_driver", data.token);
               this.setState({
                   auth: data.token
               })  
