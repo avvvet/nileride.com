@@ -26,6 +26,13 @@ app.get('/driver/ride', authenticate, (req, res) => {
    res.send(req.driver);
 });
 
+app.get('/*', (req, res) => {
+    let url = path.join(__dirname, '../client/build', 'index.html');
+    if (!url.startsWith('/app/')) // we're on local windows
+      url = url.substring(1);
+    res.sendFile(url);
+  });
+
 // An api endpoint that returns a short list of items
 app.get('/api/getList', (req,res) => {
     var list = ["item1", "item2", "item3"];
