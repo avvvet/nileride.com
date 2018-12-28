@@ -5,6 +5,7 @@ import {Button, Grid, Row, Col, FormControl, FormGroup, Alert, Badge, Image} fro
 import {NavLink} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
+import _ from 'lodash';
 
 var yourLocation = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
@@ -21,6 +22,14 @@ class PickUpMap extends Component {
     constructor(){
         super();
         this.state = {
+            current_latlng: {
+                lat: 0,
+                lng: 0
+            },
+            last_current_latlng : {
+                lat: 0,
+                lng: 0
+            },
             isLogedIn : false,
             pickup_flag: 'off',
             dropoff_flag: 'off',
@@ -75,7 +84,42 @@ class PickUpMap extends Component {
             _nearest_driver_distance : 0 
         }
     }
-    
+
+    userCurrentLocation = () => {
+        console.log('user current location');
+        let PromiseLocateDriver = new Promise((resolve, reject)=>{
+            if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
+                console.log('user current latlng', this.state.current_latlng, this.state.last_current_latlng);
+                var map = this.state.map;
+                map.locate({setView: true, maxZoom: 17});
+                this.setState({last_current_latlng : this.state.current_latlng})
+                resolve(true);
+            } else {
+                reject(true)
+            }
+            
+        });
+        PromiseLocateDriver.then((r)=>{
+            var current_latlng = {
+                _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
+            };
+            var token = localStorage.getItem("_auth_user");
+            $.ajax({ 
+                type:"POST",
+                url:"/user/updateLocation",
+                headers: { 'x-auth': token },
+                data: JSON.stringify(current_latlng), 
+                contentType: "application/json",
+                success: function(data, textStatus, jqXHR) {
+                  
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
+        }); 
+    }
+
     getList = () => {
         var obj = { name: "John", age: 30, city: "New York" }; 
         fetch('/api/getList')
@@ -162,7 +206,7 @@ class PickUpMap extends Component {
 
         map.on('locationfound', (e) => {
             var markerGroup = this.state.markerGroup;
-            //this.updateDriverLocation(e.latlng, localStorage.getItem("_auth_driver"));
+            this.setState({current_latlng : e.latlng});
               var radius = e.accuracy / 1024;
               radius = radius.toFixed(2);
               L.marker(e.latlng, {icon: yourLocation}).addTo(markerGroup)
@@ -210,7 +254,8 @@ class PickUpMap extends Component {
                 this.getNearestDrivers(this.state.pickup_latlng);
             }
         }); 
-        
+
+        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     };
 
     componentDidUpdate(){
@@ -224,7 +269,7 @@ class PickUpMap extends Component {
             headers: { 'x-auth': token },
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
-              if(user){
+              if(user && typeof user.user !== 'undefined'){
                 this.setState({
                     user: user,
                     isLogedIn : true

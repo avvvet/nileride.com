@@ -147,9 +147,7 @@ class DriverLocation extends Component {
         auth: localStorage.getItem("_auth_driver")
     });
 
-    var data = {
-        driver_id : 4141
-    };
+    this.driverRidesInfo();
     
     //this.socketConnect(data);
 
@@ -169,8 +167,6 @@ class DriverLocation extends Component {
    
     this.timerCheckForRide = setInterval(this.checkForRide, 5000);
     this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);
-
-    this.driverRidesInfo();
 
     map.on('locationfound', (e) => {
         var markerGroup = this.state.markerGroup;

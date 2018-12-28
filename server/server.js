@@ -46,6 +46,25 @@ app.post('/api/postList', (req, res) => {
     
 });
 
+app.post('/user/updateLocation', (req, res) => {
+    var token = req.header('x-auth');
+    var _latlng = Sequelize.fn('ST_GeomFromText', req.body._latlng);
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'JESUSMYHEALER');
+        models.users.update(
+            { currentLocation: _latlng },
+            { where: { email: decoded } }
+          ).then(result => {
+             console.log('user location updated', result);
+          }).catch(err => {
+             console.log('user location update error', err);
+          });
+    } catch (e) {
+      res.status(401).send();
+    }
+});
+
 app.get('/user/get', (req, res) => {
     var token = req.header('x-auth');
     console.log('yesyes',token);
