@@ -8,5 +8,6 @@ const env = {
   DATABASE_DIALECT: "mysql",
   DATABASE_OPERATORSALIASES: 'Sequelize.Op',
   NODE_ENV:'development',
+  ROUTING_SERVICE: 'http://localhost:5000/route/v1'
 };
 module.exports = env;

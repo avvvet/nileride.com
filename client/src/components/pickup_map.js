@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
 import {Button, Grid, Row, Col, FormControl, FormGroup, Alert, Badge, Image} from 'react-bootstrap';
-import {NavLink} from 'react-router-dom';
+import {NavLink, Redirect} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
 import _ from 'lodash';
+
+const env = require('../env');
 
 var yourLocation = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
@@ -82,7 +84,14 @@ class PickUpMap extends Component {
             _driverCarModel: '',
             rideCompleteFlag: false,
             _nearest_driver_token : '',
-            _nearest_driver_distance : 0 
+            _nearest_driver_distance : 0,
+            _nearest_driver_eta : 0 ,
+            _nearest_driver_latlng : {
+                lat: 0,
+                lng:0
+            },
+            _signInFlag : false,
+            _fire_driver_eta_flag : false
         }
     }
 
@@ -177,7 +186,8 @@ class PickUpMap extends Component {
                 if(driver.length > 0){
                   this.setState({
                       _nearest_driver_token : driver[0].token,
-                      _nearest_driver_distance : driver[0].distance
+                      _nearest_driver_distance : driver[0].distance,
+                      _nearest_driver_latlng : driver[0].currentLocation.coordinates
                   })
                 }
             }.bind(this),
@@ -236,6 +246,7 @@ class PickUpMap extends Component {
                     pickup_latlng : e.latlng,
                     first_time_flag : true
                 });
+                this.getNearestDrivers(e.latlng);
             }
             
             if(this.state.dropoff_flag === 'off' && this.state.pickup_flag === 'on' && this.state.first_time_flag === false){
@@ -254,7 +265,7 @@ class PickUpMap extends Component {
             }
              
             if(this.state.pickup_flag ==='on') {  //ready nearest driver
-                this.getNearestDrivers(this.state.pickup_latlng);
+                clearInterval(this.timerUserLocation);  //user start selecting location stop current location change
             }
         }); 
 
@@ -272,10 +283,11 @@ class PickUpMap extends Component {
             headers: { 'x-auth': token },
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
-              if(user && typeof user.user !== 'undefined'){
+              if(user){
                 this.setState({
                     user: user,
-                    isLogedIn : true
+                    isLogedIn : true,
+                    _signInFlag : false
                 });   
               }
             }.bind(this),
@@ -287,6 +299,7 @@ class PickUpMap extends Component {
     }
 
     findRoute = (latlng1, latlng2) => {
+        alert('jesus');
         document.getElementById('ride-route-status').innerHTML = 'Please wait ...';
         document.getElementById('ride-route-status').style.visibility = 'visible';
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
@@ -308,7 +321,13 @@ class PickUpMap extends Component {
             showAlternatives: false,
             createMarker: function (){
                 return null;
-            }
+            },
+            lineOptions: {
+                styles: [{color: 'red', opacity: 1, weight: 5}]
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
         })
         .on('routesfound', this.routeFound)
         .on('routingerror', (err) => {
@@ -355,6 +374,130 @@ class PickUpMap extends Component {
        document.getElementById('ride-route-try').style.visibility = 'hidden';
        document.getElementById('ride-route-status').style.visibility = 'hidden';
        document.getElementById('ride-price-dashboard').style.visibility = "visible";
+       this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
+    }
+
+    nearestDriverRouteInfo = (user_pickup_latlng, nearest_driver_latlng) => {
+        console.log('neareest data ', nearest_driver_latlng, user_pickup_latlng);
+        var map = this.state.map;
+        if(this._neearest_driver_routeControl){
+            map.removeControl(this._neearest_driver_routeControl);
+            this._neearest_driver_routeControl = null;
+        }
+        this._neearest_driver_routeControl = L.Routing.control({
+            waypoints: [
+             L.latLng(user_pickup_latlng),
+             L.latLng(nearest_driver_latlng)
+            ],
+            routeWhileDragging: false,
+            addWaypoints : false, //disable adding new waypoints to the existing path
+            show: false,
+            showAlternatives: false,
+            createMarker: function (){
+                return null;
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
+        })
+        .on('routesfound', (e)=> {
+            var routes = e.routes;
+            var _distance = routes[0].summary.totalDistance;
+            var _ride_time = routes[0].summary.totalTime;
+            
+            _distance = (_distance/1000).toFixed(2);
+            var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+            this.setState({
+                _nearest_driver_eta : _ride_time_string 
+            });
+           
+            function timeConvert(n) {
+                var num = n;
+                var hours = (num / 3600);
+                var rhours = Math.floor(hours);
+                var minutes = (hours - rhours) * 60;
+                var rminutes = Math.round(minutes);
+                
+                var hDisplay = rhours > 0 ? rhours + " hr" : "";
+                var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+                return hDisplay + mDisplay; 
+            }
+            var map = this.state.map;
+            if(this._neearest_driver_routeControl){
+                map.removeControl(this._neearest_driver_routeControl);
+                this._neearest_driver_routeControl = null;
+            }
+        })
+        .on('routingerror', (err) => {
+            console.log(err.error.status);
+            if(err.error.status === -1){
+                document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+                document.getElementById('ride-route-status').style.visibility = 'hidden';
+                document.getElementById('ride-route-try').style.visibility = 'visible';
+            }
+        })
+        .addTo(map);  
+    }
+
+    getDriverEta = () => {
+        var map = this.state.map;
+        if(this.routeControl){
+            map.removeControl(this.routeControl);
+            this.routeControl = null;
+        }
+        this.routeControl = L.Routing.control({
+            waypoints: [
+             L.latLng(this.state.pickup_latlng),
+             L.latLng(this.state._driverCurrentLocation)
+            ],
+            routeWhileDragging: false,
+            addWaypoints : false, //disable adding new waypoints to the existing path
+            show: false,
+            showAlternatives: false,
+            createMarker: function (){
+                return null;
+            },
+            lineOptions: {
+                styles: [{color: 'blue', opacity: 1, weight: 4}]
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
+        })
+        .on('routesfound', (e)=> {
+            var routes = e.routes;
+            var _distance = routes[0].summary.totalDistance;
+            var _ride_time = routes[0].summary.totalTime;
+            
+            _distance = (_distance/1000).toFixed(2);
+            var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+            document.getElementById('notify-rider').innerHTML = 'Get ready, driver ' + _ride_time_string + ' away !';
+            function timeConvert(n) {
+                var num = n;
+                var hours = (num / 3600);
+                var rhours = Math.floor(hours);
+                var minutes = (hours - rhours) * 60;
+                var rminutes = Math.round(minutes);
+                
+                var hDisplay = rhours > 0 ? rhours + " hr" : "";
+                var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+                return hDisplay + mDisplay; 
+            }
+            var map = this.state.map;
+            if(this._neearest_driver_routeControl){
+                map.removeControl(this._neearest_driver_routeControl);
+                this._neearest_driver_routeControl = null;
+            }
+        })
+        .on('routingerror', (err) => {
+            console.log(err.error.status);
+            if(err.error.status === -1){
+                document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+                document.getElementById('ride-route-status').style.visibility = 'hidden';
+                document.getElementById('ride-route-try').style.visibility = 'visible';
+            }
+        })
+        .addTo(map);  
     }
 
     rideRequest = (latlng) => {
@@ -374,6 +517,7 @@ class PickUpMap extends Component {
             $.ajax({ 
                 type:"POST",
                 url:"/ride/rideRequest",
+                headers: { 'x-auth': localStorage.getItem("_auth_user")},
                 data: JSON.stringify(objRideRequest), 
                 contentType: "application/json",
                 success: function(data, textStatus, jqXHR) {
@@ -383,6 +527,10 @@ class PickUpMap extends Component {
                     console.log("ride request", data);
                 }.bind(this),
                 error: function(xhr, status, err) {
+                    if(xhr.status === 401){
+                       this.setState({_signInFlag:true});
+                    }
+                    console.log('auth driver', xhr.status);
                     console.error(xhr, status, err.toString());
                 }.bind(this)
             });  
@@ -425,15 +573,23 @@ class PickUpMap extends Component {
                     PromiseSetDriverData.then(()=>{
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="visible"; 
+                        //get driver eta
+                        if(!this.state._fire_driver_eta_flag){
+                            this.setState({
+                                _fire_driver_eta_flag : true
+                            })
+                            this.timerDriverEta = setInterval(this.getDriverEta, 10000);
+                        }
                     });      
                 } else if(ride.status === 77) {  //ride on progress 
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
+                    clearInterval(this.timerDriverEta);
                 } else if(ride.status === 0) { // no ride found so end the existing 
                     document.getElementById('ride-request-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                    
+                    clearInterval(this.timerDriverEta);
                     clearInterval(this.timerB);
                     this.resetRide();
                 }
@@ -464,6 +620,7 @@ class PickUpMap extends Component {
             rideCompleteFlag: false
         });
         map.locate({setView: true, maxZoom: 15});
+        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     }
 
     cancelRide = () => {
@@ -483,9 +640,13 @@ class PickUpMap extends Component {
             rideCompleteFlag: false
         });
         map.locate({setView: true, maxZoom: 15});
+        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     }
     
-    render(){    
+    render(){  
+        if(this.state._signInFlag) {
+            return <Redirect to='/user/login'  />
+        }  
         return(
             <div>
               <div className="user-info" id="user-info">
@@ -535,6 +696,12 @@ class PickUpMap extends Component {
 
                           <Col xs={4} sm={4} md={4}>
                            <Badge>{this.state.route_time_string}</Badge>
+                          </Col>
+                      </Row>
+                      
+                      <Row className="rowPaddingSm">
+                          <Col xs={12} sm={12} md={12}>
+                             <div>driver is <Badge>{this.state._nearest_driver_eta}</Badge> away.</div>
                           </Col>
                       </Row>
 

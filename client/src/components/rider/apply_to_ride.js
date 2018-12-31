@@ -4,6 +4,8 @@ import  { Redirect } from 'react-router-dom'
 import {Grid, Row, Col, FormGroup, FormControl, ControlLabel, Tooltip, PageHeader, Button, Alert} from 'react-bootstrap';
 import $ from 'jquery';
 
+var validator = require('validator');
+
 class ApplyToRide extends Component {
     constructor(){
         super();
@@ -13,7 +15,7 @@ class ApplyToRide extends Component {
             email: '',
             mobile: '',
             password: '',
-            re_password: '',
+            gender: '',
             errors: [],
             auth: false
         }
@@ -26,20 +28,59 @@ class ApplyToRide extends Component {
             errors.push("First name field is empty.");
         }
 
+        if(this.state.firstName.length <  2) {
+            errors.push("Your first name is very short.");
+        }
+
+        if(validator.isAlpha(this.state.firstName) === false) {
+            errors.push("First name needs to be alphabet");
+        }
+
         if(this.state.middleName.length === 0) {
             errors.push("Father name field is empty.");
         }
 
-        if(this.state.firstName.length < 3) {
-          errors.push("Name field need to be at least 2 characters.");
+        if(this.state.middleName.length < 2) {
+          errors.push("Father name is very short");
+        }
+
+        if(validator.isAlpha(this.state.middleName) === false) {
+            errors.push("Father name needs to be alphabet");
         }
     
-        if(this.state.email.indexOf('@') === -1) {
+        if(validator.isEmail(this.state.email)===false) {
           errors.push("Email address is not valid.");
         }
     
-        if(this.state.mobile.length === 0) {
-          errors.push("Mobile field is empty.");
+        if(this.state.email.length === 0) {
+            errors.push("Mobile field is empty.");
+        }
+
+        if(this.state.mobile.length === 0 ){
+          errors.push("Mobile field is empty");
+        }
+        else if (validator.isNumeric(this.state.mobile, {no_symbols: true} ) === false) {
+            errors.push("Mobile number is not valid");
+        }
+        else if(validator.isMobilePhone(this.state.mobile) === false) {
+          errors.push("Mobile field is not correct");
+        } else if (this.state.mobile.length < 10){
+            errors.push("Mobile number needs to be 10 digits");
+        }else if (this.state.mobile.length > 10){
+            errors.push("Mobile number needs to be 10 digits");
+        }
+
+        if(this.state.password.length === 0 ){
+            errors.push("Password field is empty");
+        }
+        else if(validator.isLength(this.state.password, {min: 6}) === false){
+            errors.push("Password length must not be less than 6 characters");
+        }else if(validator.isLength(this.state.password, {max: 15}) === false){
+            errors.push("Password length very long");
+        }
+
+        if(this.state.gender.length === 0){
+            errors.push("Gender field not selected");
         }
     
         return errors;
@@ -58,6 +99,8 @@ class ApplyToRide extends Component {
             [e.target.name]: e.target.value
         })
     }
+
+
 
     onRiderApply = (e) => {
         e.preventDefault();
@@ -206,14 +249,11 @@ class ApplyToRide extends Component {
                     </Col>
                     <Col xs={12} sm={6} md={6}>
                     <FormGroup>
-                    <ControlLabel>Re-Password</ControlLabel>
-                    <FormControl
-                    name="re_password"
-                    type="password"
-                    value={this.state.re_password}
-                    placeholder="Retype password"
-                    onChange={e => this.change(e)}
-                    >
+                    <ControlLabel>Gender</ControlLabel>
+                    <FormControl name="gender" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
+                        <option value="">select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
                     </FormControl>
                     </FormGroup>
                     </Col>

@@ -62,16 +62,17 @@ class RiderLoginForm extends Component {
         }
     }
 
-  riderLogin = (login) => {
+    riderLogin = (login) => {
         $.ajax({ 
             type:"POST",
             url:"/user/login",
             data: JSON.stringify(login), 
             contentType: "application/json",
-            success: function(data, textStatus, jqXHR) {
-             localStorage.setItem("_auth_user", data.token);
+            success: function(user, textStatus, jqXHR) {
+             console.log('this user login', user);
+             localStorage.setItem("_auth_user", user.token);
              this.setState({
-                auth: data.token
+                auth: user.token
              });   
             }.bind(this),
             error: function(xhr, status, err) {

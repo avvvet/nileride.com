@@ -10,10 +10,11 @@ const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const publicPath = path.join(__dirname, '../client/build');
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 
 var validator = require('validator');
-var {authenticate} = require('./middleware/authenticate');
+var {authDriver} = require('./middleware/_auth_driver');
+var {authUser} = require('./middleware/_auth_user');
 var _ = require('lodash');
 var app = express();
 var server = http.createServer(app);
@@ -22,16 +23,16 @@ var io = socketIO(server);
 app.use(bodyParser.json());
 app.use(express.static(publicPath));
 
-app.get('/driver/ride', authenticate, (req, res) => {
+app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
 
-app.get('/*', (req, res) => {
-    let url = path.join(__dirname, '../client/build', 'index.html');
-    if (!url.startsWith('/app/')) // we're on local windows
-      url = url.substring(1);
-    res.sendFile(url);
-  });
+// app.get('/*', (req, res) => {
+//     let url = path.join(__dirname, '../client/build', 'index.html');
+//     if (!url.startsWith('/app/')) // we're on local windows
+//       url = url.substring(1);
+//     res.sendFile(url);
+//   });
 
 // An api endpoint that returns a short list of items
 app.get('/api/getList', (req,res) => {
@@ -72,10 +73,11 @@ app.get('/user/get', (req, res) => {
     try {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
         models.users.findOne({ where: {email: decoded} }).then(user => {
-          if(!user) {
+          console.log('userrrrrrrrrrrr', user);
+            if(!user) {
             res.sendStatus(401).send();
           }
-          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'status']));  
+          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'token', 'status']));  
         });
     } catch (e) {
       res.status(401).send();
@@ -144,7 +146,7 @@ app.post('/user/login', (req, res) => {
 });
 
 
-app.post('/ride/rideRequest', (req, res) => {
+app.post('/ride/rideRequest', authUser, (req, res) => {
    var _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
    var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
 
@@ -360,8 +362,7 @@ app.post('/driver/getRidesInfo', (req, res) => {
                 model: models.drivers,
                 attributes: ['firstName','middleName','mobile']
             }
-        ],
-        raw: true
+        ]
     }).then( (data) => {
       console.log('ride request for this driver', data);
        res.send(data);
@@ -449,6 +450,7 @@ app.post('/driver/updateLocation', (req, res) => {
             { currentLocation: _latlng },
             { where: { email: decoded } }
           ).then(result => {
+            res.send(result);
              console.log('driver location updated', result);
           }).catch(err => {
              console.log('update error', err);

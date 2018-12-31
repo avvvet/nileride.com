@@ -9,7 +9,8 @@ import DriverMenu from './driver_menu';
 import DriverDashBoard from './driver_dashboard'
 import { resolve } from 'path';
 
-const socket = socketClient('http://localhost:5000');
+const socket = socketClient('http://localhost:7000');
+const env = require('../../env')
 const {Howl, Howler} = require('howler');
 const sound = new Howl({
     src: ["/assets/sounds/awet-ride.mp3","/assets/sounds/awet-ride.ogg","/assets/sounds/awet-ride.m4r"],
@@ -62,6 +63,7 @@ class DriverLocation extends Component {
            dropoff_latlng: '',
            driver_id: '',
            markerGroup: '',
+           locationGroup: '',
            map : '',
            auth: false,
            soundFlag : false,
@@ -81,8 +83,10 @@ class DriverLocation extends Component {
            driverName : '',
            amount: '',
            charge: '',
-           total_rides: ''
-           
+           total_rides: '',
+           pickupRoutFlag : false,
+           locationFoundFlag : false,
+           stopMapViewFlag : false
        }
 
     this.checkForRide = this.checkForRide.bind(this);
@@ -162,28 +166,34 @@ class DriverLocation extends Component {
 
     
     this.setState({
-        markerGroup : new L.LayerGroup().addTo(map)
+        markerGroup : new L.LayerGroup().addTo(map),
+        locationGroup : new L.LayerGroup().addTo(map)
     });
    
     this.timerCheckForRide = setInterval(this.checkForRide, 5000);
     this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);
 
     map.on('locationfound', (e) => {
-        var markerGroup = this.state.markerGroup;
+        var locationGroup = this.state.locationGroup;
+        locationGroup.clearLayers();
+        
         this.setState({current_latlng : e.latlng});
         var radius = e.accuracy / 1024;
         radius = radius.toFixed(2);
-        L.marker(e.latlng, {icon: currentLocationIcon}).addTo(markerGroup)
+        L.marker(e.latlng, {icon: currentLocationIcon}).addTo(locationGroup)
         .bindPopup("You are " + radius + " meters from this point").openPopup();
         
-        L.circle(e.latlng, radius).addTo(markerGroup);
+        L.circle(e.latlng, radius).addTo(locationGroup);
         map.setView(e.latlng,17);
+         
     });
     
     function onLocationError(e) {
             alert(e.message);
     }
+
     map.on('locationerror', onLocationError);
+
    }
 
    componentDidUpdate() {
@@ -192,36 +202,34 @@ class DriverLocation extends Component {
 
    driverCurrentLocation = () => {
     let PromiseLocateDriver = new Promise((resolve, reject)=>{
+            var map = this.state.map;
+            map.locate();
+            resolve(true); 
+    });
+
+    PromiseLocateDriver.then((r)=>{
+        console.log('promise run');
         if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
             console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
-            var map = this.state.map;
-            map.locate({setView: true, maxZoom: 17});
+            var token = localStorage.getItem("_auth_driver");
+            var current_latlng = {
+                _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
+            }; 
+            $.ajax({ 
+                type:"POST",
+                url:"/driver/updateLocation",
+                headers: { 'x-auth': token },
+                data: JSON.stringify(current_latlng), 
+                contentType: "application/json",
+                success: function(data, textStatus, jqXHR) {
+                  alert('location updated ' + data);
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
             this.setState({last_current_latlng : this.state.current_latlng})
-            resolve(true);
-        } else {
-            reject(true)
-        }
-        
-    });
-    PromiseLocateDriver.then((r)=>{
-        
-        var current_latlng = {
-            _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
-        };
-        var token = localStorage.getItem("_auth_driver");
-        $.ajax({ 
-            type:"POST",
-            url:"/driver/updateLocation",
-            headers: { 'x-auth': token },
-            data: JSON.stringify(current_latlng), 
-            contentType: "application/json",
-            success: function(data, textStatus, jqXHR) {
-              
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(xhr, status, err.toString());
-            }.bind(this)
-        });
+        } 
     }); 
    }
 
@@ -239,7 +247,7 @@ class DriverLocation extends Component {
             if(driver.length > 0){
                 console.log('driver info', driver);
                 this.setState({
-                    driverName : driver[0].firstName,
+                    driverName : driver[0].driver.firstName,
                     amount : driver[0].amount,
                     charge : driver[0].charge,
                     total_rides: driver[0].total_rides
@@ -290,8 +298,9 @@ class DriverLocation extends Component {
                     userPic: "/assets/awet-ride-driver.jpeg",
                 });
                 document.getElementById('check-ride-dashboard').style.visibility="visible";
-                this.showPickUpLocation(ride.pickup_latlng.coordinates); 
+                this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
                 clearInterval(this.timerCheckForRide);
+                clearInterval(this.timerUserLocation);  //stop locating while accepting the request
              }
              
          }); 
@@ -318,7 +327,8 @@ class DriverLocation extends Component {
                     sound.volume(0,this.soundAccept); 
                     this.setState({
                         pickup_latlng : ride.pickup_latlng.coordinates,
-                        dropoff_latlng: ride.dropoff_latlng.coordinates
+                        dropoff_latlng: ride.dropoff_latlng.coordinates,
+                        stopMapViewFlag : true
                     })
                     resolve();
                    });
@@ -326,6 +336,7 @@ class DriverLocation extends Component {
                    PromiseSlientAlert.then(()=>{
                       //show the driver the pickup location 
                       this.showPickUpLocation(ride.pickup_latlng.coordinates);
+                      this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);  //start showing curreent location 
                    });
                 }  
             }.bind(this),
@@ -360,7 +371,8 @@ class DriverLocation extends Component {
                         //map.locate({setView: true, maxZoom: 17});
                        
                         this.setState({
-                            pickupRoutFlag : false
+                            pickupRoutFlag : false,
+                            stopMapViewFlag : false
                          });
 
                         resolve(true);
@@ -401,13 +413,13 @@ class DriverLocation extends Component {
     }
 
     
-    showPickUpLocation = (latlng) => {
+    showPickUpLocation = (_pickup_latlng, _driver_latlang) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
-        L.marker(latlng, {icon: pickUpIcon}).addTo(markerGroup)
+        L.marker(_pickup_latlng, {icon: pickUpIcon}).addTo(markerGroup)
         .bindPopup("Pick passenger here.").openPopup();
-        map.setView(latlng,15);
-        this.showPickUpRoute(this.state.currentLatLng, latlng);
+        map.setView(_pickup_latlng,15);
+        this.showPickUpRoute(_driver_latlang, _pickup_latlng);
     }
 
     showPickUpRoute = (latlng1, latlng2) => {
@@ -417,7 +429,7 @@ class DriverLocation extends Component {
            map.removeControl(this.routeControl);
            this.routeControl = null;
        }
-       
+       console.log('show pickup route', latlng1)
        this.routeControl = L.Routing.control({
             waypoints: [
              L.latLng(latlng1),
@@ -428,7 +440,10 @@ class DriverLocation extends Component {
             show: false,
             createMarker: function (){
                 return null;
-            }
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
         })
         .on('routesfound', this.routeFound)
         .addTo(map); 
@@ -474,7 +489,10 @@ class DriverLocation extends Component {
             show: false,
             createMarker: function (){
                 return null;
-            }
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
         })
         .on('routesfound', this.routeFound)
         .addTo(map);  
@@ -493,13 +511,12 @@ class DriverLocation extends Component {
      }
 
     render(){
-        
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
                 <Grid fluid>
                     <Row>
-                        <Col xs={12} sm={12} md={12}><div id="driver_name">Hi, {this.state.driver.firstName}</div></Col>
+                        <Col xs={12} sm={12} md={12}><div id="driver_name">Hi, {this.state.driverName}</div></Col>
                     </Row>
                     <Row>
                         <Col xs={6} sm={6} md={6}>earning</Col>
@@ -546,10 +563,10 @@ class DriverLocation extends Component {
                         <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
                     </Row>
                     <Row>
-                      <Col xs={6} sm={6} md={12}>
+                      <Col xs={6} sm={6} md={6}>
                        {this.state.rideUser}
                       </Col>
-                      <Col xs={6} sm={6} md={12}>
+                      <Col xs={6} sm={6} md={6}>
                        {this.state.userMobile}
                       </Col>
                     </Row>
@@ -577,10 +594,10 @@ class DriverLocation extends Component {
                         <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
                     </Row>
                     <Row>
-                      <Col xs={6} sm={6} md={12}>
+                      <Col xs={6} sm={6} md={6}>
                        {this.state.rideUser}
                       </Col>
-                      <Col xs={6} sm={6} md={12}>
+                      <Col xs={6} sm={6} md={6}>
                        {this.state.userMobile}
                       </Col>
                     </Row>
