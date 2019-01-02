@@ -15,10 +15,13 @@ const port = process.env.PORT || 4000;
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
+var {send_mail} = require('./utils/email');
+var {setUserVerify} = require('./utils/verify');
 var _ = require('lodash');
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
+
 
 app.use(bodyParser.json());
 app.use(express.static(publicPath));
@@ -44,7 +47,6 @@ app.get('/api/getList', (req,res) => {
 app.post('/api/postList', (req, res) => {
     console.log('post', req.body);
     res.json(req.body);
-    
 });
 
 app.post('/user/updateLocation', (req, res) => {
@@ -74,18 +76,19 @@ app.get('/user/get', (req, res) => {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
         models.users.findOne({ where: {email: decoded} }).then(user => {
           console.log('userrrrrrrrrrrr', user);
-            if(!user) {
+        if(!user) {
             res.sendStatus(401).send();
-          }
-          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'token', 'status']));  
+        }
+          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'token', 'verified', 'status']));  
         });
     } catch (e) {
       res.status(401).send();
     }
 });
+
 //user-apply
 app.post('/user/apply', (req, res) => {
-    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'password', 'token']);
+    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'gender', 'password', 'token']);
     body.token = jwt.sign(body.email, 'JESUSMYHEALER');
     
     let PromiseHashedPassword = new Promise((res, rej) => {
@@ -105,12 +108,64 @@ app.post('/user/apply', (req, res) => {
       var users = models.users.build(_body);
       users.save().then((user)=> {
           res.header('x-auth', user.token).send(user);
+           setUserVerify(body.token, 'mobile', 'user', 1, function(varification_token){
+            send_mail(user, varification_token);
+          }); 
         }, (err) => {
-            res.status(400).send(err.errors[0]);
+            res.status(400).send(err);
         }).catch((e) => {
             res.status(400).send(e);
         });
     });
+});
+
+app.post('/user/mobile_verification', (req, res) => {
+    var body = _.pick(req.body, ['varification_code']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.verifications.findOne({
+            where : {email: token, verify_type: 'mobile', user_type:'user', status: 1, verification_token: body.varification_code}  
+        }, {transaction: t}).then( (v) => {
+            if(v){
+              return models.verifications.update(
+                    { status: 0 },
+                    { where : {email: token, verify_type: 'mobile', user_type:'user', status: 1} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         var decoded = jwt.verify(token, 'JESUSMYHEALER');
+                         return models.users.update(
+                            { verified: true },
+                            { where : { email: decoded } } ,
+                            {transaction: t}
+                         ).then((_user)=>{
+                             if(_user){
+                                 return _user
+                             } else {
+                                 throw new Error('in transaction user not found on varification update');
+                             }
+                         })
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('varification not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation varified commited   tttttttttttttttttttttttttttttt ', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation varified rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
 });
 
 

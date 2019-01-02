@@ -8,6 +8,7 @@ const env = {
   DATABASE_DIALECT: "mysql",
   DATABASE_OPERATORSALIASES: 'Sequelize.Op',
   NODE_ENV:'development',
-  ROUTING_SERVICE: 'http://localhost:5000/route/v1'
+  EMAIL_CC_A: 'avvvet@gmail.com',
+  EMAIL_CC_B: 'natimancloud@gmail.com'
 };
 module.exports = env;

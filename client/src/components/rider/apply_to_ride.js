@@ -26,33 +26,23 @@ class ApplyToRide extends Component {
         
         if(this.state.firstName.length === 0) {
             errors.push("First name field is empty.");
-        }
-
-        if(this.state.firstName.length <  2) {
+        }else if(this.state.firstName.length <  2) {
             errors.push("Your first name is very short.");
-        }
-
-        if(validator.isAlpha(this.state.firstName) === false) {
+        }else if(validator.isAlpha(this.state.firstName) === false) {
             errors.push("First name needs to be alphabet");
         }
 
         if(this.state.middleName.length === 0) {
             errors.push("Father name field is empty.");
-        }
-
-        if(this.state.middleName.length < 2) {
+        } else if(this.state.middleName.length < 2) {
           errors.push("Father name is very short");
-        }
-
-        if(validator.isAlpha(this.state.middleName) === false) {
+        } else if(validator.isAlpha(this.state.middleName) === false) {
             errors.push("Father name needs to be alphabet");
         }
     
         if(validator.isEmail(this.state.email)===false) {
           errors.push("Email address is not valid.");
-        }
-    
-        if(this.state.email.length === 0) {
+        }else if(this.state.email.length === 0) {
             errors.push("Mobile field is empty.");
         }
 
@@ -80,7 +70,7 @@ class ApplyToRide extends Component {
         }
 
         if(this.state.gender.length === 0){
-            errors.push("Gender field not selected");
+            errors.push("Gender field is not selected");
         }
     
         return errors;
@@ -115,7 +105,7 @@ class ApplyToRide extends Component {
                 email: this.state.email,
                 mobile: this.state.mobile,
                 password: this.state.password,
-                re_password: this.state.re_password
+                gender: this.state.gender
             }
             this.riderApply(rider)
             this.setState({
@@ -124,7 +114,7 @@ class ApplyToRide extends Component {
                 email: '',
                 mobile: '',
                 password: '',
-                re_password: '',
+                gender: '',
                 errors: []
             });
         }

@@ -8,7 +8,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 const env = require('../env');
-
+var validator = require('validator');
 var yourLocation = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
     shadowUrl: '',
@@ -57,8 +57,10 @@ class PickUpMap extends Component {
                 middleName: '',
                 email: '',
                 mobile: '',
-                status: ''
+                status: '',
+                verified: ''
             },
+            varificationCode: '',
             first_time_flag : false,
             route_price : 0,
             route_distance : 0,
@@ -91,7 +93,8 @@ class PickUpMap extends Component {
                 lng:0
             },
             _signInFlag : false,
-            _fire_driver_eta_flag : false
+            _fire_driver_eta_flag : false,
+            errors: []
         }
     }
 
@@ -284,6 +287,7 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
               if(user){
+                console.log('user is ', user);
                 this.setState({
                     user: user,
                     isLogedIn : true,
@@ -642,7 +646,73 @@ class PickUpMap extends Component {
         map.locate({setView: true, maxZoom: 15});
         this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     }
+
+    validateVarification = () => {
+        let errors = [];
+        
+        if(this.state.varificationCode.length === 0) {
+            errors.push("Varification field is empty.");
+        } else if (validator.isLength(this.state.varificationCode, {min: 5}) === false){
+            errors.push("Code must not be less than 5 characters");
+        }else if(validator.isLength(this.state.varificationCode, {max: 5}) === false){
+            errors.push("Code is greater than 5 characters");
+        } else if (validator.isNumeric(this.state.varificationCode, {no_symbols: true} ) === false) {
+            errors.push("Varification number is not valid");
+        }
     
+        return errors;
+    }
+
+    getErrorList(errors){
+        var i = 0;
+        let error_list = errors.map(error => {
+            return <li key={i++}>{error}</li>
+        });
+        return error_list;
+    }
+    change = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    onVarify = (e) => {
+        e.preventDefault();
+        const err = this.validateVarification();
+        if(err.length > 0){
+            let error_list = this.getErrorList(err);
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+        } else {
+            var data = {
+                varification_code : this.state.varificationCode
+            }
+            this.varify(data)
+            this.setState({
+                varificationCode : '',
+                errors: []
+            });
+        }
+    }
+
+    varify = (data) => {
+        $.ajax({ 
+            type:"POST",
+            url:"/user/mobile_verification",
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+               if(data){
+                this.getUser(localStorage.getItem("_auth_user")); //reload user after varification
+               } 
+            }.bind(this),
+            error: function(xhr, status, err) {
+                render(<Alert bsStyle="danger" >Verification faild !</Alert>,document.getElementById('FormError'));
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
     render(){  
         if(this.state._signInFlag) {
             return <Redirect to='/user/login'  />
@@ -650,16 +720,55 @@ class PickUpMap extends Component {
         return(
             <div>
               <div className="user-info" id="user-info">
-              
                 <Grid fluid>
                     <Row>
-                      <Col xs={4} sm={3} sm={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
-                      <Col xs={4} sm={3} sm={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
-                      <Col xs={4} sm={3} sm={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
+                      <Col xs={4} sm={3} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
+                      <Col xs={4} sm={3} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
+                      <Col xs={4} sm={3} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
                     </Row>
                 </Grid>
               </div>
-
+              
+              {this.state.user.verified === false ?  
+              <div className="account-verify" id="account-verfiy">
+                        <form>
+                        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+                            <h4>Final step! Varify your mobile!</h4>
+                            <p>
+                                If the mobile number 0911003994 is yours. 
+                                Enter the text message sent to your mobile
+                                and click varify.
+                            </p>
+                            <p>
+                               <Grid fluid>
+                                   <Row>
+                                   <Col xs={6} sm={6} md={6}>
+                                        <FormGroup>
+                                        <FormControl
+                                        name="varificationCode"
+                                        type="text"
+                                        value={this.state.varificationCode}
+                                        placeholder="XXXXX"
+                                        onChange={e => this.change(e)}
+                                        >
+                                        </FormControl>
+                                        </FormGroup>
+                                   </Col>
+                                   <Col xs={6} sm={6} md={6}> 
+                                     <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>VARIFY</Button>
+                                   </Col>
+                                   </Row>
+                                   <Row>
+                                    <Col xs={12} sm={12} md={12}>
+                                      <div className="FormError" id="FormError"></div>
+                                    </Col>
+                                   </Row>
+                               </Grid>
+                            </p>
+                        </Alert>
+                        </form>
+              </div>
+              : ''}
               <div className="div-intro" id="div-intro">
                <Grid fluid>
                  <Row> 

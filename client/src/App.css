@@ -88,6 +88,21 @@
 
 }
 
+.account-verify {
+  color: #ffffff;
+  position: fixed;
+  top: 33%;
+  left: 55%;
+  width: 300px;
+  height: 44px;
+  transform: translate(-55%, -55%);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 4px;
+  padding-right: 9px;
+  visibility: visible;
+}
+
 .user-info {
   color: #ffffff;
   position: fixed;

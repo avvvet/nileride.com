@@ -15,8 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     token: DataTypes.STRING,
     mobile: DataTypes.STRING,
+    gender: DataTypes.STRING,
     currentLocation: DataTypes.GEOMETRY('POINT'),
     isOnline: DataTypes.BOOLEAN,
+    verified: DataTypes.BOOLEAN,
     status: DataTypes.INTEGER
   }, {});
   users.associate = function(models) {
