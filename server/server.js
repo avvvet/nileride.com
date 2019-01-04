@@ -15,8 +15,8 @@ const port = process.env.PORT || 4000;
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
-var {send_mail} = require('./utils/email');
-var {setUserVerify} = require('./utils/verify');
+var {send_mail, send_mail_driver} = require('./utils/email');
+var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
 var app = express();
 var server = http.createServer(app);
@@ -107,10 +107,10 @@ app.post('/user/apply', (req, res) => {
     PromiseHashedPassword.then((_body) => {
       var users = models.users.build(_body);
       users.save().then((user)=> {
-          res.header('x-auth', user.token).send(user);
-           setUserVerify(body.token, 'mobile', 'user', 1, function(varification_token){
+        res.header('x-auth', user.token).send(user);
+        setUserVerify(body.token, 'mobile', 'user', 1, function(varification_token){
             send_mail(user, varification_token);
-          }); 
+        }); 
         }, (err) => {
             res.status(400).send(err);
         }).catch((e) => {
@@ -565,7 +565,7 @@ app.get('/driver/get', (req, res) => {
           if(!driver) {
             res.sendStatus(401).send();
           }
-          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'status']));  
+          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'status']));  
         });
     } catch (e) {
       res.status(401).send();
@@ -594,7 +594,10 @@ app.post('/driver/apply', (req, res) => {
         console.log('new body', _body);
       var driver = models.drivers.build(_body);
       driver.save().then((driver)=> {
-          res.header('x-auth', driver.token).send(driver);
+        res.header('x-auth', driver.token).send(driver);
+        setDriverVerify(body.token, 'mobile', 'driver', 1, function(varification_token){
+          send_mail_driver(driver, varification_token)
+        });
         }, (err) => {
             console.log('er', err.errors[0]);
             res.status(400).send(err.errors[0]);
@@ -603,7 +606,57 @@ app.post('/driver/apply', (req, res) => {
         });
     });
 });
-  
+
+app.post('/driver/mobile_verification', (req, res) => {
+    var body = _.pick(req.body, ['varification_code']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.verifications.findOne({
+            where : {email: token, verify_type: 'mobile', user_type:'user', status: 1, verification_token: body.varification_code}  
+        }, {transaction: t}).then( (v) => {
+            if(v){
+              return models.verifications.update(
+                    { status: 0 },
+                    { where : {email: token, verify_type: 'mobile', user_type:'user', status: 1} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         var decoded = jwt.verify(token, 'JESUSMYHEALER');
+                         return models.drivers.update(
+                            { verified: true },
+                            { where : { email: decoded } } ,
+                            {transaction: t}
+                         ).then((_driver)=>{
+                             if(_driver){
+                                 return _driver
+                             } else {
+                                 throw new Error('in transaction driver not found on varification update');
+                             }
+                         })
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('varification not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation varified driver commited   tttttttttttttttttttttttttttttt ', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation driver varified rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
+});
+
+
 app.post('driver/status', (req, res) => {
     console.log('online_status', req.body);
     var driver_id = req.body.driver.driver_id;
@@ -618,6 +671,62 @@ app.post('driver/status', (req, res) => {
     task.save({fields: ['title']}).then(() => {
     // title will now be 'foooo' but description is the very same as before
     })
+});
+
+app.post('/car/register', (req, res) => {
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.cars.findOne({
+            where : {driver_id: token, status: 1}  
+        }, {transaction: t}).then( (car) => {
+            console.log('tessssssssssssssssssst', car);
+            if(car){
+              return models.cars.update(
+                    { status: 0 },
+                    { where : {driver_id: token, status: 1} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                       var body = req.body;
+                       body = _.pick(body, ['driver_id','model','model_year','code','plate_no']);
+                       const car = models.cars.build(body); 
+                       return car.save().then((_car) => {
+                           console.log('car data ', _car);
+                           return _car;
+                        }).catch(err => {
+                            throw new Error(err);
+                        });
+                     } else {
+                         throw new Error('Update error');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                var body = req.body;
+                body = _.pick(body, ['driver_id','model','model_year','code','plate_no']);
+                const car = models.cars.build(body); 
+                return car.save().then((_car) => {
+                    console.log('car data ', _car);
+                    return _car;
+                 }).catch(err => {
+                     throw new Error(err);
+                 });
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation varified commited   tttttttttttttttttttttttttttttt ', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation varified rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
 });
 
 io.on('connect', (socket)=> {
@@ -646,4 +755,3 @@ driveRequest = () => {
 server.listen(port, () => {
     console.log(`Express server is up on port ${port}`);
 });
- 

@@ -49,7 +49,7 @@
 
 .driver-dashboard {
   color: #5d5555;
-  position: absolute;
+  position: fixed;
   top: -53px;
   right: 50%;
   width: 260px;
@@ -59,7 +59,6 @@
   transform: translate(50%, 50%);
   z-index: 2000;
   padding: 5px;
-  margin: 2px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
   border-radius: 25px;
@@ -87,11 +86,25 @@
   visibility: hidden;
 
 }
+.register-car {
+  color: #ffffff;
+  position: fixed;
+  top: 24%;
+  left: 55%;
+  width: 300px;
+  height: 44px;
+  transform: translate(-55%, -55%);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 4px;
+  padding-right: 9px;
+  visibility: visible;
+}
 
 .account-verify {
   color: #ffffff;
   position: fixed;
-  top: 33%;
+  top: 71%;
   left: 55%;
   width: 300px;
   height: 44px;
@@ -146,15 +159,14 @@
 }
 
 .ride-price-dashboard {
-  color: #5d5555;
+  color: #ffffff;
   position: fixed;
-  margin: -100px 0 0 -100px;
   top: 50%;
   right: 14%;
   width: 260px;
-  height: 128px;
+  height: 151px;
   border: 2px solid white;
-  background-color: #f6b4d5;;
+  background-color: #deaf3e;;
   z-index: 2000;
   padding-top: 5px;
   padding-left: 5px;

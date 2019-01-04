@@ -7,6 +7,8 @@ import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
 import _ from 'lodash';
 
+import VerificationRply from './verfication_rply';
+
 const env = require('../env');
 var validator = require('validator');
 var yourLocation = L.icon({
@@ -16,6 +18,26 @@ var yourLocation = L.icon({
     iconSize:     [40, 40], // size of the icon
     shadowSize:   [50, 64], // size of the shadow
     iconAnchor:   [12, 50], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
+});
+var marker_a = L.icon({
+    iconUrl: '/assets/marker_a.png',
+    shadowUrl: '',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [20, 39], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
+});
+var marker_b = L.icon({
+    iconUrl: '/assets/marker_b.png',
+    shadowUrl: '',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [20, 39], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
 });
@@ -243,7 +265,7 @@ class PickUpMap extends Component {
             var markerGroup = this.state.markerGroup;
             this.setState({first_time_flag: false});
             if(this.state.pickup_flag === 'off'){
-                L.marker(e.latlng).addTo(markerGroup).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
+                L.marker(e.latlng, {icon: marker_a}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
                 this.setState({
                     pickup_flag : 'on',
                     pickup_latlng : e.latlng,
@@ -253,7 +275,7 @@ class PickUpMap extends Component {
             }
             
             if(this.state.dropoff_flag === 'off' && this.state.pickup_flag === 'on' && this.state.first_time_flag === false){
-                L.marker(e.latlng).addTo(markerGroup).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
+                L.marker(e.latlng, {icon: marker_b}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
                 this.setState({
                     dropoff_flag: 'on',
                     dropoff_latlng: e.latlng
@@ -327,7 +349,7 @@ class PickUpMap extends Component {
                 return null;
             },
             lineOptions: {
-                styles: [{color: 'red', opacity: 1, weight: 5}]
+                styles: [{color: 'red', opacity: 1, weight: 3}]
             },
             router: L.Routing.osrmv1({
                 serviceUrl: env.ROUTING_SERVICE
@@ -703,6 +725,8 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                if(data){
+                render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
+                //document.getElementById('account-verfiy').style.visibility = 'hidden';
                 this.getUser(localStorage.getItem("_auth_user")); //reload user after varification
                } 
             }.bind(this),
@@ -722,9 +746,9 @@ class PickUpMap extends Component {
               <div className="user-info" id="user-info">
                 <Grid fluid>
                     <Row>
-                      <Col xs={4} sm={3} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
-                      <Col xs={4} sm={3} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
-                      <Col xs={4} sm={3} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
+                      <Col xs={4} sm={4} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
+                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
+                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
                     </Row>
                 </Grid>
               </div>

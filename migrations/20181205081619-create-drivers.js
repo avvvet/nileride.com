@@ -42,6 +42,11 @@ module.exports = {
       isOnline: {
         type: Sequelize.BOOLEAN
       },
+      verified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       status: {
         type: Sequelize.INTEGER
       },

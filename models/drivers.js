@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     plateNo: DataTypes.STRING,
     currentLocation: DataTypes.GEOMETRY('POINT'),
     isOnline: DataTypes.BOOLEAN,
+    verified: DataTypes.BOOLEAN,
     status: DataTypes.INTEGER
   }, {});
   drivers.associate = function(models) {

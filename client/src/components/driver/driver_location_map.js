@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import  {Route, Redirect, BrowserRouter } from 'react-router-dom'
-import {Grid, Row, Col, Nav, Navbar, NavItem , NavDropdown, MenuItem, Image, Button, Badge} from 'react-bootstrap';
+import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
@@ -72,6 +72,8 @@ class DriverLocation extends Component {
                middleName: '',
                email: '',
                mobile: '',
+               gender:'',
+               verified: '',
                status: ''
            },
            ridePrice: '',
@@ -110,6 +112,7 @@ class DriverLocation extends Component {
         headers: { 'x-auth': token },
         contentType: "application/json",
         success: function(driver, textStatus, jqXHR) {
+            console.log('driver data is ', driver)
           this.setState({
               driver: driver
           });   
@@ -208,7 +211,6 @@ class DriverLocation extends Component {
     });
 
     PromiseLocateDriver.then((r)=>{
-        console.log('promise run');
         if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
             console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
             var token = localStorage.getItem("_auth_driver");
@@ -222,7 +224,7 @@ class DriverLocation extends Component {
                 data: JSON.stringify(current_latlng), 
                 contentType: "application/json",
                 success: function(data, textStatus, jqXHR) {
-                  alert('location updated ' + data);
+                  console.log('drive location update', data);
                 }.bind(this),
                 error: function(xhr, status, err) {
                     console.error(xhr, status, err.toString());
@@ -536,6 +538,131 @@ class DriverLocation extends Component {
                     </Row>
                 </Grid>
                 </div>
+
+                <div className="register-car" id="register-car">
+                        <form>
+                        <Alert bsStyle="warning" onDismiss={this.handleDismiss}>
+                            <h4>Register your car !</h4>
+                            <p>
+                                Enter correct information about your car. 
+                                Incorrect or false information will lead to
+                                block your account.
+                            </p>
+                            <p>
+                               <Grid fluid>
+                                   <Row>
+                                   <Col xs={6} sm={6} md={6}>
+                                   <FormGroup>
+                                        <ControlLabel>Model</ControlLabel>
+                                        <FormControl name="model" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
+                                            <option value="">select</option>
+                                            <option value="corolla">COROLLA</option>
+                                            <option value="vitiz">VITIZ</option>
+                                            <option value="vitiz">LIFAN</option>
+                                        </FormControl>
+                                    </FormGroup>
+                                   </Col>
+                                   <Col xs={6} sm={6} md={6}> 
+                                   <FormGroup>
+                                        <ControlLabel>Year</ControlLabel>
+                                        <FormControl name="model" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
+                                            <option value="">select</option>
+                                            <option value="corolla">2019</option>
+                                            <option value="vitiz">2018</option>
+                                            <option value="vitiz">2017</option>
+                                            <option value="vitiz">2016</option>
+                                            <option value="corolla">2015</option>
+                                            <option value="vitiz">2014</option>
+                                            <option value="vitiz">2013</option>
+                                        </FormControl>
+                                    </FormGroup>
+                                   </Col>
+                                   </Row>
+
+                                   <Row>
+                                   <Col xs={6} sm={6} md={6}>
+                                   <FormGroup>
+                                        <ControlLabel>Code</ControlLabel>
+                                        <FormControl name="code" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
+                                            <option value="">select</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                        </FormControl>
+                                    </FormGroup>
+                                   </Col>
+                                   <Col xs={6} sm={6} md={6}> 
+                                   <FormGroup>
+                                        <ControlLabel>Plate #</ControlLabel>
+                                        <FormControl
+                                        name="plate_no"
+                                        type="text"
+                                        value={this.state.plate_no}
+                                        placeholder="Plate No."
+                                        onChange={e => this.change(e)}
+                                        >
+                                        </FormControl>
+                                    </FormGroup>
+                                   </Col>
+                                   </Row>
+
+                                   <Row>
+                                    <Col xs={12} sm={12} md={12}>
+                                    <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>REGISTER</Button>
+                                    </Col>
+                                   </Row>
+
+                                   <Row>
+                                    <Col xs={12} sm={12} md={12}>
+                                      <div className="FormError" id="FormError"></div>
+                                    </Col>
+                                   </Row>
+                               </Grid>
+                            </p>
+                        </Alert>
+                        </form>
+                </div>
+
+                {this.state.driver.verified === false ?  
+                <div className="account-verify" id="account-verfiy">
+                        <form>
+                        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+                            <h4>Final step! Varify your mobile!</h4>
+                            <p>
+                                If the mobile number 0911003994 is yours. 
+                                Enter the text message sent to your mobile
+                                and click varify.
+                            </p>
+                            <p>
+                               <Grid fluid>
+                                   <Row>
+                                   <Col xs={6} sm={6} md={6}>
+                                        <FormGroup>
+                                        <FormControl
+                                        name="varificationCode"
+                                        type="text"
+                                        value={this.state.varificationCode}
+                                        placeholder="XXXXX"
+                                        onChange={e => this.change(e)}
+                                        >
+                                        </FormControl>
+                                        </FormGroup>
+                                   </Col>
+                                   <Col xs={6} sm={6} md={6}> 
+                                     <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>VARIFY</Button>
+                                   </Col>
+                                   </Row>
+                                   <Row>
+                                    <Col xs={12} sm={12} md={12}>
+                                      <div className="FormError" id="FormError"></div>
+                                    </Col>
+                                   </Row>
+                               </Grid>
+                            </p>
+                        </Alert>
+                        </form>
+                </div>
+                : ''}
 
                 <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
                 <Grid fluid>
