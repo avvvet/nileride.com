@@ -565,7 +565,7 @@ app.get('/driver/get', (req, res) => {
           if(!driver) {
             res.sendStatus(401).send();
           }
-          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'status']));  
+          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'isCarRegistered', 'isCarVerified', 'status']));  
         });
     } catch (e) {
       res.status(401).send();
@@ -613,12 +613,12 @@ app.post('/driver/mobile_verification', (req, res) => {
     var sequelize = models.sequelize;
     return sequelize.transaction(function (t) {
         return models.verifications.findOne({
-            where : {email: token, verify_type: 'mobile', user_type:'user', status: 1, verification_token: body.varification_code}  
+            where : {email: token, verify_type: 'mobile', user_type:'driver', status: 1, verification_token: body.varification_code}  
         }, {transaction: t}).then( (v) => {
             if(v){
               return models.verifications.update(
                     { status: 0 },
-                    { where : {email: token, verify_type: 'mobile', user_type:'user', status: 1} } ,
+                    { where : {email: token, verify_type: 'mobile', user_type:'driver', status: 1} } ,
                     {transaction: t}
                   ).then(result => {
                      if(result){
@@ -680,20 +680,33 @@ app.post('/car/register', (req, res) => {
         return models.cars.findOne({
             where : {driver_id: token, status: 1}  
         }, {transaction: t}).then( (car) => {
-            console.log('tessssssssssssssssssst', car);
             if(car){
               return models.cars.update(
                     { status: 0 },
                     { where : {driver_id: token, status: 1} } ,
                     {transaction: t}
-                  ).then(result => {
-                     if(result){
+                  ).then((_cars) => {
+                     if(_cars){
                        var body = req.body;
-                       body = _.pick(body, ['driver_id','model','model_year','code','plate_no']);
+                       body = _.pick(body, ['model','model_year','code','plate_no']);
+                       body.driver_id = token;   //I know man can do nothing - only God 
                        const car = models.cars.build(body); 
-                       return car.save().then((_car) => {
-                           console.log('car data ', _car);
-                           return _car;
+                       return car.save({transaction : t}).then((_car) => {
+                           if(_car){
+                               return models.drivers.update(
+                                { isCarRegistered : true},
+                                { where : { token : token}},
+                                {transaction : t}
+                               ).then( (_driver) => {
+                                   if(_driver[0] === 1){
+                                       return _driver;
+                                   } else {
+                                       throw new Error('driver on transaction not updated');
+                                   }
+                               }).catch(err => {
+                                throw new Error(err);
+                               });
+                           }
                         }).catch(err => {
                             throw new Error(err);
                         });
@@ -705,11 +718,27 @@ app.post('/car/register', (req, res) => {
                   });
             } else {
                 var body = req.body;
-                body = _.pick(body, ['driver_id','model','model_year','code','plate_no']);
+                body = _.pick(body, ['model','model_year','code','plate_no']);
+                body.driver_id = token;
                 const car = models.cars.build(body); 
-                return car.save().then((_car) => {
-                    console.log('car data ', _car);
-                    return _car;
+                return car.save({transaction : t}).then((_car) => {
+                    if(_car){
+                        return models.drivers.update(
+                            { isCarRegistered : true},
+                            { where : { token : token}},
+                            {transaction : t}
+                           ).then( (_driver) => {
+                               if(_driver[0] === 1){
+                                   return _driver;
+                               } else {
+                                   throw new Error('driver on transaction not updated');
+                               }
+                           }).catch(err => {
+                            throw new Error(err);
+                           });
+                    } else {
+                        throw new Error('car intransaction not registered ')
+                    }
                  }).catch(err => {
                      throw new Error(err);
                  });
@@ -718,14 +747,10 @@ app.post('/car/register', (req, res) => {
       
       }).then(function (result) {
           res.send(result);
-          console.log('trsancation varified commited   tttttttttttttttttttttttttttttt ', result);
-        // Transaction has been committed
-        // result is whatever the result of the promise chain returned to the transaction callback
+          console.log('trsancation car registation commited   tttttttttttttttttttttttttttttt ', result);
       }).catch(function (err) {
         res.sendStatus(400).send();
-        console.log('trsancation varified rollback ', err);
-        // Transaction has been rolled back
-        // err is whatever rejected the promise chain returned to the transaction callback
+        console.log('trsancation car registration rollback ', err);
       });
 });
 

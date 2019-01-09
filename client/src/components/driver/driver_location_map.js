@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
+import { render } from 'react-dom';
 import  {Route, Redirect, BrowserRouter } from 'react-router-dom'
 import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
 import socketClient from 'socket.io-client';
+
 import DriverMenu from './driver_menu';
+import VerificationRply from '../verfication_rply';
+
 import DriverDashBoard from './driver_dashboard'
 import { resolve } from 'path';
+
+var validator = require('validator');
 
 const socket = socketClient('http://localhost:7000');
 const env = require('../../env')
@@ -74,8 +80,10 @@ class DriverLocation extends Component {
                mobile: '',
                gender:'',
                verified: '',
+               isCarRegistered: '',
                status: ''
            },
+           varificationCode: '',
            ridePrice: '',
            rideDistance: '',
            rideTime: '',
@@ -88,7 +96,11 @@ class DriverLocation extends Component {
            total_rides: '',
            pickupRoutFlag : false,
            locationFoundFlag : false,
-           stopMapViewFlag : false
+           stopMapViewFlag : false,
+           model : '',
+           model_year : '',
+           code: '',
+           plate_no : ''
        }
 
     this.checkForRide = this.checkForRide.bind(this);
@@ -510,7 +522,146 @@ class DriverLocation extends Component {
         var hDisplay = rhours > 0 ? rhours + " hr" : "";
         var mDisplay = rminutes > 0 ? rminutes + " min" : "";
         return hDisplay + mDisplay; 
-     }
+    }
+
+    validateVarification = () => {
+        let errors = [];
+        
+        if(this.state.varificationCode.length === 0) {
+            errors.push("Varification field is empty.");
+        } else if (validator.isLength(this.state.varificationCode, {min: 5}) === false){
+            errors.push("Code must not be less than 5 characters");
+        }else if(validator.isLength(this.state.varificationCode, {max: 5}) === false){
+            errors.push("Code is greater than 5 characters");
+        } else if (validator.isNumeric(this.state.varificationCode, {no_symbols: true} ) === false) {
+            errors.push("Varification number is not valid");
+        }
+    
+        return errors;
+    }
+
+    validateCarRegistration = () => {
+        let errors = [];
+        
+        if(this.state.model.length === 0) {
+            errors.push("Select model.");
+        } else if (this.state.model_year.length === 0){
+            errors.push("Select year");
+        }
+
+        if(this.state.code.length === 0){
+            errors.push("Select plate code");
+        } 
+
+        if(this.state.plate_no.length === 0 ) {
+            errors.push("Plate Number is empty.");
+        } else if(validator.isAlphanumeric(this.state.plate_no) === false) {
+            errors.push("Plate Number is not valid.");
+        } else if(validator.isLength(this.state.plate_no, {min: 5, max: 6}) === false){
+            errors.push("Plate Number is not correct");
+        }
+    
+        return errors;
+    }    
+
+    getErrorList(errors){
+        var i = 0;
+        let error_list = errors.map(error => {
+            return <li key={i++}>{error}</li>
+        });
+        return error_list;
+    }
+
+    change = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    onVarify = (e) => {
+        e.preventDefault();
+        const err = this.validateVarification();
+        if(err.length > 0){
+            let error_list = this.getErrorList(err);
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+        } else {
+            var data = {
+                varification_code : this.state.varificationCode
+            }
+            this.varify(data)
+            this.setState({
+                varificationCode : '',
+                errors: []
+            });
+        }
+    }
+
+    varify = (data) => {
+        $.ajax({ 
+            type:"POST",
+            url:"/driver/mobile_verification",
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+               if(data){
+                render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
+                //document.getElementById('account-verfiy').style.visibility = 'hidden';
+                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
+               } 
+            }.bind(this),
+            error: function(xhr, status, err) {
+                render(<Alert bsStyle="danger" >Verification faild !</Alert>,document.getElementById('FormError'));
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
+    onValidateCarRegister = (e) => {
+        e.preventDefault();
+        const err = this.validateCarRegistration();
+        if(err.length > 0){
+            let error_list = this.getErrorList(err);
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('err_car_register'));
+        } else {
+            var data = {
+                model : this.state.model,
+                model_year : this.state.model_year,
+                code : this.state.code,
+                plate_no : this.state.plate_no
+            }
+
+            this.validateCarRegister(data);
+            this.setState({
+                model : '',
+                model_year : '',
+                code : '',
+                plate_no : '',
+                errors: []
+            });
+        }
+    }
+
+    validateCarRegister = (data) => {
+        $.ajax({ 
+            type:"POST",
+            url:"/car/register",
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+               if(data){
+                render(<VerificationRply></VerificationRply>,document.getElementById('register-car'));
+                //document.getElementById('account-verfiy').style.visibility = 'hidden';
+                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
+               } 
+            }.bind(this),
+            error: function(xhr, status, err) {
+                render(<Alert bsStyle="danger" >Car registration faild !</Alert>,document.getElementById('err_car_register'));
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
 
     render(){
         return(
@@ -538,7 +689,8 @@ class DriverLocation extends Component {
                     </Row>
                 </Grid>
                 </div>
-
+                
+                {this.state.driver.isCarRegistered === false ? 
                 <div className="register-car" id="register-car">
                         <form>
                         <Alert bsStyle="warning" onDismiss={this.handleDismiss}>
@@ -565,15 +717,15 @@ class DriverLocation extends Component {
                                    <Col xs={6} sm={6} md={6}> 
                                    <FormGroup>
                                         <ControlLabel>Year</ControlLabel>
-                                        <FormControl name="model" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
+                                        <FormControl name="model_year" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
                                             <option value="">select</option>
-                                            <option value="corolla">2019</option>
-                                            <option value="vitiz">2018</option>
-                                            <option value="vitiz">2017</option>
-                                            <option value="vitiz">2016</option>
-                                            <option value="corolla">2015</option>
-                                            <option value="vitiz">2014</option>
-                                            <option value="vitiz">2013</option>
+                                            <option value="2019">2019</option>
+                                            <option value="2018">2018</option>
+                                            <option value="2017">2017</option>
+                                            <option value="2016">2016</option>
+                                            <option value="2015">2015</option>
+                                            <option value="2014">2014</option>
+                                            <option value="2013">2013</option>
                                         </FormControl>
                                     </FormGroup>
                                    </Col>
@@ -608,13 +760,13 @@ class DriverLocation extends Component {
 
                                    <Row>
                                     <Col xs={12} sm={12} md={12}>
-                                    <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>REGISTER</Button>
+                                    <Button bsStyle="warning" onClick={(e) => this.onValidateCarRegister(e)} block>REGISTER</Button>
                                     </Col>
                                    </Row>
 
-                                   <Row>
+                                   <Row className="rowPadding">
                                     <Col xs={12} sm={12} md={12}>
-                                      <div className="FormError" id="FormError"></div>
+                                      <div className="err_car_register" id="err_car_register"></div>
                                     </Col>
                                    </Row>
                                </Grid>
@@ -622,6 +774,7 @@ class DriverLocation extends Component {
                         </Alert>
                         </form>
                 </div>
+                : ''}
 
                 {this.state.driver.verified === false ?  
                 <div className="account-verify" id="account-verfiy">

@@ -47,6 +47,16 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
+      isCarRegistered: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },  
+      isCarVerified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },          
       status: {
         type: Sequelize.INTEGER
       },

@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     currentLocation: DataTypes.GEOMETRY('POINT'),
     isOnline: DataTypes.BOOLEAN,
     verified: DataTypes.BOOLEAN,
+    isCarRegistered: DataTypes.BOOLEAN,
+    isCarVerified: DataTypes.BOOLEAN,
     status: DataTypes.INTEGER
   }, {});
   drivers.associate = function(models) {
