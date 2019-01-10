@@ -29,15 +29,6 @@ app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
-const proxy = require('express-http-proxy');
-
-const getPath = req => require('/').parse(req.url).path;
-
-const createProxy = ({hostname = 'localhost', port = 80, path = ''}) =>
-+  proxy(`${hostname}:${port}`, { proxyReqPathResolver: req => `${path}${getPath(req)}` });
-
-app.use('/', createProxy({port: 4000, path: '/'})); // http://localhost/api/foo -> http://localhost:3000/api/foo 
-
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
