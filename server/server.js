@@ -38,7 +38,7 @@ var proxy = proxyMiddleware('http://localhost:4000', {
                  xfwd: true
             });
             app.use('/', function(req, res, next) {
-                httpProxy.createProxyServer({target:'http://localhost:8080'});
+                proxy.createProxyServer({target:'http://localhost'});
                 next();
             });
             
