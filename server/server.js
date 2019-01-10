@@ -28,18 +28,9 @@ var io = socketIO(server);
 app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
-
-
-var proxyMiddleware = require('http-proxy-middleware'); 
-
-var proxy = proxyMiddleware('http://localhost:4000', {
-                 target: 'http://localhost',
-                 changeOrigin: true,
-                 xfwd: true
-            });
-            
-            
-            app.use(proxy);
+app.get('*', function (request, response){  
+    response.sendFile(path.resolve(__dirname, 'static', '/'))
+});
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
