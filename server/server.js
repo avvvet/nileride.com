@@ -21,7 +21,7 @@ var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
 var app = express();
-var server = http.createServer(app);
+//var server = http.createServer(app);
 var io = socketIO(server);
 
 
