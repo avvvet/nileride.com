@@ -11,7 +11,6 @@ const jwt = require('jsonwebtoken');
 //const publicPath = path.join(__dirname, '../client/build');
 
 const publicPath = path.join(__dirname, './static');
-const proxy = require('http-proxy-middleware');
 
 const port = process.env.PORT || 4000;
 
