@@ -30,13 +30,14 @@ app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
+const proxy = require('express-http-proxy');
 
-app.get('/', (req,res) => {
-  //modify the url in any way you want
+const getPath = req => require('/').parse(req.url).path;
 
-  var newurl = 'localhost';
-  req(newurl).pipe(res);
-});
+const createProxy = ({hostname = 'localhost', port = 80, path = ''}) =>
++  proxy(`${hostname}:${port}`, { proxyReqPathResolver: req => `${path}${getPath(req)}` });
+
+app.use('/', createProxy({port: 4000, path: '/'})); // http://localhost/api/foo -> http://localhost:3000/api/foo 
 
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
