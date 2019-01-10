@@ -30,8 +30,12 @@ app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
-const apiProxy = proxy('/', { target: 'http://localhost' });
-app.use('/', apiProxy);
+var request = require('request');
+app.get('/', function(req,res) {
+  //modify the url in any way you want
+  var newurl = 'http://nileride.com/';
+  request(newurl).pipe(res);
+});
 
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
