@@ -26,8 +26,9 @@ var io = socketIO(server);
 
 
 app.use(bodyParser.json());
-app.use(express.static('static'));
-//app.use(express.static(__dirname + '/static', { dotfiles: 'allow' } ))
+//app.use(express.static('static'));
+app.use(express.static(publicPath, { dotfiles: 'allow' } ));
+console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
