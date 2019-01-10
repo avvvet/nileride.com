@@ -11,6 +11,7 @@ const jwt = require('jsonwebtoken');
 //const publicPath = path.join(__dirname, '../client/build');
 
 const publicPath = path.join(__dirname, './static');
+const proxy = require('http-proxy-middleware');
 
 const port = process.env.PORT || 4000;
 
@@ -27,8 +28,10 @@ var io = socketIO(server);
 
 app.use(bodyParser.json());
 //app.use(express.static('static'));
-app.use('/',express.static(publicPath, { dotfiles: 'allow' } ));
+app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
+const apiProxy = proxy('/', { target: 'http://localhost:4000' });
+app.use('/', apiProxy);
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
