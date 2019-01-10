@@ -8,7 +8,9 @@ const models = require('./models');
 const Sequelize = require('sequelize');
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
-const publicPath = path.join(__dirname, '../client/build');
+//const publicPath = path.join(__dirname, '../client/build');
+
+const publicPath = path.join(__dirname, './static');
 
 const port = process.env.PORT || 4000;
 
