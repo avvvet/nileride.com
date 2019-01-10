@@ -37,10 +37,7 @@ var proxy = proxyMiddleware('http://localhost:4000', {
                  changeOrigin: true,
                  xfwd: true
             });
-            app.use('/', function(req, res, next) {
-                proxy.createProxyServer({target:'http://localhost'});
-                next();
-            });
+            
             
             app.use(proxy);
 console.log('path', publicPath);
