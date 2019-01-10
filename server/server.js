@@ -32,6 +32,11 @@ app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 const apiProxy = proxy('/', { target: 'http://localhost:4000' });
 app.use('/', apiProxy);
+// Render your site
+const renderIndex = (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client/index.html'));
+  }
+  app.get('/*', renderIndex);
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
