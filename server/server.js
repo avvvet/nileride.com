@@ -34,7 +34,7 @@ app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 app.get('/', (req,res) => {
   //modify the url in any way you want
 
-  var newurl = 'http://nileride.com/';
+  var newurl = 'localhost';
   req(newurl).pipe(res);
 });
 
