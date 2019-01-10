@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 app.get('*', function (request, response){  
-    response.sendFile(path.resolve(__dirname, 'static', '/'))
+    response.sendFile(path.resolve(__dirname, 'static', 'localhost:4000'))
 });
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
