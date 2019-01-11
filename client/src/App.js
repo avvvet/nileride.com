@@ -28,18 +28,7 @@ class App extends React.Component {
     return (
       <div>
         <div>Jesus my healer</div>
-        <BrowserRouter>
-          <div>
-            <Switch>
-                <Route path="/" component={PickUp} exact />
-                <Route path="/dropoff" component={DropOff} exact/>
-
-                <Route path="/driver" component={DriverPage} exact/>
-                <Route path="/driver/login" component={DriverLogin} exact/>
-                <Route path="/user/login" component={RiderLogin} exact/>
-            </Switch>
-          </div>
-        </BrowserRouter>  
+        
         
       </div>
       
