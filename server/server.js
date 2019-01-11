@@ -56,7 +56,7 @@ const client_path = path.join(__dirname, '../client/build');
 app.use(express.static(client_path, { dotfiles: 'allow' } ));
 
 app.get('*', (req, res) => {
-          res.sendFile(path.resolve(publicPath, 'index.html'));
+          res.sendFile(path.resolve(client_path, 'index.html'));
 });
 
 // An api endpoint that returns a short list of items
