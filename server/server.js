@@ -813,9 +813,9 @@ driveRequest = () => {
     });
 }
 
-httpServer.listen(port, () => {
-	console.log(`Express server is up on port ${port}`);
-});
+// httpServer.listen(port, () => {
+// 	console.log(`Express server is up on port ${port}`);
+// });
 
 httpsServer.listen(443, () => {
 	console.log('HTTPS Server running on port 443');
