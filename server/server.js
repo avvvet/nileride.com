@@ -57,13 +57,6 @@ console.log('path', publicPath);
 //       next() /* Continue to other routes if we're not redirecting */
 //   });
 
-app.use(function(req,resp,next){
-    if (req.headers['x-forwarded-proto'] == 'http') {
-        return resp.redirect(301, 'https://' + req.headers.host + '/');
-    } else {
-        return next();
-    }
-  });
 
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
