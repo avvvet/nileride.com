@@ -1,5 +1,7 @@
+const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
@@ -18,12 +20,32 @@ var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
 var app = express();
-var server = http.createServer(app);
-var io = socketIO(server);
+
+//var server = http.createServer(app);
+
 
 const publicPath = path.join(__dirname, '../client/public');
 
 app.use(bodyParser.json());
+
+
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/nileride.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/nileride.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/nileride.com/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+// Starting both http & https servers
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
+
+var io = socketIO(httpServer);
+
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
@@ -776,6 +798,14 @@ driveRequest = () => {
 }
 
 
-server.listen(port, () => {
-    console.log(`Express server is up on port ${port}`);
+httpServer.listen(port, () => {
+	console.log(`Express server is up on port ${port}`);
 });
+
+httpsServer.listen(443, () => {
+	console.log('HTTPS Server running on port 443');
+});
+
+// server.listen(port, () => {
+//     console.log(`Express server is up on port ${port}`);
+// });
