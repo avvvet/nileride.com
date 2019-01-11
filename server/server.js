@@ -13,18 +13,35 @@ const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 //const publicPath = path.join(__dirname, '../client/build');
 const port = process.env.PORT || 4000;
-
+const publicPath = path.join(__dirname, '../client/public');
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
 var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
-var app = express();
-var server = http.createServer(app);
-var io = socketIO(server);
 
-const publicPath = path.join(__dirname, '../client/public');
+
+var app = express();
+
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/nileride.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/nileride.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/nileride.com/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+
+// Starting both http & https servers
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
+
+//var server = http.createServer(app);
+var io = socketIO(httpServer);
 
 app.use(bodyParser.json());
 //app.use(express.static('static'));
@@ -34,6 +51,7 @@ console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
+
 
 // app.get('*', (req, res) => {
 //      res.sendFile(path.resolve(publicPath, 'index.html'));
@@ -778,7 +796,14 @@ driveRequest = () => {
     });
 }
 
-
-server.listen(port, () => {
-    console.log(`Express server is up on port ${port}`);
+httpServer.listen(port, () => {
+	console.log(`Express server is up on port ${port}`);
 });
+
+httpsServer.listen(443, () => {
+	console.log('HTTPS Server running on port 443');
+});
+
+// server.listen(port, () => {
+//     console.log(`Express server is up on port ${port}`);
+// });
