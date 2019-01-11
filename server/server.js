@@ -57,12 +57,12 @@ console.log('path', publicPath);
 //       next() /* Continue to other routes if we're not redirecting */
 //   });
 
-  app.enable('trust proxy');
-  app.use('*', (req, res, next) => {
-    if (req.secure) {
-      return next();
+app.use(function(req,resp,next){
+    if (req.headers['x-forwarded-proto'] == 'http') {
+        return resp.redirect(301, 'https://' + req.headers.host + '/');
+    } else {
+        return next();
     }
-    res.redirect(`https://${req.hostname}${req.url}`);
   });
 
 app.get('/driver/ride', authDriver, (req, res) => {
@@ -813,9 +813,9 @@ driveRequest = () => {
     });
 }
 
-// httpServer.listen(port, () => {
-// 	console.log(`Express server is up on port ${port}`);
-// });
+httpServer.listen(port, () => {
+	console.log(`Express server is up on port ${port}`);
+});
 
 httpsServer.listen(443, () => {
 	console.log('HTTPS Server running on port 443');
