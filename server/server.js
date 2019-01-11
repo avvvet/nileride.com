@@ -9,9 +9,6 @@ const Sequelize = require('sequelize');
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 //const publicPath = path.join(__dirname, '../client/build');
-
-const publicPath = path.join(__dirname, './static');
-
 const port = process.env.PORT || 4000;
 
 var validator = require('validator');
@@ -24,24 +21,20 @@ var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
 
+const publicPath = path.join(__dirname, '../client/public');
 
 app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
-app.get('*', function (request, response){  
-    response.sendFile(path.resolve(__dirname, 'static'))
-});
+
 console.log('path', publicPath);
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
 
-// app.get('/*', (req, res) => {
-//     let url = path.join(__dirname, '../client/build', 'index.html');
-//     if (!url.startsWith('/app/')) // we're on local windows
-//       url = url.substring(1);
-//     res.sendFile(url);
-//   });
+// app.get('*', (req, res) => {
+//      res.sendFile(path.resolve(publicPath, 'index.html'));
+// });
 
 // An api endpoint that returns a short list of items
 app.get('/api/getList', (req,res) => {
