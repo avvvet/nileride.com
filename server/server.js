@@ -46,7 +46,7 @@ var io = socketIO(httpServer);
 const clientPath = path.join(__dirname, '../client/build');
 app.use(express.static(clientPath, { dotfiles: 'allow' } ));
 
-app.get('/', (req, res)=>{
+app.get('*', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));
 });
 console.log('client path', clientPath);
