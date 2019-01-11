@@ -43,6 +43,12 @@ const httpsServer = https.createServer(credentials, app);
 //var server = http.createServer(app);
 var io = socketIO(httpServer);
 
+const clientPath = path.join(__dirname, '../client/build');
+const path = require('path')
+app.get('/', (req, res)=>{
+  res.sendFile(path.join(clientPath, '/index.html'));
+});
+console.log('client path', clientPath);
 app.use(bodyParser.json());
 //app.use(express.static('static'));
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));

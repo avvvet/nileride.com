@@ -27,7 +27,6 @@ class App extends React.Component {
     
     return (
       <div>
-        <div>Jesus my healer</div>
         <BrowserRouter>
           <div>
             <Switch>
