@@ -52,10 +52,12 @@ app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
 
+const client_path = path.join(__dirname, '../client/build');
+app.use(express.static(client_path, { dotfiles: 'allow' } ));
 
-// app.get('*', (req, res) => {
-//      res.sendFile(path.resolve(publicPath, 'index.html'));
-// });
+app.get('*', (req, res) => {
+          res.sendFile(path.resolve(publicPath, 'index.html'));
+});
 
 // An api endpoint that returns a short list of items
 app.get('/api/getList', (req,res) => {
