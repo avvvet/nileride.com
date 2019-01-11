@@ -20,7 +20,7 @@ var {authUser} = require('./middleware/_auth_user');
 var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
-const env = require('../env');
+
 
 var app = express();
 
@@ -48,16 +48,6 @@ app.use(bodyParser.json());
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
-
-/* Redirect http to https */
-// app.get('*', function(req,res,next) {
-//     if(req.headers['x-forwarded-proto'] != 'https' && process.env.NODE_ENV === 'production')
-//       res.redirect('https://'+req.hostname+req.url)
-//     else
-//       next() /* Continue to other routes if we're not redirecting */
-//   });
-
-
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
