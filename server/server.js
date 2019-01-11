@@ -50,13 +50,20 @@ app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 console.log('path', publicPath);
 
 /* Redirect http to https */
-app.get('*', function(req,res,next) {
-    if(req.headers['x-forwarded-proto'] != 'https' && process.env.NODE_ENV === 'production')
-      res.redirect('https://'+req.hostname+req.url)
-    else
-      next() /* Continue to other routes if we're not redirecting */
-  });
+// app.get('*', function(req,res,next) {
+//     if(req.headers['x-forwarded-proto'] != 'https' && process.env.NODE_ENV === 'production')
+//       res.redirect('https://'+req.hostname+req.url)
+//     else
+//       next() /* Continue to other routes if we're not redirecting */
+//   });
 
+  app.enable('trust proxy');
+  app.use('*', (req, res, next) => {
+    if (req.secure) {
+      return next();
+    }
+    res.redirect(`https://${req.hostname}${req.url}`);
+  });
 
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
