@@ -63,6 +63,9 @@ app.get('/driver', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/route/*', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
 console.log('client path', clientPath);
 app.use(bodyParser.json());
 //app.use(express.static('static'));
