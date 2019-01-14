@@ -21,24 +21,33 @@ var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
 
+const env = require('../env');
 
 var app = express();
 
+var httpServer;
+var httpsServer;
 // Certificate
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/nileride.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/nileride.com/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/nileride.com/chain.pem', 'utf8');
+if(env.NODE_ENV === 'production') {
+    const privateKey = fs.readFileSync('/etc/letsencrypt/live/nileride.com/privkey.pem', 'utf8');
+    const certificate = fs.readFileSync('/etc/letsencrypt/live/nileride.com/cert.pem', 'utf8');
+    const ca = fs.readFileSync('/etc/letsencrypt/live/nileride.com/chain.pem', 'utf8');
+    
+    const credentials = {
+        key: privateKey,
+        cert: certificate,
+        ca: ca
+    };   
+    
+    // Starting both http & https servers
+    httpServer = http.createServer(app);
+    httpsServer = https.createServer(credentials, app);
+} else {
+    httpServer = http.createServer(app);
+}
 
-const credentials = {
-	key: privateKey,
-	cert: certificate,
-	ca: ca
-};
 
 
-// Starting both http & https servers
-const httpServer = http.createServer(app);
-const httpsServer = https.createServer(credentials, app);
 
 //var server = http.createServer(app);
 var io = socketIO(httpServer);
@@ -799,13 +808,21 @@ driveRequest = () => {
     });
 }
 
-httpServer.listen(port, () => {
-	console.log(`Express server is up on port ${port}`);
-});
 
-httpsServer.listen(443, () => {
-	console.log('HTTPS Server running on port 443');
-});
+if(env.NODE_ENV === 'production') {
+    httpServer.listen(port, () => {
+        console.log(`Express server is up on port ${port}`);
+    });
+    
+    httpsServer.listen(443, () => {
+    	console.log('HTTPS Server running on port 443');
+    });
+} else {
+    httpServer.listen(port, () => {
+        console.log(`Express server is up on port ${port}`);
+    });
+}
+
 
 // server.listen(port, () => {
 //     console.log(`Express server is up on port ${port}`);
