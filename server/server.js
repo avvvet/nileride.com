@@ -55,6 +55,15 @@ app.use(bodyParser.json());
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
+
+app.use(function(req, res, next) {
+    if(req.secure) {
+        next();
+    } else {
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+})
+
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
 });
