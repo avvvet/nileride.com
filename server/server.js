@@ -55,7 +55,7 @@ var io = socketIO(httpServer);
 const clientPath = path.join(__dirname, '../client/build');
 app.use(express.static(clientPath, { dotfiles: 'allow' } ));
 
-app.get('/', (req, res)=>{
+app.get('*', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));
 });
 console.log('client path', clientPath);
@@ -64,6 +64,7 @@ app.use(bodyParser.json());
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
+
 
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
