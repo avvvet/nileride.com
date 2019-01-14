@@ -814,9 +814,9 @@ httpServer.listen(port, () => {
 	console.log(`Express server is up on port ${port}`);
 });
 
-httpsServer.listen(443, () => {
-	console.log('HTTPS Server running on port 443');
-});
+// httpsServer.listen(443, () => {
+// 	console.log('HTTPS Server running on port 443');
+// });
 
 // server.listen(port, () => {
 //     console.log(`Express server is up on port ${port}`);
