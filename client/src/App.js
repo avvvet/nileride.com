@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import HttpsRedirect from 'react-https-redirect';
 
 import Menu from './components/menu';
 import PickUp from './components/pick_up';
@@ -26,6 +27,7 @@ class App extends React.Component {
     const positionTwo = [9.0092, 38.7645];
     
     return (
+      <HttpsRedirect>
       <div>
         <BrowserRouter>
           <div>
@@ -41,7 +43,7 @@ class App extends React.Component {
         </BrowserRouter>  
         
       </div>
-      
+      </HttpsRedirect>
     );
   }
 }
