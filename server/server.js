@@ -57,6 +57,7 @@ app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 console.log('path', publicPath);
 
 app.use(function(req, res, next) {
+    console.log(' what is that ',req.secure);
     if(req.secure) {
         next();
     } else {
