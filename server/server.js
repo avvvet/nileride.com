@@ -12,7 +12,7 @@ const Sequelize = require('sequelize');
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 //const publicPath = path.join(__dirname, '../client/build');
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 80;
 const publicPath = path.join(__dirname, '../client/public');
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
@@ -55,17 +55,6 @@ app.use(bodyParser.json());
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
-
-app.use(function(req, res, next) {
-    console.log(' what is that ',req.secure);
-    if(req.secure) {
-        next();
-    } else {
-        
-        res.redirect('https://' + req.headers.host + req.url);
-        console.log('accessed', 'https://' + req.headers.host + req.url);
-    }
-})
 
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
