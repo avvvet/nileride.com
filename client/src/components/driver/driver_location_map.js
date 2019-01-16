@@ -15,7 +15,7 @@ import { resolve } from 'path';
 
 var validator = require('validator');
 
-const socket = socketClient('http://localhost:7000');
+//const socket = socketClient('http://localhost:7000');
 const env = require('../../env')
 const {Howl, Howler} = require('howler');
 const sound = new Howl({
@@ -136,29 +136,29 @@ class DriverLocation extends Component {
     });  
    }
 
-   socketConnect = (_obj) => {
-    socket.on('connect', function(){
-        console.log('client connected');
+//    socketConnect = (_obj) => {
+//     socket.on('connect', function(){
+//         console.log('client connected');
 
-        socket.emit('join', _obj, function(err) {
-            if(err) {
-               alert(err);
-            }
-        });
-    });
+//         socket.emit('join', _obj, function(err) {
+//             if(err) {
+//                alert(err);
+//             }
+//         });
+//     });
     
-    socket.on('driveRequest' , function(msg) {
-        console.log('drive request' , msg);
-    })
+//     socket.on('driveRequest' , function(msg) {
+//         console.log('drive request' , msg);
+//     })
     
-    socket.on('disconnect', function(){
-        console.log('client disconnected');
-    });
-   }
+//     socket.on('disconnect', function(){
+//         console.log('client disconnected');
+//     });
+//    }
    
-   socketJoin = (_obj) => {
+//    socketJoin = (_obj) => {
     
-   }
+//    }
 
    componentDidMount(){
     this.getDriver(localStorage.getItem("_auth_driver"));   
