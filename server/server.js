@@ -815,7 +815,7 @@ driveRequest = () => {
 
 
 if(env.NODE_ENV === 'production') {
-    httpServer.listen(4000, () => {
+    httpServer.listen(80, () => {
         console.log('Express server is up on port 80');
     });
     
