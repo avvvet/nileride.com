@@ -350,10 +350,7 @@ class PickUpMap extends Component {
             },
             lineOptions: {
                 styles: [{color: 'red', opacity: 1, weight: 3}]
-            },
-            router: L.Routing.osrmv1({
-                serviceUrl: env.ROUTING_SERVICE
-            })
+            }
         })
         .on('routesfound', this.routeFound)
         .on('routingerror', (err) => {
