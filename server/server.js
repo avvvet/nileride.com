@@ -61,6 +61,7 @@ app.get('/driver', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+
 console.log('client path', clientPath);
 app.use(bodyParser.json());
 //app.use(express.static('static'));
@@ -818,7 +819,7 @@ if(env.NODE_ENV === 'production') {
         console.log('Express server is up on port 80');
     });
     
-    httpsServer.listen(7000, () => {
+    httpsServer.listen(443, () => {
     	console.log('HTTPS Server running on port 443');
     });
 } else {
