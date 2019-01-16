@@ -47,8 +47,6 @@ if(env.NODE_ENV === 'production') {
 }
 
 
-
-
 //var server = http.createServer(app);
 var io = socketIO(httpServer);
 
@@ -819,7 +817,7 @@ driveRequest = () => {
 
 
 if(env.NODE_ENV === 'production') {
-    httpServer.listen(80, () => {
+    httpServer.listen(4000, () => {
         console.log('Express server is up on port 80');
     });
     
