@@ -818,7 +818,7 @@ if(env.NODE_ENV === 'production') {
         console.log('Express server is up on port 80');
     });
     
-    httpsServer.listen(443, () => {
+    httpsServer.listen(7000, () => {
     	console.log('HTTPS Server running on port 443');
     });
 } else {
