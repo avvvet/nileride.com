@@ -20,6 +20,7 @@ var {authUser} = require('./middleware/_auth_user');
 var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 var _ = require('lodash');
+var proxy = require('express-http-proxy');
 
 const env = require('../env');
 
@@ -52,6 +53,7 @@ var io = socketIO(httpServer);
 
 const clientPath = path.join(__dirname, '../client/build');
 app.use(express.static(clientPath, { dotfiles: 'allow' } ));
+
 
 app.get('/', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));

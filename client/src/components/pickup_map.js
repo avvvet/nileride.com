@@ -325,7 +325,7 @@ class PickUpMap extends Component {
     }
 
     findRoute = (latlng1, latlng2) => {
-        alert('jesus');
+       // alert('jesus');my lord help me 
         document.getElementById('ride-route-status').innerHTML = 'Please wait ...';
         document.getElementById('ride-route-status').style.visibility = 'visible';
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";

@@ -19,7 +19,6 @@
     "crypto-js": "^3.1.9-1",
     "express": "^4.16.4",
     "express-http-proxy": "^1.5.0",
-    "greenlock-express": "^2.6.7",
     "http-proxy-middleware": "^0.19.1",
     "jsonwebtoken": "^8.4.0",
     "le-acme-core": "^2.1.4",

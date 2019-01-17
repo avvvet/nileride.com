@@ -1,6 +1,6 @@
 'use strict';
 
 const env = {
-  ROUTING_SERVICE: 'http://nileride.com:5000/route/v1'
+  ROUTING_SERVICE: 'http://127.0.0.1/route/v1'
 };
 module.exports = env;
