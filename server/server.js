@@ -59,7 +59,7 @@ app.get('/', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));
 });
 
-app.get('/driver', (req, res)=>{
+app.get('/driver/*', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
