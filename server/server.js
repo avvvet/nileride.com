@@ -59,6 +59,10 @@ app.get('/', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/route/v1/driving/*', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
 app.get('/driver', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
