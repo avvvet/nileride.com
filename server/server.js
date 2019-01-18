@@ -60,8 +60,7 @@ app.get('/', (req, res)=>{
 });
 
 app.get('/route/v1/driving/*', (req, res)=>{
-    console.log('osrmmmmmmm', res.body)
-    res.sendStatus(200).send();
+    res.redirect('https://' + req.headers.host + req.url);
 });
 
 app.get('/driver', (req, res)=>{
@@ -71,7 +70,7 @@ app.get('/driver', (req, res)=>{
 
 console.log('client path', clientPath);
 app.use(bodyParser.json());
-//app.use(express.static('static'));
+//app.use(express.static('static'));s
 app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
