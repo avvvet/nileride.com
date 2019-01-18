@@ -60,6 +60,7 @@ app.get('/', (req, res)=>{
 });
 
 app.get('/route/v1/driving/*', (req, res)=>{
+    console.log('osrmmmmmmm', res.body)
     res.sendStatus(200).send();
 });
 
