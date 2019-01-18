@@ -60,7 +60,7 @@ app.get('/', (req, res)=>{
 });
 
 app.get('/route/v1/driving/*', (req, res)=>{
-    res.redirect('https://' + req.headers.host + req.url);
+    res.redirect('https://nileride.com' + req.url);
 });
 
 app.get('/driver', (req, res)=>{
