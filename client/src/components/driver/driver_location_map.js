@@ -193,6 +193,7 @@ class DriverLocation extends Component {
         locationGroup.clearLayers();
         
         this.setState({current_latlng : e.latlng});
+        alert("hi nati" + e.latlng.lat);
         var radius = e.accuracy / 1024;
         radius = radius.toFixed(2);
         L.marker(e.latlng, {icon: currentLocationIcon}).addTo(locationGroup)
