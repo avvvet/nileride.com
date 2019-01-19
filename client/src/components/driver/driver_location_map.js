@@ -91,6 +91,7 @@ class DriverLocation extends Component {
            userMobile: '',
            userPic: '',
            driverName : '',
+           driverMobile : '',
            amount: '',
            charge: '',
            total_rides: '',
@@ -124,7 +125,6 @@ class DriverLocation extends Component {
         headers: { 'x-auth': token },
         contentType: "application/json",
         success: function(driver, textStatus, jqXHR) {
-            alert('driver name ' + driver.firstName);
             console.log('driver data is ', driver)
           this.setState({
               driver: driver
@@ -263,13 +263,16 @@ class DriverLocation extends Component {
                 console.log('driver info', driver);
                 this.setState({
                     driverName : driver[0].driver.firstName,
+                    driverMobile : driver[0].driver.mobile,
                     amount : driver[0].amount,
                     charge : driver[0].charge,
                     total_rides: driver[0].total_rides
                 });
             } else {
+                console.log('driver has no payment', this.state.driver);
                 this.setState({
                     driverName : this.state.driver.firstName,
+                    driverMobile : this.state.driver.mobile,
                     amount : 0.00,
                     charge : 0.00,
                     total_rides: 0
@@ -783,7 +786,7 @@ class DriverLocation extends Component {
                         <Alert bsStyle="success" onDismiss={this.handleDismiss}>
                             <h4>Final step! Varify your mobile!</h4>
                             <p>
-                                If the mobile number 0911003994 is yours. 
+                                If the mobile number {this.state.driverMobile} is yours. 
                                 Enter the text message sent to your mobile
                                 and click varify.
                             </p>

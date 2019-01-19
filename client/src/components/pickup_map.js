@@ -125,7 +125,7 @@ class PickUpMap extends Component {
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
                 console.log('user current latlng', this.state.current_latlng, this.state.last_current_latlng);
                 var map = this.state.map;
-                map.locate({setView: true, maxZoom: 17});
+                map.locate({setView: true, maxZoom: 16});
                 resolve(true);
         });
 
@@ -225,7 +225,7 @@ class PickUpMap extends Component {
     componentDidMount(){
         this.getUser(localStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
-        map.locate({setView: true, maxZoom: 17});
+        map.locate({setView: true, maxZoom: 16});
         
         this.setState({map : map});
 
@@ -251,7 +251,7 @@ class PickUpMap extends Component {
                 
               L.circle(e.latlng, radius).addTo(locationGroup)
               .bindPopup("You are " + radius + " meters from this point").openPopup();;
-              map.setView(e.latlng,15);
+              map.setView(e.latlng,16);
               this.setState({currentLatLng : e.latlng});
         });
         
@@ -759,7 +759,7 @@ class PickUpMap extends Component {
                         <Alert bsStyle="success" onDismiss={this.handleDismiss}>
                             <h4>Final step! Varify your mobile!</h4>
                             <p>
-                                If the mobile number 0911003994 is yours. 
+                                If the mobile number {this.state.user.mobile} is yours. 
                                 Enter the text message sent to your mobile
                                 and click varify.
                             </p>
@@ -796,7 +796,7 @@ class PickUpMap extends Component {
               <div className="div-intro" id="div-intro">
                <Grid fluid>
                  <Row> 
-                     <Col xs={12} sm={12} sm={12}>For ride click your pickup and dropoff from the map.</Col>
+                     <Col xs={12} sm={12} sm={12}>Start by clicking your pickup and dropoff from the map.</Col>
                  </Row>
                </Grid>
               </div>
@@ -863,7 +863,7 @@ class PickUpMap extends Component {
               </div>
 
               <div className="ride-route-try" id="ride-route-try"> 
-                <strong>Oh! </strong> Something wrong. Try again.
+                <strong>Oh! </strong> No connection. Try again.
                 <p> 
                  <Grid fluid>
                      <Row className="rowPaddingSm">
