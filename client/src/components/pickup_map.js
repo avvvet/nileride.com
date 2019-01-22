@@ -91,6 +91,7 @@ class PickUpMap extends Component {
             isRouteFound : false,
             map : '',
             markerGroup: '',
+            carMarkerGroup: '',
             locationGroup: '',
             list: [],
             currentDrivers : [],
@@ -110,6 +111,7 @@ class PickUpMap extends Component {
             _nearest_driver_token : '',
             _nearest_driver_distance : 0,
             _nearest_driver_eta : 0 ,
+            _nearest_driver_available : false,
             _nearest_driver_latlng : {
                 lat: 0,
                 lng:0
@@ -125,7 +127,7 @@ class PickUpMap extends Component {
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
                 console.log('user current latlng', this.state.current_latlng, this.state.last_current_latlng);
                 var map = this.state.map;
-                map.locate({setView: true, maxZoom: 16});
+                map.locate({setView: true, maxZoom: 17});
                 resolve(true);
         });
 
@@ -135,7 +137,7 @@ class PickUpMap extends Component {
                 var current_latlng = {
                     _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
                 };
-                var token = localStorage.getItem("_auth_user");
+                var token = sessionStorage.getItem("_auth_user");
                 $.ajax({ 
                     type:"POST",
                     url:"/user/updateLocation",
@@ -166,7 +168,7 @@ class PickUpMap extends Component {
             iconUrl: '/assets/awet-ride-marker-1.png',
             shadowUrl: '',
         
-            iconSize:     [80, 49], // size of the icon
+            iconSize:     [70, 39], // size of the icon
             shadowSize:   [50, 64], // size of the shadow
             iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
             shadowAnchor: [4, 62],  // the same for the shadow
@@ -178,13 +180,14 @@ class PickUpMap extends Component {
             url:"/drivers",
             contentType: "application/json",
             success: function(currentDrivers, textStatus, jqXHR) {
-                var markerGroup = this.state.markerGroup;
+                var carMarkerGroup = this.state.carMarkerGroup;
+                carMarkerGroup.clearLayers();  //lets clear and update it 
                 if(currentDrivers){
                     
                     for (var i = 0; i < currentDrivers.length; i++) {
                         L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
                         .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
-                        .addTo(markerGroup);
+                        .addTo(carMarkerGroup);
                     }
                 }
  
@@ -212,8 +215,13 @@ class PickUpMap extends Component {
                   this.setState({
                       _nearest_driver_token : driver[0].token,
                       _nearest_driver_distance : driver[0].distance,
-                      _nearest_driver_latlng : driver[0].currentLocation.coordinates
+                      _nearest_driver_latlng : driver[0].currentLocation.coordinates,
+                      _nearest_driver_available : true
                   })
+                } else {
+                  this.setState({
+                    _nearest_driver_available : false
+                  });
                 }
             }.bind(this),
             error: function(xhr, status, err) {
@@ -223,9 +231,10 @@ class PickUpMap extends Component {
     }
 
     componentDidMount(){
-        this.getUser(localStorage.getItem("_auth_user"));
-        var map = L.map('mapid').setView([9.0092, 38.7645], 16);
-        map.locate({setView: true, maxZoom: 16});
+        this.getUser(sessionStorage.getItem("_auth_user"));
+        //var map = L.map('mapid').setView([9.0092, 38.7645], 16);
+        var map = L.map('mapid');
+        map.locate({setView: true, maxZoom: 17});
         
         this.setState({map : map});
 
@@ -235,7 +244,8 @@ class PickUpMap extends Component {
 
         this.setState({
             markerGroup : new L.LayerGroup().addTo(map),
-            locationGroup : new L.LayerGroup().addTo(map)
+            locationGroup : new L.LayerGroup().addTo(map),
+            carMarkerGroup : new L.LayerGroup().addTo(map)
         });
     
         this.getDrivers(map);
@@ -249,14 +259,13 @@ class PickUpMap extends Component {
             //   L.marker(e.latlng, {icon: yourLocation}).addTo(locationGroup)
             //   .bindPopup("You are " + radius + " meters from this point").openPopup();
                 
-              L.circle(e.latlng, radius).addTo(locationGroup)
-              .bindPopup("You are " + radius + " meters from this point").openPopup();;
-              map.setView(e.latlng,16);
+              L.circle(e.latlng, radius).addTo(locationGroup);
+              map.setView(e.latlng,15);
               this.setState({currentLatLng : e.latlng});
         });
         
         function onLocationError(e) {
-                alert(e.message);
+            console.log('location error', e.message);
         }
         map.on('locationerror', onLocationError);
 
@@ -457,15 +466,13 @@ class PickUpMap extends Component {
         .on('routingerror', (err) => {
             console.log(err.error.status);
             if(err.error.status === -1){
-                document.getElementById('ride-price-dashboard').style.visibility = "hidden";
-                document.getElementById('ride-route-status').style.visibility = 'hidden';
-                document.getElementById('ride-route-try').style.visibility = 'visible';
+                
             }
         })
         .addTo(map);  
     }
 
-    getDriverEta = () => {
+    getDriverEta = (_to_picup_dropoff, _status) => {
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -473,8 +480,8 @@ class PickUpMap extends Component {
         }
         this.routeControl = L.Routing.control({
             waypoints: [
-             L.latLng(this.state.pickup_latlng),
-             L.latLng(this.state._driverCurrentLocation)
+             L.latLng(this.state._driverCurrentLocation),
+             L.latLng(_to_picup_dropoff)
             ],
             routeWhileDragging: false,
             addWaypoints : false, //disable adding new waypoints to the existing path
@@ -497,7 +504,12 @@ class PickUpMap extends Component {
             
             _distance = (_distance/1000).toFixed(2);
             var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-            document.getElementById('notify-rider').innerHTML = 'Get ready, driver ' + _ride_time_string + ' away !';
+            if(_status === 'pickup'){
+                document.getElementById('notify-rider').innerHTML = 'Get ready, driver is ' + _ride_time_string + ' away !';
+            } else {
+                document.getElementById('notify-rider_2').innerHTML = 'Ride inprogress. ' + _ride_time_string + ' to dropoff !';
+            }
+            
             function timeConvert(n) {
                 var num = n;
                 var hours = (num / 3600);
@@ -516,11 +528,9 @@ class PickUpMap extends Component {
             }
         })
         .on('routingerror', (err) => {
-            console.log(err.error.status);
+            console.log("driver eta route erro", err.error.status);
             if(err.error.status === -1){
-                document.getElementById('ride-price-dashboard').style.visibility = "hidden";
-                document.getElementById('ride-route-status').style.visibility = 'hidden';
-                document.getElementById('ride-route-try').style.visibility = 'visible';
+                // may be change text of eta 
             }
         })
         .addTo(map);  
@@ -528,7 +538,7 @@ class PickUpMap extends Component {
 
     rideRequest = (latlng) => {
         
-            var user_token = localStorage.getItem("_auth_user");
+            var user_token = sessionStorage.getItem("_auth_user");
             var objRideRequest = {
                 user_id: user_token,
                 driver_id: this.state._nearest_driver_token,
@@ -543,20 +553,20 @@ class PickUpMap extends Component {
             $.ajax({ 
                 type:"POST",
                 url:"/ride/rideRequest",
-                headers: { 'x-auth': localStorage.getItem("_auth_user")},
+                headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
                 data: JSON.stringify(objRideRequest), 
                 contentType: "application/json",
                 success: function(data, textStatus, jqXHR) {
                     document.getElementById("ride-price-dashboard").style.visibility = "hidden";
                     document.getElementById("ride-request-dashboard").style.visibility = "visible";
                     this.timerB = setInterval(this.checkRideStatus, 7000);
-                    console.log("ride request", data);
+                    console.log("ride request sucess res ", data);
                 }.bind(this),
                 error: function(xhr, status, err) {
-                    if(xhr.status === 401){
-                       this.setState({_signInFlag:true});
-                    }
-                    console.log('auth driver', xhr.status);
+                    // if(xhr.status === 401){
+                    //    this.setState({_signInFlag:true});
+                    // }
+                    console.log('ride request reply error', xhr.status);
                     console.error(xhr, status, err.toString());
                 }.bind(this)
             });  
@@ -575,7 +585,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/check_ride_user",
-            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -583,7 +593,7 @@ class PickUpMap extends Component {
                 if(ride.status === 1) {  // wait for driver to accept 
                     
                 } else if (ride.status === 7) {  //driver is commming 
-                    // LORD JESUS THANK YOU FOR GIVING ME THIS TIME I WORSHIP YOU MY LORD MY GOD
+                    // LORD JESUS THANK YOU FOR GIVING ME THIS TIME I WORSHIP YOU MY LORD MY GOD ALWAYS
                     let PromiseSetDriverData = new Promise((res, rejects)=>{
                         this.setState({
                             _driverImage: "/assets/awet-ride-driver.jpeg",
@@ -603,19 +613,23 @@ class PickUpMap extends Component {
                         if(!this.state._fire_driver_eta_flag){
                             this.setState({
                                 _fire_driver_eta_flag : true
-                            })
-                            this.timerDriverEta = setInterval(this.getDriverEta, 10000);
+                            });
+                            this.timerDriverEta_pickup = setInterval(this.getDriverEta, 10000, this.state.pickup_latlng, 'pickup');  // eta from driver current latlng to pickup 
                         }
                     });      
                 } else if(ride.status === 77) {  //ride on progress 
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
-                    clearInterval(this.timerDriverEta);
+                    if(_.isUndefined(this.timerDriverEta_dropoff)) {
+                        clearInterval(this.timerDriverEta_pickup);
+                        this.timerDriverEta_dropoff = setInterval(this.getDriverEta, 10000, this.state.dropoff_latlng, 'dropoff');  // eta from driver current latlng to dropoff
+                    } 
                 } else if(ride.status === 0) { // no ride found so end the existing 
                     document.getElementById('ride-request-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                    clearInterval(this.timerDriverEta);
+                    clearInterval(this.timerDriverEta_pickup); 
+                    clearInterval(this.timerDriverEta_dropoff);
                     clearInterval(this.timerB);
                     this.resetRide();
                 }
@@ -720,14 +734,14 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/user/mobile_verification",
-            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getUser(localStorage.getItem("_auth_user")); //reload user after varification
+                this.getUser(sessionStorage.getItem("_auth_user")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -840,8 +854,12 @@ class PickUpMap extends Component {
 
                       <Row className="rowPaddingSm">
                           <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small" block>REQUEST RIDE</Button>
-                          </Col>
+                          {this.state._nearest_driver_available ? 
+                           <Button  onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small" block>REQUEST RIDE</Button>
+                           : 
+                           ''
+                          }
+                           </Col>
                       </Row>
                       <Row className="rowPaddingSm">
                           <Col xs={12} sm={12} md={12}>
@@ -896,7 +914,7 @@ class PickUpMap extends Component {
               </div>
 
               <div className="u-driver-dashboard-2 shake-ride-to-pickup" id="u-driver-dashboard-2"> 
-                <div className="notify-rider" id="notify-rider"> Ride inprogress</div>
+                <div className="notify-rider_2" id="notify-rider_2"> Ride inprogress</div>
                  <Grid fluid>
                     <Row>
                         <Col xs={4} sm={4} md={4}><Image src={this.state._driverImage} height={45} circle></Image></Col>

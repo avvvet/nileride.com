@@ -127,7 +127,7 @@ class ApplyToRide extends Component {
             data: JSON.stringify(rider), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-              localStorage.setItem("_auth_user", data.token);
+              sessionStorage.setItem("_auth_user", data.token);
               this.setState({
                   auth: data.token
               });  

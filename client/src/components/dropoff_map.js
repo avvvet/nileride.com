@@ -87,7 +87,7 @@ class DropOffMap extends Component {
 
         var markersLayer = new L.LayerGroup().addTo(map);
         this.setState({markersLayer: markersLayer});
-        this.setState({pickup_latlng: JSON.parse(localStorage.getItem("session_pickup"))});
+        this.setState({pickup_latlng: JSON.parse(sessionStorage.getItem("session_pickup"))});
     };
 
     componentDidUpdate(){

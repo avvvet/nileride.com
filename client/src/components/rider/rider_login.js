@@ -70,7 +70,7 @@ class RiderLoginForm extends Component {
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
              console.log('this user login', user);
-             localStorage.setItem("_auth_user", user.token);
+             sessionStorage.setItem("_auth_user", user.token);
              this.setState({
                 auth: user.token
              });   

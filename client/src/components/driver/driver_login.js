@@ -70,7 +70,8 @@ class DriverLoginForm extends Component {
             data: JSON.stringify(login), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-             localStorage.setItem("_auth_driver", data.token);
+            // localStorage.setItem("_auth_driver", data.token);
+             sessionStorage.setItem("_auth_driver", data.token);
              this.setState({
                 auth: data.token
              });   

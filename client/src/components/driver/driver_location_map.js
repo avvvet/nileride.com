@@ -162,9 +162,9 @@ class DriverLocation extends Component {
 //    }
 
    componentDidMount(){
-    this.getDriver(localStorage.getItem("_auth_driver"));   
+    this.getDriver(sessionStorage.getItem("_auth_driver"));   
     this.setState({
-        auth: localStorage.getItem("_auth_driver")
+        auth: sessionStorage.getItem("_auth_driver")
     });
 
     this.driverRidesInfo();
@@ -205,7 +205,7 @@ class DriverLocation extends Component {
     });
     
     function onLocationError(e) {
-            alert(e.message);
+        console.log("location error", e.message);
     }
 
     map.on('locationerror', onLocationError);
@@ -226,7 +226,7 @@ class DriverLocation extends Component {
     PromiseLocateDriver.then((r)=>{
         if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
             console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
-            var token = localStorage.getItem("_auth_driver");
+            var token = sessionStorage.getItem("_auth_driver");
             var current_latlng = {
                 _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
             }; 
@@ -255,7 +255,7 @@ class DriverLocation extends Component {
     $.ajax({ 
         type:"POST",
         url:"/driver/getRidesInfo",
-        headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+        headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
         data: JSON.stringify(driver), 
         contentType: "application/json",
         success: (driver) => {
@@ -286,7 +286,7 @@ class DriverLocation extends Component {
    }
 
    checkForRide = () => {
-        console.log('check for a ride');
+        console.log('check for a ride', sessionStorage.getItem("_auth_driver"), sessionStorage.getItem("_auth_driver"));
         var driver = {
             status : 1
         };
@@ -294,7 +294,7 @@ class DriverLocation extends Component {
         $.ajax({
             type:"POST",
             url:"/ride/check_ride_driver",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json"
          })
@@ -332,7 +332,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/accepted",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -371,7 +371,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/completed",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
@@ -416,7 +416,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/paxFound",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
@@ -604,14 +604,14 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/driver/mobile_verification",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
+                this.getDriver(sessionStorage.getItem("_auth_driver")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -650,14 +650,14 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/car/register",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('register-car'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
+                this.getDriver(sessionStorage.getItem("_auth_driver")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {

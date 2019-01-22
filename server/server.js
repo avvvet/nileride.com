@@ -59,6 +59,10 @@ app.get('/', (req, res)=>{
   res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/driver', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
 app.get('/driver/login', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
@@ -239,23 +243,122 @@ app.post('/user/login', (req, res) => {
    
 });
 
-
 app.post('/ride/rideRequest', authUser, (req, res) => {
+   let body = _.pick(req.body, ['user_id','driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
+   let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
+   var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
+
+   body.pickup_latlng = _pickup_latlng;
+   body.dropoff_latlng = _dropoff_latlng;
+   
+    const getNearestDrivers = async (latlng) => {
+       let drivers = null;
+       var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), latlng);
+       await models.drivers.findAll({ 
+          attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
+          where: {verified: 1, status: 0},
+          order: distance,
+          limit: 3,
+          raw: true,
+          logging: console.log
+        }).then(_drivers => {
+           drivers = _drivers;
+        });
+      return drivers;
+    }
+
+    const request_driver = (driver_token) => {
+        var sequelize = models.sequelize;
+        return sequelize.transaction(function (t) { 
+            return models.riderequests.findOne({
+                where : {driver_id: driver_token, status: 1}  
+                }, {transaction: t}).then((_ride) => {
+                    console.log('drrrrrrrrrrrrrrrrrr 22222222', driver_token);
+                    if(_.isNull(_ride)){
+                        body.driver_id = driver_token;
+                        const ride_request = models.riderequests.build(body, {transaction: t}); 
+                        return ride_request.save().then((ride) => {
+                            return ride;
+                        }).catch(err => {
+                            throw new Error('t: save error')
+                        });
+                    } else {
+                        return null;
+                    }
+                });
+        }).then(function (result) {
+            return result;
+            console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+         
+        }).catch(function (err) {
+            return null ;
+            console.log('trsancation rollback ', err);
+           
+        });   
+    }
+
+    const ride_request = async () => {
+        const drivers = await getNearestDrivers(_pickup_latlng);
+        let _r = null;
+        let i = 0 ;
+        async function processArray(drivers){
+            for(let driver of drivers) {
+                i++;
+                console.log('current driverrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr ', driver.token, i);
+                const  _ride = await request_driver(driver.token);
+                if(!_.isNull(_ride)) {
+                    _r =_ride;
+                    break;
+                } else {
+                    _r = null
+                }
+            }
+        }
+        
+        await processArray(drivers);
+
+        console.log('gggggggggggggggggggggggggggggggggggggggggg', i);
+         
+        if(_.isNull(_r)){
+            res.send(null);
+        } else {
+            res.send(_r);
+        }
+
+    }
+
+    ride_request();
+
+});
+
+app.post('/ride/rideRequest2', authUser, (req, res) => {
+   var body = _.pick(req.body, ['user_id','driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
    var _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
    var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
 
-   req.body.pickup_latlng = _pickup_latlng;
-   req.body.dropoff_latlng = _dropoff_latlng;
+   body.pickup_latlng = _pickup_latlng;
+   body.dropoff_latlng = _dropoff_latlng;
    
-   const ride_request = models.riderequests.build(req.body); 
-   ride_request.save().then((ride) => {
-      console.log('ride request ', ride);
-      res.send(ride);
-   }).catch(err => {
-       console.log('ride request save errr', err);
-       res.status(401).send();
-   });
- 
+   var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng);
+   var sequelize = models.sequelize;
+   
+   return models.riderequests.findOne({
+    where : {driver_id: driver.token, status: 1}  
+    }, {transaction: t}).then((_ride) => {
+        console.log('drrrrrrrrrrrrrrrrrr 22222222', driver.token,i);
+        if(_.isNull(_ride)){
+            _flag_found = true;
+            body.driver_id = driver.token;
+            const ride_request = models.riderequests.build(body, {transaction: t}); 
+            return ride_request.save().then((ride) => {
+                return ride;
+            }).catch(err => {
+                throw new Error('t: save error')
+            });
+        }
+    });
+
+   
 });
 
 app.post('/ride/accepted', (req, res) => {
@@ -277,9 +380,19 @@ app.post('/ride/accepted', (req, res) => {
                              where : {driver_id: token, status: 7}
                          }, {transaction: t}).then((_ride)=>{
                              if(_ride){
-                                 return _ride;
+                                 return models.drivers.update(
+                                    { status: 1 },
+                                    { where: {token: token, status: 0} } ,
+                                    {transaction: t}
+                                 ).then(r => {
+                                     if(r){
+                                        return _ride;
+                                     } else {
+                                        throw new Error('transaction driver status not updated');
+                                     }
+                                 })
                              } else {
-                                 throw new Error('in transaction ride not found after update');
+                                 throw new Error('transaction ride not found');
                              }
                          })
                      }
@@ -365,10 +478,20 @@ app.post('/ride/completed', (req, res) => {
                          'status': 0
                      }
                      var body = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
-                     const payment = models.payments.build(body); 
+                     const payment = models.payments.build(body, {transaction: t}); 
                     return payment.save().then((payment_data) => {
                         console.log('payment data ', payment_data);
-                        return payment_data;
+                        return models.drivers.update(
+                            { status: 0 },
+                            { where: {token: token, status: 1 } },
+                            {transaction: t}
+                        ).then(r => {
+                            if(r){
+                                return payment_data;
+                            } else {
+                                throw new Error('Transaction driver not updated');
+                            }
+                        })
                      }).catch(err => {
                          throw new Error(err);
                      });
@@ -561,6 +684,7 @@ app.post('/drivers/nearest', (req, res) => {
     var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng);
     models.drivers.findAll({ 
       attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
+      where: {verified: 1, status: 0},
       order: distance,
       limit: 3,
       logging: console.log
@@ -569,11 +693,11 @@ app.post('/drivers/nearest', (req, res) => {
     });
 });
 
-//get drivers location
+//get drivers location  status 0 = waiting for job
 app.get('/drivers', (req, res) => {
     models.drivers.findAll({ 
         attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation'],
-        where: {status: null} 
+        where: {verified: 1, status: 0}, 
     }).then(drivers => {
         let data = [];
         var tmpObj;
