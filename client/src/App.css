@@ -157,6 +157,27 @@
   box-sizing: border-box;
   visibility: visible;
 }
+.div-profile {
+  color: #ffffff;
+  position: fixed;
+  top: 31%;
+  left: 55%;
+  width: 258px;
+  height: 100px;
+  border: 2px solid white;
+  background-color: #ef6a36;
+  transform: translate(-55%, -55%);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 11px;
+  padding-right: 9px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: visible;
+}
+
 
 .ride-price-dashboard {
   color: #ffffff;

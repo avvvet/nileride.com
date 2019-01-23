@@ -5,7 +5,7 @@ import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, Con
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
-import socketClient from 'socket.io-client';
+//import socketClient from 'socket.io-client';
 
 import DriverMenu from './driver_menu';
 import VerificationRply from '../verfication_rply';
@@ -286,7 +286,6 @@ class DriverLocation extends Component {
    }
 
    checkForRide = () => {
-        console.log('check for a ride', sessionStorage.getItem("_auth_driver"), sessionStorage.getItem("_auth_driver"));
         var driver = {
             status : 1
         };
@@ -299,26 +298,43 @@ class DriverLocation extends Component {
             contentType: "application/json"
          })
          .done( (ride) => {
-        
+            console.log('done done', ride);
          })
          .fail(function (errorHandler, soapResponse, errorMsg) {
              console.log('Error', errorMsg);
          })
          .always((ride) => {
-             if(ride) {
-                sound.volume(0.7, this.soundAccept);        
-                this.setState({
-                    ridePrice: ride.route_price,
-                    rideDistance: ride.route_distance,
-                    rideTime: ride.route_time,
-                    rideUser: ride.user.firstName + ' ' + ride.user.middleName,
-                    userMobile: ride.user.mobile,
-                    userPic: "/assets/awet-ride-driver.jpeg",
-                });
-                document.getElementById('check-ride-dashboard').style.visibility="visible";
-                this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
-                clearInterval(this.timerCheckForRide);
-                clearInterval(this.timerUserLocation);  //stop locating while accepting the request
+             console.log('always ', ride);
+             if(!_.isNull(ride)) {
+                if(ride.status === 1) {
+                    sound.volume(0.7, this.soundAccept);        
+                    this.setState({
+                        ridePrice: ride.route_price,
+                        rideDistance: ride.route_distance,
+                        rideTime: ride.route_time,
+                        rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+                        userMobile: ride.user.mobile,
+                        userPic: "/assets/awet-ride-driver.jpeg",
+                    });
+                    document.getElementById('check-ride-dashboard').style.visibility="visible";
+                    this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
+                    clearInterval(this.timerCheckForRide);
+                    clearInterval(this.timerUserLocation);  //stop locating while accepting the request
+                } else if (ride.status === 7) {
+                    this.acceptRideAction(ride);
+                    clearInterval(this.timerCheckForRide);
+                } else if (ride.status === 77) {
+                    this.setState({
+                        ridePrice: ride.route_price,
+                        rideDistance: ride.route_distance,
+                        rideTime: ride.route_time,
+                        rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+                        userMobile: ride.user.mobile,
+                        userPic: "/assets/awet-ride-driver.jpeg",
+                    });
+                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
+                    clearInterval(this.timerCheckForRide);
+                }        
              }
              
          }); 
@@ -337,31 +353,43 @@ class DriverLocation extends Component {
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
                 if(ride){
-                   sound.volume(0,this.soundAccept); 
-                   let PromiseSlientAlert = new Promise((resolve, rejects) => {
-                    document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
-                    document.getElementById("driver-dashboard").style.visibility = "hidden";
-                    document.getElementById("driver-pax-action").style.visibility = "visible";
-                    sound.volume(0,this.soundAccept); 
-                    this.setState({
-                        pickup_latlng : ride.pickup_latlng.coordinates,
-                        dropoff_latlng: ride.dropoff_latlng.coordinates,
-                        stopMapViewFlag : true
-                    })
-                    resolve();
-                   });
-                    
-                   PromiseSlientAlert.then(()=>{
-                      //show the driver the pickup location 
-                      this.showPickUpLocation(ride.pickup_latlng.coordinates);
-                      this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);  //start showing curreent location 
-                   });
+                   this.acceptRideAction(ride);
                 }  
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error('accept test case error', err.toString());
             }.bind(this)
         });  
+    }
+
+    acceptRideAction = (ride) => {
+        this.setState({
+            ridePrice: ride.route_price,
+            rideDistance: ride.route_distance,
+            rideTime: ride.route_time,
+            rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+            userMobile: ride.user.mobile,
+            userPic: "/assets/awet-ride-driver.jpeg",
+        });
+        sound.volume(0,this.soundAccept); 
+        let PromiseSlientAlert = new Promise((resolve, rejects) => {
+         document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
+         document.getElementById("driver-dashboard").style.visibility = "hidden";
+         document.getElementById("driver-pax-action").style.visibility = "visible";
+         sound.volume(0,this.soundAccept); 
+         this.setState({
+             pickup_latlng : ride.pickup_latlng.coordinates,
+             dropoff_latlng: ride.dropoff_latlng.coordinates,
+             stopMapViewFlag : true
+         })
+         resolve();
+        });
+         
+        PromiseSlientAlert.then(()=>{
+           //show the driver the pickup location 
+           this.showPickUpLocation(ride.pickup_latlng.coordinates);
+           this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);  //start showing curreent location 
+        });
     }
 
     rideCompleted = () => {
@@ -377,36 +405,40 @@ class DriverLocation extends Component {
             success: (_ride) => {
                 console.log('payment returned', _ride);
                 if(_ride){
-                    let PromiseRemoveAll = new Promise((resolve, rejects) => {
-                        document.getElementById("driver-pax-action").style.visibility = "hidden";
-                        document.getElementById("driver-pax-end-action").style.visibility = "hidden";
-                        document.getElementById("check-ride-dashboard").style.visibility = "hidden";
-                        
-                        var map = this.state.map;
-                        var markerGroup = this.state.markerGroup;
-                        markerGroup.clearLayers();
-                        //map.removeControl(this.routeControl);
-                        //map.locate({setView: true, maxZoom: 17});
-                       
-                        this.setState({
-                            pickupRoutFlag : false,
-                            stopMapViewFlag : false
-                         });
-
-                        resolve(true);
-                    });
-
-                    PromiseRemoveAll.then(()=>{
-                        this.driverRidesInfo();
-                        this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
-                        document.getElementById("driver-dashboard").style.visibility = "visible"; 
-                    });
+                    this.rideCompletedAction(_ride);
                 }  
             },
             error: function(xhr, status, err) {
                 console.error('ride completed error', err.toString());
             }.bind(this)
         });  
+    }
+
+    rideCompletedAction = (ride) => {
+        let PromiseRemoveAll = new Promise((resolve, rejects) => {
+            document.getElementById("driver-pax-action").style.visibility = "hidden";
+            document.getElementById("driver-pax-end-action").style.visibility = "hidden";
+            document.getElementById("check-ride-dashboard").style.visibility = "hidden";
+            
+            var map = this.state.map;
+            var markerGroup = this.state.markerGroup;
+            markerGroup.clearLayers();
+            //map.removeControl(this.routeControl);
+            //map.locate({setView: true, maxZoom: 17});
+           
+            this.setState({
+                pickupRoutFlag : false,
+                stopMapViewFlag : false
+             });
+
+            resolve(true);
+        });
+
+        PromiseRemoveAll.then(()=>{
+            this.driverRidesInfo();
+            this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
+            document.getElementById("driver-dashboard").style.visibility = "visible"; 
+        });
     }
 
     paxFound = () => {
@@ -421,7 +453,7 @@ class DriverLocation extends Component {
             contentType: "application/json",
             success: (_ride) => {
                 if(_ride){
-                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng)
+                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
                 }  
             },
             error: function(xhr, status, err) {

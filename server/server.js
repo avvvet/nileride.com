@@ -273,7 +273,6 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
             return models.riderequests.findOne({
                 where : {driver_id: driver_token, status: 1}  
                 }, {transaction: t}).then((_ride) => {
-                    console.log('drrrrrrrrrrrrrrrrrr 22222222', driver_token);
                     if(_.isNull(_ride)){
                         body.driver_id = driver_token;
                         const ride_request = models.riderequests.build(body, {transaction: t}); 
@@ -300,11 +299,8 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
     const ride_request = async () => {
         const drivers = await getNearestDrivers(_pickup_latlng);
         let _r = null;
-        let i = 0 ;
         async function processArray(drivers){
             for(let driver of drivers) {
-                i++;
-                console.log('current driverrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr ', driver.token, i);
                 const  _ride = await request_driver(driver.token);
                 if(!_.isNull(_ride)) {
                     _r =_ride;
@@ -316,19 +312,15 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
         }
         
         await processArray(drivers);
-
-        console.log('gggggggggggggggggggggggggggggggggggggggggg', i);
          
         if(_.isNull(_r)){
             res.send(null);
         } else {
             res.send(_r);
         }
-
     }
 
-    ride_request();
-
+    ride_request();   //starts from here 
 });
 
 app.post('/ride/rideRequest2', authUser, (req, res) => {
@@ -377,7 +369,12 @@ app.post('/ride/accepted', (req, res) => {
                   ).then(result => {
                      if(result){
                          return models.riderequests.findOne({
-                             where : {driver_id: token, status: 7}
+                             where : {driver_id: token, status: 7},
+                             include: [
+                                { model: models.users,
+                                  attributes: ['firstName','middleName','mobile']
+                                }
+                            ]
                          }, {transaction: t}).then((_ride)=>{
                              if(_ride){
                                  return models.drivers.update(
@@ -533,7 +530,7 @@ app.post('/ride/check_ride_user', (req, res) => {
           res.send(ride);  
         } else {
           var ride = {
-              status : 0  // custom status = no ride on progress 
+              status : null  // custom status = no ride on progress 
           }
           res.send(ride);
         }
@@ -543,9 +540,10 @@ app.post('/ride/check_ride_user', (req, res) => {
 app.post('/ride/check_ride_driver', (req, res) => {
     var body = _.pick(req.body, ['status']);
     var token = req.header('x-auth');
-
+    //I WORSHIP YOU JESUS YOU ARE GOOD GOOD FATHER 
+    const Op = Sequelize.Op;
     models.riderequests.findOne({ 
-        where : {driver_id: token, status: body.status},
+        where : {driver_id: token, status: {[Op.ne]: 777}},
         include: [
             { model: models.users,
               attributes: ['firstName','middleName','mobile']

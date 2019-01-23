@@ -82,6 +82,7 @@ class PickUpMap extends Component {
                 status: '',
                 verified: ''
             },
+            profile_pic : '',
             varificationCode: '',
             first_time_flag : false,
             route_price : 0,
@@ -100,7 +101,6 @@ class PickUpMap extends Component {
             locationFoundFlag : false,
             statusFlag : false,
             timerWait : '',
-            timerRideStatus: '',
             _driverImage: '',
             _driverCarImage: '',
             _driverName : '',
@@ -123,9 +123,8 @@ class PickUpMap extends Component {
     }
 
     userCurrentLocation = () => {
-        console.log('user current location');
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
-                console.log('user current latlng', this.state.current_latlng, this.state.last_current_latlng);
+                this.getDrivers();
                 var map = this.state.map;
                 map.locate({setView: true, maxZoom: 17});
                 resolve(true);
@@ -302,7 +301,8 @@ class PickUpMap extends Component {
                 clearInterval(this.timerUserLocation);  //user start selecting location stop current location change
             }
         }); 
-
+        
+        this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
         this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     };
 
@@ -473,6 +473,7 @@ class PickUpMap extends Component {
     }
 
     getDriverEta = (_to_picup_dropoff, _status) => {
+        console.log('data data ', _to_picup_dropoff);
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -556,11 +557,10 @@ class PickUpMap extends Component {
                 headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
                 data: JSON.stringify(objRideRequest), 
                 contentType: "application/json",
-                success: function(data, textStatus, jqXHR) {
-                    document.getElementById("ride-price-dashboard").style.visibility = "hidden";
-                    document.getElementById("ride-request-dashboard").style.visibility = "visible";
-                    this.timerB = setInterval(this.checkRideStatus, 7000);
-                    console.log("ride request sucess res ", data);
+                success: function(ride, textStatus, jqXHR) {
+                    if(!_.isNull(ride)) {
+                        this.rideRequestAction(ride);
+                    }
                 }.bind(this),
                 error: function(xhr, status, err) {
                     // if(xhr.status === 401){
@@ -570,6 +570,19 @@ class PickUpMap extends Component {
                     console.error(xhr, status, err.toString());
                 }.bind(this)
             });  
+    }
+
+    chkTimerRideStatus = () => {
+        if(_.isNull(this.timerRideStatus)){
+            this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
+        }
+    }
+
+    rideRequestAction = (ride) => {
+        document.getElementById("ride-price-dashboard").style.visibility = "hidden";
+        document.getElementById("ride-request-dashboard").style.visibility = "visible";   
+        this.chkTimerRideStatus();
+        console.log("ride request sucess res ", ride);
     }
 
     change = (e) => {
@@ -589,12 +602,13 @@ class PickUpMap extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
-              if(ride){
-                if(ride.status === 1) {  // wait for driver to accept 
-                    
-                } else if (ride.status === 7) {  //driver is commming 
-                    // LORD JESUS THANK YOU FOR GIVING ME THIS TIME I WORSHIP YOU MY LORD MY GOD ALWAYS
-                    let PromiseSetDriverData = new Promise((res, rejects)=>{
+                console.log('what is this ', ride.status);
+              if(!_.isNull(ride.status)){
+                  
+                let PromiseSetDriverData;
+                if(ride.status !== 0){
+                    PromiseSetDriverData = new Promise((res, rejects)=>{
+                        //beacuse ride is already started lets stop map click pickup_flag on and dropoff_flag on
                         this.setState({
                             _driverImage: "/assets/awet-ride-driver.jpeg",
                             _driverCarImage: "/assets/awet-ride.jpeg",
@@ -602,37 +616,52 @@ class PickUpMap extends Component {
                             _driverPlateNo: '02-B78098',
                             _driverMobile: ride.driver.mobile,
                             _driverCarModel: 'LIFAN J450',
-                            _driverCurrentLocation : ride.driver.currentLocation.coordinates
+                            _driverCurrentLocation : ride.driver.currentLocation.coordinates,
+                            pickup_latlng : ride.pickup_latlng.coordinates,
+                            dropoff_latlng : ride.dropoff_latlng.coordinates,
+                            pickup_flag : 'on', 
+                            dropoff_flag : 'on'
                         });
+                        clearInterval(this.timerUserLocation);  //lets stop current location as the user already on request
+                        
                         res(true);
-                    }); 
-                    PromiseSetDriverData.then(()=>{
+                    });   
+                }
+
+                if(ride.status === 1) {  // wait for driver to accept 
+                    this.rideRequestAction(ride);
+                } else if (ride.status === 7) {  //driver is commming 
+                    // LORD JESUS THANK YOU FOR GIVING ME THIS TIME I WORSHIP YOU MY LORD MY GOD ALWAYS
+                    PromiseSetDriverData.then(() => {
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="visible"; 
-                        //get driver eta
-                        if(!this.state._fire_driver_eta_flag){
-                            this.setState({
-                                _fire_driver_eta_flag : true
-                            });
-                            this.timerDriverEta_pickup = setInterval(this.getDriverEta, 10000, this.state.pickup_latlng, 'pickup');  // eta from driver current latlng to pickup 
-                        }
-                    });      
+                        this.checkEtaPickUp(this.state.pickup_latlng, 'pickup');
+                    });   
                 } else if(ride.status === 77) {  //ride on progress 
-                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
-                    document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
-                    if(_.isUndefined(this.timerDriverEta_dropoff)) {
-                        clearInterval(this.timerDriverEta_pickup);
-                        this.timerDriverEta_dropoff = setInterval(this.getDriverEta, 10000, this.state.dropoff_latlng, 'dropoff');  // eta from driver current latlng to dropoff
-                    } 
+                    PromiseSetDriverData.then(()=> {
+                        document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                        document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
+                        this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
+                    });
+
                 } else if(ride.status === 0) { // no ride found so end the existing 
-                    document.getElementById('ride-request-dashboard').style.visibility="hidden";
-                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
-                    document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                    clearInterval(this.timerDriverEta_pickup); 
-                    clearInterval(this.timerDriverEta_dropoff);
-                    clearInterval(this.timerB);
-                    this.resetRide();
+                        document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                        document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                        document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                        clearInterval(this.timerDriverEta_pickup); 
+                        clearInterval(this.timerDriverEta_dropoff);
+                        clearInterval(this.timerRideStatus);
+                        this.resetRide();
                 }
+              } else {
+                document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                clearInterval(this.timerDriverEta_pickup); 
+                clearInterval(this.timerDriverEta_dropoff);
+                clearInterval(this.timerRideStatus);
+                this.timerRideStatus = null;
+                this.resetRide();
               }
             }.bind(this),
             error: function(xhr, status, err) {
@@ -640,6 +669,19 @@ class PickUpMap extends Component {
             }.bind(this)
         });  
 
+    }
+
+    checkEtaPickUp = (latlng, status) => {
+        if(_.isUndefined(this.timerDriverEta_pickup)){
+            this.timerDriverEta_pickup = setInterval(this.getDriverEta, 10000, latlng, status);  // eta from driver current latlng to pickup 
+        }
+    }
+
+    checkEtaDropOff = (latlng, status) => {
+        if(_.isUndefined(this.timerDriverEta_dropoff)){
+            clearInterval(this.timerDriverEta_pickup);
+            this.timerDriverEta_dropoff = setInterval(this.getDriverEta, 10000, latlng, status);  // eta from driver current latlng to pickup 
+        }
     }
 
     resetRide = () => {
@@ -807,6 +849,7 @@ class PickUpMap extends Component {
                         </form>
               </div>
               : ''}
+
               <div className="div-intro" id="div-intro">
                <Grid fluid>
                  <Row> 
