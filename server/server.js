@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -17,6 +16,7 @@ const port = process.env.PORT || 4000;
 const publicPath = path.join(__dirname, '../client/public');
 const publicPathProfileUser = path.join(__dirname, '../client/public/assets/profile/user');
 const publicPathProfileDriver = path.join(__dirname, '../client/public/assets/profile/driver');
+
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
