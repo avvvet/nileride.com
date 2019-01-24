@@ -38,11 +38,19 @@ module.exports = {
       gender: {
         type: Sequelize.STRING
       },
+      profile: {
+        type: Sequelize.STRING
+      },
       currentLocation: {
         type: Sequelize.GEOMETRY('POINT')
       },
       isOnline: {
         type: Sequelize.BOOLEAN
+      },
+      hasProfile: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       verified: {
         type: Sequelize.BOOLEAN,

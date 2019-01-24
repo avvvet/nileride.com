@@ -33,6 +33,9 @@ module.exports = {
       mobile: {
         type: Sequelize.STRING
       },
+      gender: {
+        type: Sequelize.STRING
+      },
       plateNo: {
         type: Sequelize.STRING
       },
@@ -41,6 +44,14 @@ module.exports = {
       },
       isOnline: {
         type: Sequelize.BOOLEAN
+      },
+      profile: {
+        type: Sequelize.STRING
+      },
+      hasProfile: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       verified: {
         type: Sequelize.BOOLEAN,

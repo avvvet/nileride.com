@@ -16,8 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     token: DataTypes.STRING,
     mobile: DataTypes.STRING,
     gender: DataTypes.STRING,
+    profile: DataTypes.STRING,
     currentLocation: DataTypes.GEOMETRY('POINT'),
     isOnline: DataTypes.BOOLEAN,
+    hasProfile: DataTypes.BOOLEAN,
     verified: DataTypes.BOOLEAN,
     status: DataTypes.INTEGER
   }, {});

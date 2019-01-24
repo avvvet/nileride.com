@@ -11,9 +11,12 @@ const models = require('./models');
 const Sequelize = require('sequelize');
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 //const publicPath = path.join(__dirname, '../client/build');
 const port = process.env.PORT || 4000;
 const publicPath = path.join(__dirname, '../client/public');
+const publicPathProfileUser = path.join(__dirname, '../client/public/assets/profile/user');
+const publicPathProfileDriver = path.join(__dirname, '../client/public/assets/profile/driver');
 var validator = require('validator');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
@@ -75,6 +78,71 @@ app.use(express.static(publicPath, { dotfiles: 'allow' } ));
 
 console.log('path', publicPath);
 
+const storage_driver = multer.diskStorage({
+    destination: publicPathProfileDriver,
+    filename: function(req, file, cb){
+       cb(null,"driver-" + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const storage_user = multer.diskStorage({
+    destination: publicPathProfileUser,
+    filename: function(req, file, cb){
+       cb(null,"user-" + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload_driver = multer({
+    storage: storage_driver,
+    limits:{fileSize: 1000000},
+}).single("myImage");
+
+const upload_user = multer({
+    storage: storage_user,
+    limits:{fileSize: 1000000},
+}).single("myImage");
+
+app.post('/user/profile', (req, res) => {
+    var token = req.header('x-auth');
+    upload_user(req, res, (err) => {
+       console.log("Request ---", req.body);
+       console.log("Request file ---", req.file);//Here you get file.
+       let img = _.pick(req.file, ['filename']);
+       if(!_.isEmpty(img.filename)) {
+        models.users.update(
+            { profile : img.filename, hasProfile : true},
+            { where: { token: token } }
+         ).then(user => {
+              res.send(user);
+         }).catch(err => {
+            res.sendStatus(400).send();
+         });
+       } else {
+           res.sendStatus(400).send();
+       } 
+    })
+});
+
+app.post('/driver/profile', (req, res) => {
+    var token = req.header('x-auth');
+    upload_driver(req, res, (err) => {
+       console.log("Request ---", req.body);
+       console.log("Request file ---", req.file);//Here you get file.
+       let img = _.pick(req.file, ['filename']);
+       if(!_.isEmpty(img.filename)) {
+        models.drivers.update(
+            { profile : img.filename, hasProfile : true},
+            { where: { token: token } }
+         ).then(driver => {
+              res.send(driver);
+         }).catch(err => {
+            res.sendStatus(400).send();
+         });
+       } else {
+           res.sendStatus(400).send();
+       } 
+    })
+});
 
 app.get('/driver/ride', authDriver, (req, res) => {
    res.send(req.driver);
@@ -122,7 +190,7 @@ app.get('/user/get', (req, res) => {
         if(!user) {
             res.sendStatus(401).send();
         }
-          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'token', 'verified', 'status']));  
+          res.send(_.pick(user,['firstName', 'middleName', 'email', 'mobile', 'token', 'profile', 'hasProfile', 'verified', 'status']));  
         });
     } catch (e) {
       res.status(401).send();
@@ -337,7 +405,6 @@ app.post('/ride/rideRequest2', authUser, (req, res) => {
    return models.riderequests.findOne({
     where : {driver_id: driver.token, status: 1}  
     }, {transaction: t}).then((_ride) => {
-        console.log('drrrrrrrrrrrrrrrrrr 22222222', driver.token,i);
         if(_.isNull(_ride)){
             _flag_found = true;
             body.driver_id = driver.token;
@@ -372,7 +439,7 @@ app.post('/ride/accepted', (req, res) => {
                              where : {driver_id: token, status: 7},
                              include: [
                                 { model: models.users,
-                                  attributes: ['firstName','middleName','mobile']
+                                  attributes: ['firstName','middleName','mobile', 'profile']
                                 }
                             ]
                          }, {transaction: t}).then((_ride)=>{
@@ -522,7 +589,7 @@ app.post('/ride/check_ride_user', (req, res) => {
         where : {user_id: token, status: {[Op.ne]: 777}},
         include: [
             { model: models.drivers,
-              attributes: ['firstName','middleName','mobile', 'plateNo', 'currentLocation']
+              attributes: ['firstName','middleName','mobile', 'plateNo', 'profile', 'currentLocation']
             }
         ]
     }).then( (ride) => {
@@ -546,7 +613,7 @@ app.post('/ride/check_ride_driver', (req, res) => {
         where : {driver_id: token, status: {[Op.ne]: 777}},
         include: [
             { model: models.users,
-              attributes: ['firstName','middleName','mobile']
+              attributes: ['firstName','middleName','mobile', 'profile']
             }
         ]
     }).then( (ride) => {
@@ -726,7 +793,7 @@ app.get('/driver/get', (req, res) => {
           if(!driver) {
             res.sendStatus(401).send();
           }
-          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'isCarRegistered', 'isCarVerified', 'status']));  
+          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'isCarRegistered', 'isCarVerified', 'profile', 'hasProfile', 'status']));  
         });
     } catch (e) {
       res.status(401).send();

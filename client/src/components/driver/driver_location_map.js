@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import  {Route, Redirect, BrowserRouter } from 'react-router-dom'
+import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
 import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
 import L from 'leaflet';
 import $ from 'jquery';
@@ -65,6 +65,7 @@ class DriverLocation extends Component {
                lat: 0,
                lng: 0
            },
+           isLogedIn : false,
            pickup_latlng: '',
            dropoff_latlng: '',
            driver_id: '',
@@ -79,10 +80,15 @@ class DriverLocation extends Component {
                email: '',
                mobile: '',
                gender:'',
+               profile: '',
+               hasProfile: '',
                verified: '',
                isCarRegistered: '',
                status: ''
            },
+           profile_pic : '',
+           imagePreviewUrl : '/assets/awet-rider-m.png',
+           file : '',
            varificationCode: '',
            ridePrice: '',
            rideDistance: '',
@@ -127,7 +133,8 @@ class DriverLocation extends Component {
         success: function(driver, textStatus, jqXHR) {
             console.log('driver data is ', driver)
           this.setState({
-              driver: driver
+              driver: driver,
+              isLogedIn : true,
           });   
         }.bind(this),
         error: function(xhr, status, err) {
@@ -314,7 +321,7 @@ class DriverLocation extends Component {
                         rideTime: ride.route_time,
                         rideUser: ride.user.firstName + ' ' + ride.user.middleName,
                         userMobile: ride.user.mobile,
-                        userPic: "/assets/awet-ride-driver.jpeg",
+                        userPic: "/assets/profile/user/" + ride.user.profile,
                     });
                     document.getElementById('check-ride-dashboard').style.visibility="visible";
                     this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
@@ -330,7 +337,7 @@ class DriverLocation extends Component {
                         rideTime: ride.route_time,
                         rideUser: ride.user.firstName + ' ' + ride.user.middleName,
                         userMobile: ride.user.mobile,
-                        userPic: "/assets/awet-ride-driver.jpeg",
+                        userPic: "/assets/profile/user/" + ride.user.profile,
                     });
                     this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
                     clearInterval(this.timerCheckForRide);
@@ -369,7 +376,7 @@ class DriverLocation extends Component {
             rideTime: ride.route_time,
             rideUser: ride.user.firstName + ' ' + ride.user.middleName,
             userMobile: ride.user.mobile,
-            userPic: "/assets/awet-ride-driver.jpeg",
+            userPic: "/assets/profile/user/" + ride.user.profile
         });
         sound.volume(0,this.soundAccept); 
         let PromiseSlientAlert = new Promise((resolve, rejects) => {
@@ -699,13 +706,104 @@ class DriverLocation extends Component {
         });  
     }
 
+    _onChange_profile = (e) => {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.target.files[0];
+    
+        reader.onloadend = () => {
+          this.setState({
+            file: file,
+            imagePreviewUrl: reader.result
+          });
+        }
+    
+        reader.readAsDataURL(file)
+    }
+
+    validateProfile = () => {
+        console.log('file', this.state.file);
+        let errors = [];
+        
+        if(this.state.file.length === 0) {
+            errors.push("Picture is empty. Browse first.");
+        } 
+
+        if(this.state.file.size > 1024000) {
+            errors.push("Selected Picture is very large");
+        }
+       
+        if(this.state.file.size > 0) {
+            
+            var t = this.state.file.type.split('/').pop().toLowerCase();
+            console.log('ttt', t);
+            if (t != "jpeg" && t != "jpg" && t != "png" && t != "bmp" && t != "gif") {
+                errors.push('Please select a valid image file');
+            }
+        }
+        
+        return errors;
+    }
+
+    onProfileUpload = (e) => {
+        e.preventDefault();
+        const err = this.validateProfile();
+        if(err.length > 0){
+            let error_list = this.getErrorList(err);
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
+        } else {
+            this.uploadProfile();
+            this.setState({
+                file : '',
+                imagePreviewUrl : '',
+                errors: []
+            });
+        }
+    }
+
+    uploadProfile = () => {
+        const formData = new FormData();
+        formData.append('myImage',this.state.file);
+        console.log('dataaa', formData, this.state.file);
+        $.ajax({ 
+            type:"POST",
+            url:"/driver/profile",
+            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            data: formData, 
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data, textStatus, jqXHR) {
+              if(data.length > 0) {
+                if(data[0] === 1) {
+                   document.getElementById('div-profile').style.visibility = 'hidden';
+                   
+                   this.getDriver(sessionStorage.getItem("_auth_driver"));
+                } else {
+                    render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
+                }
+              }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                render(<Alert bsStyle="danger" >Connection error !</Alert>,document.getElementById('ProfileError'));
+            }.bind(this)
+        });  
+    }
+
     render(){
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
                 <Grid fluid>
-                    <Row>
-                        <Col xs={12} sm={12} md={12}><div id="driver_name">Hi, {this.state.driverName}</div></Col>
+                    <Row className="text-center">
+                      {this.state.driver.hasProfile === true ?  
+                      <Col xs={4} sm={4} md={4}><Image src={'/assets/profile/driver/' + this.state.driver.profile} height={35} circle></Image></Col>
+                      : 
+                      <Col xs={4} sm={4} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
+                      }
+                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}</Col>
+                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/driver/login">Logout</NavLink> : <NavLink to="/driver/login">Login</NavLink>}</Col>   
                     </Row>
                     <Row>
                         <Col xs={6} sm={6} md={6}>earning</Col>
@@ -852,6 +950,52 @@ class DriverLocation extends Component {
                         </form>
                 </div>
                 : ''}
+
+                {this.state.driver.verified === true && this.state.driver.isCarRegistered === true && this.state.driver.hasProfile === false ? 
+                <div className="div-profile" id="div-profile">
+                <Grid fluid>
+                <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+                                <h4>Finaly ! Profile picture.</h4>
+                                <p>
+                                    Helps to identify who you are.
+                                </p>
+                                <p>
+                                    <form>
+                                        <Row className="text-center"> 
+                                            <Col xs={6} sm={6} sm={6}>
+                                            <FormGroup>
+                                            <FormControl
+                                                title=" "
+                                                className="file1"
+                                                name="profile_pic"
+                                                type="file"
+                                                onChange={e => this._onChange_profile(e)}
+                                            >
+                                            </FormControl> 
+                                            </FormGroup>
+                                            </Col>
+
+                                            <Col xs={6} sm={6} sm={6}>
+                                            <Image src = {this.state.imagePreviewUrl} height={35} circle></Image>
+                                        </Col>
+                                        </Row>
+
+                                        <Row className="rowPaddingSm text-center">
+                                            <Col xs={12} sm={12} md={12}>
+                                            <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small">Upload Image</Button>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                        <Col xs={12} sm={12} md={12}>
+                                        <div className="ProfileError" id="ProfileError"></div>
+                                        </Col>
+                                    </Row>
+                                    </form>
+                                </p>
+                            </Alert>
+                </Grid>
+                </div>
+                : '' }
 
                 <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
                 <Grid fluid>

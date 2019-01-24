@@ -79,10 +79,14 @@ class PickUpMap extends Component {
                 middleName: '',
                 email: '',
                 mobile: '',
-                status: '',
-                verified: ''
+                profile : '',
+                hasProfile : '',
+                 verified: '',
+                status: ''
             },
             profile_pic : '',
+            imagePreviewUrl : '/assets/awet-rider-m.png',
+            file : '',
             varificationCode: '',
             first_time_flag : false,
             route_price : 0,
@@ -584,12 +588,6 @@ class PickUpMap extends Component {
         this.chkTimerRideStatus();
         console.log("ride request sucess res ", ride);
     }
-
-    change = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
-    }
     
     checkRideStatus = () => {
         var driver = {
@@ -610,7 +608,7 @@ class PickUpMap extends Component {
                     PromiseSetDriverData = new Promise((res, rejects)=>{
                         //beacuse ride is already started lets stop map click pickup_flag on and dropoff_flag on
                         this.setState({
-                            _driverImage: "/assets/awet-ride-driver.jpeg",
+                            _driverImage: "/assets/profile/driver/" + ride.driver.profile,
                             _driverCarImage: "/assets/awet-ride.jpeg",
                             _driverName : ride.driver.firstName + ' ' + ride.driver.middleName,
                             _driverPlateNo: '02-B78098',
@@ -741,6 +739,30 @@ class PickUpMap extends Component {
         return errors;
     }
 
+    validateProfile = () => {
+        console.log('file', this.state.file);
+        let errors = [];
+        
+        if(this.state.file.length === 0) {
+            errors.push("Picture is empty. Browse first.");
+        } 
+
+        if(this.state.file.size > 1024000) {
+            errors.push("Selected Picture is very large");
+        }
+       
+        if(this.state.file.size > 0) {
+            
+            var t = this.state.file.type.split('/').pop().toLowerCase();
+            console.log('ttt', t);
+            if (t != "jpeg" && t != "jpg" && t != "png" && t != "bmp" && t != "gif") {
+                errors.push('Please select a valid image file');
+            }
+        }
+        
+        return errors;
+    }
+
     getErrorList(errors){
         var i = 0;
         let error_list = errors.map(error => {
@@ -748,10 +770,44 @@ class PickUpMap extends Component {
         });
         return error_list;
     }
+
     change = (e) => {
         this.setState({
             [e.target.name]: e.target.value
         })
+        
+    }
+
+    _onChange_profile = (e) => {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.target.files[0];
+    
+        reader.onloadend = () => {
+          this.setState({
+            file: file,
+            imagePreviewUrl: reader.result
+          });
+        }
+    
+        reader.readAsDataURL(file)
+    }
+
+    onProfileUpload = (e) => {
+        e.preventDefault();
+        const err = this.validateProfile();
+        if(err.length > 0){
+            let error_list = this.getErrorList(err);
+            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
+        } else {
+            this.uploadProfile();
+            this.setState({
+                file : '',
+                imagePreviewUrl : '',
+                errors: []
+            });
+        }
     }
 
     onVarify = (e) => {
@@ -793,7 +849,37 @@ class PickUpMap extends Component {
         });  
     }
 
-    render(){  
+    uploadProfile = () => {
+        const formData = new FormData();
+        formData.append('myImage',this.state.file);
+        console.log('dataaa', formData, this.state.file);
+        $.ajax({ 
+            type:"POST",
+            url:"/user/profile",
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            data: formData, 
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data, textStatus, jqXHR) {
+              if(data.length > 0) {
+                if(data[0] === 1) {
+                   document.getElementById('div-profile').style.visibility = 'hidden';
+                   
+                   this.getUser(sessionStorage.getItem("_auth_user"));
+                } else {
+                    render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
+                }
+              }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                render(<Alert bsStyle="danger" >Connection error !</Alert>,document.getElementById('ProfileError'));
+            }.bind(this)
+        });  
+    }
+
+    render(){ 
+
         if(this.state._signInFlag) {
             return <Redirect to='/user/login'  />
         }  
@@ -802,7 +888,12 @@ class PickUpMap extends Component {
               <div className="user-info" id="user-info">
                 <Grid fluid>
                     <Row>
+                      {this.state.user.hasProfile === true ?  
+                      <Col xs={4} sm={4} md={4}><Image src={'/assets/profile/user/' + this.state.user.profile} height={35} circle></Image></Col>
+                      : 
                       <Col xs={4} sm={4} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
+                      }
+                      
                       <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
                       <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
                     </Row>
@@ -857,6 +948,54 @@ class PickUpMap extends Component {
                  </Row>
                </Grid>
               </div>
+
+
+              {this.state.user.verified === true && this.state.user.hasProfile === false ? 
+               <div className="div-profile" id="div-profile">
+               <Grid fluid>
+               <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+                            <h4>Profile picture !</h4>
+                            <p>
+                                Helps to identify who you are.
+                            </p>
+                            <p>
+                                <form>
+                                    <Row className="text-center"> 
+                                        <Col xs={6} sm={6} sm={6}>
+                                        <FormGroup>
+                                        <FormControl
+                                            title=" "
+                                            className="file1"
+                                            name="profile_pic"
+                                            type="file"
+                                            onChange={e => this._onChange_profile(e)}
+                                        >
+                                        </FormControl> 
+                                        </FormGroup>
+                                        </Col>
+
+                                        <Col xs={6} sm={6} sm={6}>
+                                        <Image src = {this.state.imagePreviewUrl} height={35} circle></Image>
+                                      </Col>
+                                    </Row>
+
+                                    <Row className="rowPaddingSm text-center">
+                                        <Col xs={12} sm={12} md={12}>
+                                        <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small">Upload Image</Button>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                    <Col xs={12} sm={12} md={12}>
+                                      <div className="ProfileError" id="ProfileError"></div>
+                                    </Col>
+                                   </Row>
+                                </form>
+                            </p>
+                        </Alert>
+               </Grid>
+              </div>
+              : '' }
+              
 
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
