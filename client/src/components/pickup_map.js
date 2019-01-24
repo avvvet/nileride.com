@@ -8,6 +8,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import VerificationRply from './verfication_rply';
+import { ETIME } from 'constants';
 
 const env = require('../env');
 var validator = require('validator');
@@ -795,13 +796,15 @@ class PickUpMap extends Component {
     }
 
     onProfileUpload = (e) => {
+        e.target.disabled = true;
         e.preventDefault();
         const err = this.validateProfile();
         if(err.length > 0){
+            e.target.disabled = false;
             let error_list = this.getErrorList(err);
             render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
         } else {
-            this.uploadProfile();
+            this.uploadProfile(e);
             this.setState({
                 file : '',
                 imagePreviewUrl : '',
@@ -849,7 +852,7 @@ class PickUpMap extends Component {
         });  
     }
 
-    uploadProfile = () => {
+    uploadProfile = (e) => {
         const formData = new FormData();
         formData.append('myImage',this.state.file);
         console.log('dataaa', formData, this.state.file);
@@ -868,12 +871,14 @@ class PickUpMap extends Component {
                    
                    this.getUser(sessionStorage.getItem("_auth_user"));
                 } else {
+                    e.target.disabled = false;
                     render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
-                render(<Alert bsStyle="danger" >Connection error !</Alert>,document.getElementById('ProfileError'));
+                e.target.disabled = false;
+                render(<Alert bsStyle="danger" >Connection error, try again !</Alert>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
@@ -981,7 +986,7 @@ class PickUpMap extends Component {
 
                                     <Row className="rowPaddingSm text-center">
                                         <Col xs={12} sm={12} md={12}>
-                                        <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small">Upload Image</Button>
+                                        <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small" disabled={false}>Upload Image</Button>
                                         </Col>
                                     </Row>
                                     <Row>

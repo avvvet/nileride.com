@@ -322,9 +322,10 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
     const getNearestDrivers = async (latlng) => {
        let drivers = null;
        var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), latlng);
+       const Op = Sequelize.Op;
        await models.drivers.findAll({ 
           attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
-          where: {verified: 1, status: 0},
+          where: {verified: 1, status: 0, currentLocation: {[Op.ne]: null}},
           order: distance,
           limit: 3,
           raw: true,
@@ -747,9 +748,10 @@ app.post('/drivers/nearest', (req, res) => {
     var _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
     console.log('pickup_latlng is ', _pickup_latlng);
     var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng);
+    const Op = Sequelize.Op;
     models.drivers.findAll({ 
       attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
-      where: {verified: 1, status: 0},
+      where: {verified: 1, status: 0, currentLocation: {[Op.ne]: null}},
       order: distance,
       limit: 3,
       logging: console.log
@@ -760,9 +762,10 @@ app.post('/drivers/nearest', (req, res) => {
 
 //get drivers location  status 0 = waiting for job
 app.get('/drivers', (req, res) => {
+    const Op = Sequelize.Op;
     models.drivers.findAll({ 
         attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation'],
-        where: {verified: 1, status: 0}, 
+        where: {verified: 1, status: 0, currentLocation: {[Op.ne]: null}}, 
     }).then(drivers => {
         let data = [];
         var tmpObj;

@@ -747,13 +747,15 @@ class DriverLocation extends Component {
     }
 
     onProfileUpload = (e) => {
+        e.target.disabled = true;
         e.preventDefault();
         const err = this.validateProfile();
         if(err.length > 0){
+            e.target.disabled = false;
             let error_list = this.getErrorList(err);
             render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
         } else {
-            this.uploadProfile();
+            this.uploadProfile(e);
             this.setState({
                 file : '',
                 imagePreviewUrl : '',
@@ -762,7 +764,7 @@ class DriverLocation extends Component {
         }
     }
 
-    uploadProfile = () => {
+    uploadProfile = (e) => {
         const formData = new FormData();
         formData.append('myImage',this.state.file);
         console.log('dataaa', formData, this.state.file);
@@ -778,15 +780,16 @@ class DriverLocation extends Component {
               if(data.length > 0) {
                 if(data[0] === 1) {
                    document.getElementById('div-profile').style.visibility = 'hidden';
-                   
                    this.getDriver(sessionStorage.getItem("_auth_driver"));
                 } else {
+                    e.target.disabled = false;
                     render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
-                render(<Alert bsStyle="danger" >Connection error !</Alert>,document.getElementById('ProfileError'));
+                e.target.disabled = false;
+                render(<Alert bsStyle="danger" >Connection error, try again !</Alert>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
@@ -982,7 +985,7 @@ class DriverLocation extends Component {
 
                                         <Row className="rowPaddingSm text-center">
                                             <Col xs={12} sm={12} md={12}>
-                                            <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small">Upload Image</Button>
+                                            <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small" disabled={false}>Upload Image</Button>
                                             </Col>
                                         </Row>
                                         <Row>
