@@ -581,6 +581,88 @@ app.post('/ride/completed', (req, res) => {
       });
 });
 
+app.post('/driver/ride/cancel', (req, res) => {
+    var body = _.pick(req.body, ['reason','ride_id']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {driver_id: token, status: 7, id: body.ride_id}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 4 },
+                    { where: { driver_id: token, status: 7} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                        return models.drivers.update(
+                            { status: 0 },
+                            { where: {token: token, status: 1 } },
+                            {transaction: t}
+                        ).then(r => {
+                            if(r){
+                                return r;
+                            } else {
+                                throw new Error('Transaction driver not updated');
+                            }
+                        })
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
+app.post('/user/confirmDriverRideCancelled', (req, res) => {
+    var body = _.pick(req.body, ['status']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {user_id: token, status: 4}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 777 },
+                    { where: { user_id: token, status: 4} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         return ride;  /// update successfull return ride
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
 app.post('/ride/check_ride_user', (req, res) => {
     var body = _.pick(req.body, ['status']);
     var token = req.header('x-auth');

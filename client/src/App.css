@@ -256,6 +256,72 @@
   visibility: hidden;
 }
 
+.div-confirm {
+  color: #5f5b5b;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 57%;
+  right: 51%;
+  width: 312px;
+  height: 72px;
+  border: 2px solid white;
+  background-color: #f5e3a5;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 6px;
+  padding-right: 11px;
+  padding-left: 15px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: show;
+}
+
+.driver-cancel-ride {
+  color: #5f5b5b;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 57%;
+  right: 51%;
+  width: 312px;
+  height: 72px;
+  border: 2px solid white;
+  background-color: #f5e3a5;
+  transform: translate(50%, 50%);
+  z-index: 2000;
+  padding-top: 6px;
+  padding-right: 11px;
+  padding-left: 15px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.div-reason {
+  color: #5f5b5b;
+  position: fixed;
+  margin: -100px 0 0 -100px;
+  top: 46%;
+  right: 51%;
+  width: 260px;
+  height: 155px;
+  border: 2px solid white;
+  background-color: #f5e3a5;
+  transform: translate(50%, 50%);
+  z-index: 2002;
+  padding-top: 6px;
+  padding-right: 11px;
+  padding-left: 15px;
+  text-align: center;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  box-sizing: border-box;
+  visibility: show;
+}
+
 .u-driver-dashboard {
   color: #ffffff;
   position: fixed;
@@ -596,4 +662,9 @@ div.rowPaddingSm {
 
 input[type="file"] {
   width: 93px;
+}
+
+.div_error {
+  padding: 5px;
+  color: red;
 }

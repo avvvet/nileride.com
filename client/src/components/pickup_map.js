@@ -643,15 +643,29 @@ class PickUpMap extends Component {
                         this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
                     });
 
-                } else if(ride.status === 0) { // no ride found so end the existing 
+                } else if(ride.status === 4) { // driver cancel the ride after accepting  
+                    PromiseSetDriverData.then(()=> {
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+
+                        document.getElementById('driver-cancel-ride').style.visibility="visible";
+
                         clearInterval(this.timerDriverEta_pickup); 
                         clearInterval(this.timerDriverEta_dropoff);
                         clearInterval(this.timerRideStatus);
-                        this.resetRide();
+                    });
+                        
+                } else if(ride.status === 0) { // no ride found so end the existing 
+                    document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                    clearInterval(this.timerDriverEta_pickup); 
+                    clearInterval(this.timerDriverEta_dropoff);
+                    clearInterval(this.timerRideStatus);
+                    this.resetRide();
                 }
+                
               } else {
                 document.getElementById('ride-request-dashboard').style.visibility="hidden";
                 document.getElementById('u-driver-dashboard').style.visibility="hidden";
@@ -883,6 +897,28 @@ class PickUpMap extends Component {
         });  
     }
 
+    confirm_ride_cancelled = () => { // driver cancelled the ride request and user is confirming the cancel
+        var driver = {
+            status : 777
+        };
+        $.ajax({ 
+            type:"POST",
+            url:"/user/confirmDriverRideCancelled",
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            data: JSON.stringify(driver), 
+            contentType: "application/json",
+            success: (_ride) => {
+                if(_ride){
+                    document.getElementById('driver-cancel-ride').style.visibility="hidden";
+                    this.resetRide();
+                }  
+            },
+            error: function(xhr, status, err) {
+                console.error('ride completed error', err.toString());
+            }.bind(this)
+        });  
+    }
+
     render(){ 
 
         if(this.state._signInFlag) {
@@ -1001,6 +1037,18 @@ class PickUpMap extends Component {
               </div>
               : '' }
               
+              <div className="driver-cancel-ride" id="driver-cancel-ride"> 
+                <strong>Cancelled ! </strong> driver cancelled your ride.
+                <p> 
+                 <Grid fluid>
+                     <Row className="rowPaddingSm">
+                          <Col xs={12} sm={12} md={12}>
+                           <Button  onClick={(e) => this.confirm_ride_cancelled(e)}  bsSize="small" block>OK</Button>
+                          </Col>
+                     </Row>
+                 </Grid>   
+                 </p> 
+              </div>
 
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>

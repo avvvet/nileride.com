@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import DriverMenu from './driver_menu';
 import VerificationRply from '../verfication_rply';
-
+import DriverRideCancel from './driver_ride_cancel';
 import DriverDashBoard from './driver_dashboard'
 import { resolve } from 'path';
 
@@ -90,6 +90,7 @@ class DriverLocation extends Component {
            imagePreviewUrl : '/assets/awet-rider-m.png',
            file : '',
            varificationCode: '',
+           ride_id : '',
            ridePrice: '',
            rideDistance: '',
            rideTime: '',
@@ -376,7 +377,8 @@ class DriverLocation extends Component {
             rideTime: ride.route_time,
             rideUser: ride.user.firstName + ' ' + ride.user.middleName,
             userMobile: ride.user.mobile,
-            userPic: "/assets/profile/user/" + ride.user.profile
+            userPic: "/assets/profile/user/" + ride.user.profile,
+            ride_id : ride.id
         });
         sound.volume(0,this.soundAccept); 
         let PromiseSlientAlert = new Promise((resolve, rejects) => {
@@ -794,6 +796,10 @@ class DriverLocation extends Component {
         });  
     }
 
+    cancelRide = (e) => {
+        render(<DriverRideCancel ride_id={this.state.ride_id} rideCompletedAction={this.rideCompletedAction}></DriverRideCancel>,document.getElementById('driver-ride-cancel'));
+    }
+
     render(){
         return(
             <div>
@@ -1000,6 +1006,8 @@ class DriverLocation extends Component {
                 </div>
                 : '' }
 
+                <div id="driver-ride-cancel" className="driver-ride-cancel"></div>
+
                 <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
                 <Grid fluid>
                     <Row>
@@ -1041,7 +1049,7 @@ class DriverLocation extends Component {
                     </Row>
                     <Row className="rowPadding">
                         <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.acceptRide()}  bsSize="small" block>CANCEL RIDE</Button>
+                          <Button  onClick={(e) => this.cancelRide()}  bsSize="small" block>CANCEL RIDE</Button>
                         </Col>
                     </Row>
                   </Grid>
