@@ -1079,7 +1079,7 @@ class DriverLocation extends Component {
                     </Row>
                     <Row className="rowPadding">
                         <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.acceptRide()}  bsSize="small" block>CANCEL RIDE</Button>
+                          
                         </Col>
                     </Row>
                   </Grid>
