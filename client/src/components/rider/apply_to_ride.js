@@ -1,10 +1,15 @@
 import React , { Component } from 'react';
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
-import {Grid, Row, Col, FormGroup, FormControl, ControlLabel, Tooltip, PageHeader, Button, Alert} from 'react-bootstrap';
+import { Grid,Message, Form, Button, Header, Image } from 'semantic-ui-react'
 import $ from 'jquery';
 
 var validator = require('validator');
+
+const options = [
+    { key: 'm', text: 'Male', value: 'male' },
+    { key: 'f', text: 'Female', value: 'female' },
+]
 
 class ApplyToRide extends Component {
     constructor(){
@@ -90,14 +95,18 @@ class ApplyToRide extends Component {
         })
     }
 
-
+    onChangeGender = (event, data) => {
+        this.setState({
+            gender : data.value
+        });
+    }
 
     onRiderApply = (e) => {
         e.preventDefault();
         const err = this.validateRiderApply();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+            render(<Message info >{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var rider = {
                 firstName: this.state.firstName,
@@ -133,7 +142,7 @@ class ApplyToRide extends Component {
               });  
               
               console.log('token', data.token);
-              //render(<Alert bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Alert>,document.getElementById('FormError'));
+              //render(<Message bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Message>,document.getElementById('FormError'));
               console.log("rider applied success", data);
               
             }.bind(this),
@@ -146,116 +155,109 @@ class ApplyToRide extends Component {
 
     render(){
         if(this.state.auth) {
-            return <Redirect to='/'  />
+            return <Redirect to='/user'  />
         }
         
         return(
             <div>
-                <Grid fluid>
-                <Row>
-                    <Col xs={12} sm={12} md={12}>
-                    <div>
-                        <PageHeader>
-                            NEW USER
-                            <Tooltip placement="bottom" className="in" id="tooltip-bottom">
-                              New user apply here.
-                            </Tooltip>
-                        </PageHeader>
-                    </div>
-                    </Col>
-                </Row> 
-                <form>
-                <Row>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>First Name</ControlLabel>
-                    <FormControl
+                <Header as='h3' textAlign='center' color='teal'>New Passenger Registration</Header>
+                <div className="driverLoginBox">
+                <Grid container columns={1} centered  stackable>
+                <Grid.Row>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                    <label>First Name</label>
+                    <input
                     name="firstName"
                     type="text"
                     value={this.state.firstName}
                     placeholder="First Name"
                     onChange={e => this.change(e)}
                     >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>Father Name</ControlLabel>
-                    <FormControl
+                    </input>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>   
+
+                <Grid.Row> 
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                    <label>Father Name</label>
+                    <input
                     name="middleName"
                     type="text"
                     value={this.state.middleName}
                     placeholder="Father Name"
                     onChange={e => this.change(e)}
                     >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                </Row>
+                    </input>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>
 
-                <Row>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>Email</ControlLabel>
-                    <FormControl
+                <Grid.Row>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                    <label>Email</label>
+                    <input
                     name="email"
                     type="text"
                     value={this.state.email}
                     placeholder="email address"
                     onChange={e => this.change(e)}
                     >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>Mobile</ControlLabel>
-                    <FormControl
+                    </input>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>  
+
+                <Grid.Row>      
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                    <label>Mobile</label>
+                    <input
                     name="mobile"
                     type="text"
                     value={this.state.mobile}
                     placeholder="Mobile number"
                     onChange={e => this.change(e)}
                     >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                </Row>
+                    </input>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>
 
-                <Row>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>Password</ControlLabel>
-                    <FormControl
+                <Grid.Row>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                    <label>Password</label>
+                    <input
                     name="password"
                     type="password"
                     value={this.state.password}
                     placeholder="Password"
                     onChange={e => this.change(e)}
                     >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                    <Col xs={12} sm={6} md={6}>
-                    <FormGroup>
-                    <ControlLabel>Gender</ControlLabel>
-                    <FormControl name="gender" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
-                        <option value="">select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                </Row>
-                <Row className="text-center">
-                    <Col xs={12} sm={12} md={12}>
-                    <Button type="submit" bsSize="large" bsStyle="success" onClick={e => this.onRiderApply(e)} block >APPLY TO RIDE</Button>
-                    </Col> 
-                </Row>
+                    </input>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>   
 
-                </form>
+                 <Grid.Row>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Form>
+                      <Form.Select name='gender' fluid label='Gender' options={options} placeholder='Gender' onChange={this.onChangeGender}/>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row className="text-center">
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Button color='teal' size='large' onClick={e => this.onRiderApply(e)}  fluid >APPLY FOR RIDE</Button>
+                    </Grid.Column> 
+                </Grid.Row>
                 </Grid>
+                </div>
             </div>
         );
     }

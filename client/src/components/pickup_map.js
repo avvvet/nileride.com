@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
-import {Button, Grid, Row, Col, FormControl, FormGroup, Alert, Badge, Image} from 'react-bootstrap';
+import { Grid, Message, Form , Label, Button , Card, Image } from 'semantic-ui-react'
 import {NavLink, Redirect} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
 import _ from 'lodash';
+
+import DriverBusy from './rider/drivers_busy';
 
 import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
@@ -601,9 +603,14 @@ class PickUpMap extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
-                console.log('what is this ', ride.status);
+                console.log('what is this ', ride);
               if(!_.isNull(ride.status)){
-                  
+                let _model;
+                let _plate;
+                if(ride.driver.cars.length>0){
+                  _model = ride.driver.cars[0].model;
+                  _plate = ride.driver.cars[0].plate_no;
+                }
                 let PromiseSetDriverData;
                 if(ride.status !== 0){
                     PromiseSetDriverData = new Promise((res, rejects)=>{
@@ -612,9 +619,9 @@ class PickUpMap extends Component {
                             _driverImage: "/assets/profile/driver/" + ride.driver.profile,
                             _driverCarImage: "/assets/awet-ride.jpeg",
                             _driverName : ride.driver.firstName + ' ' + ride.driver.middleName,
-                            _driverPlateNo: '02-B78098',
+                            _driverPlateNo: _plate,
                             _driverMobile: ride.driver.mobile,
-                            _driverCarModel: 'LIFAN J450',
+                            _driverCarModel: _model,
                             _driverCurrentLocation : ride.driver.currentLocation.coordinates,
                             pickup_latlng : ride.pickup_latlng.coordinates,
                             dropoff_latlng : ride.dropoff_latlng.coordinates,
@@ -627,7 +634,7 @@ class PickUpMap extends Component {
                     });   
                 }
 
-                if(ride.status === 1) {  // wait for driver to accept 
+                if(ride.status === 1) {  // wait for driver to accept 1=waiting 2=driver notreply but waiting
                     this.rideRequestAction(ride);
                 } else if (ride.status === 7) {  //driver is commming 
                     // LORD JESUS THANK YOU FOR GIVING ME THIS TIME I WORSHIP YOU MY LORD MY GOD ALWAYS
@@ -664,6 +671,18 @@ class PickUpMap extends Component {
                     clearInterval(this.timerDriverEta_dropoff);
                     clearInterval(this.timerRideStatus);
                     this.resetRide();
+                } else if(ride.status === 2) { // your request could not get driver
+                    document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                   
+                    document.getElementById('driver-busy').style.visibility="visible";
+                    render(<DriverBusy></DriverBusy>,document.getElementById('driver-busy'));
+                    
+                    clearInterval(this.timerDriverEta_pickup); 
+                    clearInterval(this.timerDriverEta_dropoff);
+                    clearInterval(this.timerRideStatus);
+                    
                 }
                 
               } else {
@@ -816,7 +835,7 @@ class PickUpMap extends Component {
         if(err.length > 0){
             e.target.disabled = false;
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
+            render(<Message bsStyle="danger" >{error_list}</Message>,document.getElementById('ProfileError'));
         } else {
             this.uploadProfile(e);
             this.setState({
@@ -832,7 +851,7 @@ class PickUpMap extends Component {
         const err = this.validateVarification();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+            render(<div>{error_list}</div>,document.getElementById('FormError'));
         } else {
             var data = {
                 varification_code : this.state.varificationCode
@@ -860,7 +879,7 @@ class PickUpMap extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
-                render(<Alert bsStyle="danger" >Verification faild !</Alert>,document.getElementById('FormError'));
+                render(<Message bsStyle="danger" >Verification faild !</Message>,document.getElementById('FormError'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -886,13 +905,13 @@ class PickUpMap extends Component {
                    this.getUser(sessionStorage.getItem("_auth_user"));
                 } else {
                     e.target.disabled = false;
-                    render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
+                    render(<Message bsStyle="danger" >Not updated. Try again !</Message>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
                 e.target.disabled = false;
-                render(<Alert bsStyle="danger" >Connection error, try again !</Alert>,document.getElementById('ProfileError'));
+                render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
@@ -927,182 +946,181 @@ class PickUpMap extends Component {
         return(
             <div>
               <div className="user-info" id="user-info">
-                <Grid fluid>
-                    <Row>
-                      {this.state.user.hasProfile === true ?  
-                      <Col xs={4} sm={4} md={4}><Image src={'/assets/profile/user/' + this.state.user.profile} height={35} circle></Image></Col>
-                      : 
-                      <Col xs={4} sm={4} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
-                      }
-                      
-                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider'}</Col>
-                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/user/login">Logout</NavLink> : <NavLink to="/user/login">Login</NavLink>}</Col>
-                    </Row>
-                </Grid>
+                    <Card color='teal'>
+                    <Card.Content>
+                        
+                        {this.state.user.hasProfile === true ?  
+                        <Image floated='right' size='mini' src={'/assets/profile/user/' + this.state.user.profile} circular />
+                        : 
+                        <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
+                        }
+                       
+                        <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider!'}</Card.Header>
+                        <Card.Meta>
+                        {this.state.isLogedIn === true ?
+                          <Label as={NavLink} to="/user/login" basic pointing color="green">
+                            LOGOUT
+                          </Label>  
+                        :
+                          <Label as={NavLink} to="/user/login" basic pointing color="blue">
+                            LOGIN
+                          </Label>
+                        }
+                        </Card.Meta>
+                        
+                    </Card.Content>
+                
+                    </Card>
+
               </div>
               
               {this.state.user.verified === false ?  
               <div className="account-verify" id="account-verfiy">
                         <form>
-                        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-                            <h4>Final step! Varify your mobile!</h4>
+                        <Message  positive>
+                            <Message.Header>Final step! Varify your mobile!</Message.Header>
+                            
                             <p>
-                                If the mobile number {this.state.user.mobile} is yours. 
+                                If the mobile number <strong>{this.state.user.mobile}</strong> is yours. 
                                 Enter the text message sent to your mobile
                                 and click varify.
                             </p>
                             <p>
-                               <Grid fluid>
-                                   <Row>
-                                   <Col xs={6} sm={6} md={6}>
-                                        <FormGroup>
-                                        <FormControl
+                               <Grid centered>
+                                   <Grid.Row>
+                                     
+                                      <Grid.Column mobile={8} tablet={8} computer={8}>
+                                        <Form>
+                                        <input
                                         name="varificationCode"
                                         type="text"
                                         value={this.state.varificationCode}
                                         placeholder="XXXXX"
                                         onChange={e => this.change(e)}
+                                        
                                         >
-                                        </FormControl>
-                                        </FormGroup>
-                                   </Col>
-                                   <Col xs={6} sm={6} md={6}> 
-                                     <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>VARIFY</Button>
-                                   </Col>
-                                   </Row>
-                                   <Row>
-                                    <Col xs={12} sm={12} md={12}>
-                                      <div className="FormError" id="FormError"></div>
-                                    </Col>
-                                   </Row>
+                                        </input>
+                                        </Form>
+                                      </Grid.Column>
+
+                                      <Grid.Column mobile={8} tablet={8} computer={8}> 
+                                         <Button color='teal' size='large' onClick={e => this.onVarify(e)} >VARIFY</Button>
+                                       </Grid.Column>
+                                       <div className="FormError" id="FormError"></div>
+                                   </Grid.Row>
+                                   
+                                   
                                </Grid>
                             </p>
-                        </Alert>
+                        </Message>
                         </form>
               </div>
               : ''}
 
               <div className="div-intro" id="div-intro">
                <Grid fluid>
-                 <Row> 
-                     <Col xs={12} sm={12} sm={12}>Start by clicking your pickup and dropoff from the map.</Col>
-                 </Row>
+                 <Grid.Row> 
+                     <Grid.Column xs={12} sm={12} sm={12}>Start by clicking your pickup and dropoff from the map.</Grid.Column>
+                 </Grid.Row>
                </Grid>
               </div>
 
 
               {this.state.user.verified === true && this.state.user.hasProfile === false ? 
                <div className="div-profile" id="div-profile">
-               <Grid fluid>
-               <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-                            <h4>Profile picture !</h4>
+               <Grid>
+                     <Message info>
+                      <Message.Header>Finally, Profile picture !</Message.Header>
                             <p>
                                 Helps to identify who you are.
                             </p>
-                            <p>
-                                <form>
-                                    <Row className="text-center"> 
-                                        <Col xs={6} sm={6} sm={6}>
-                                        <FormGroup>
-                                        <FormControl
-                                            title=" "
-                                            className="file1"
-                                            name="profile_pic"
-                                            type="file"
-                                            onChange={e => this._onChange_profile(e)}
-                                        >
-                                        </FormControl> 
-                                        </FormGroup>
-                                        </Col>
+                           
+                    <Grid.Row> 
+                        <Grid.Column>
+                            <Form>
+                            <input
+                                title=" "
+                                className="file1"
+                                name="profile_pic"
+                                type="file"
+                                onChange={e => this._onChange_profile(e)}
+                            >
+                            </input> 
+                            </Form>
+                        </Grid.Column>
+                    </Grid.Row>
 
-                                        <Col xs={6} sm={6} sm={6}>
-                                        <Image src = {this.state.imagePreviewUrl} height={35} circle></Image>
-                                      </Col>
-                                    </Row>
+                    <Grid.Row>     
+                        <Grid.Column >
+                         <Image src = {this.state.imagePreviewUrl} width="35px" circular></Image>
+                        </Grid.Column>
+                    </Grid.Row>
 
-                                    <Row className="rowPaddingSm text-center">
-                                        <Col xs={12} sm={12} md={12}>
-                                        <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small" disabled={false}>Upload Image</Button>
-                                        </Col>
-                                    </Row>
-                                    <Row>
-                                    <Col xs={12} sm={12} md={12}>
-                                      <div className="ProfileError" id="ProfileError"></div>
-                                    </Col>
-                                   </Row>
-                                </form>
-                            </p>
-                        </Alert>
+                    <Grid.Row>
+                        <Grid.Column>
+                            <Button fluid color="teal" onClick={(e) => this.onProfileUpload(e)}  disabled={false}>Upload Image</Button>
+                        </Grid.Column>
+                    </Grid.Row>
+
+                    <Grid.Row>
+                        <Grid.Column>
+                            <div className="ProfileError" id="ProfileError"></div>
+                        </Grid.Column>
+                    </Grid.Row>
+                           
+                 </Message>
                </Grid>
               </div>
               : '' }
               
+              <div className="driver-busy" id="driver-busy"></div>
+
               <div className="driver-cancel-ride" id="driver-cancel-ride"> 
                 <strong>Cancelled ! </strong> driver cancelled your ride.
                 <p> 
                  <Grid fluid>
-                     <Row className="rowPaddingSm">
-                          <Col xs={12} sm={12} md={12}>
+                     <Grid.Row className="rowPaddingSm">
+                          <Grid.Column xs={12} sm={12} md={12}>
                            <Button  onClick={(e) => this.confirm_ride_cancelled(e)}  bsSize="small" block>OK</Button>
-                          </Col>
-                     </Row>
+                          </Grid.Column>
+                     </Grid.Row>
                  </Grid>   
                  </p> 
               </div>
 
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
-                  <Grid fluid={true}>
-                      <Row>
-                          <Col xs={4} sm={4} md={4}>
-                            Price   
-                          </Col>
-
-                          <Col xs={4} sm={4} md={4}>
-                            Distance
-                          </Col>
-
-                          <Col xs={4} sm={4} md={4}>
-                           Time 
-                          </Col>
-                      </Row>
+                <Card color='teal'>
+                    <Card.Content>       
+                        <Card.Description>
+                        <Grid columns={3} divided>
+                            <Grid.Row>
+                                <Grid.Column>
+                                   <h3>{this.state.route_price + ' birr'}</h3>
+                                </Grid.Column>
+                                <Grid.Column>
+                                  <h3>{this.state.route_distance + ' km'}</h3>
+                                </Grid.Column>
+                                <Grid.Column>
+                                 <h3>{this.state.route_time_string} </h3>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                        </Card.Description>
+                    </Card.Content>
+                    <Card.Content extra>
+                     <div className='ui two buttons'>
+                        <Button color='green' onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)}>
+                            REQUEST 
+                        </Button>
+                        <Button basic color='red' onClick={(e) => this.cancelRide(e)}>
+                            CANCEL
+                        </Button>
+                     </div>
+                    </Card.Content>
+                    </Card>
                       
-                      <Row>
-                          <Col xs={4} sm={4} md={4}>
-                            <Badge>{ this.state.route_price + ' br'}</Badge>   
-                          </Col>
-
-                          <Col xs={4} sm={4} md={4}>
-                            <Badge>{this.state.route_distance + ' km'}</Badge>
-                          </Col>
-
-                          <Col xs={4} sm={4} md={4}>
-                           <Badge>{this.state.route_time_string}</Badge>
-                          </Col>
-                      </Row>
-                      
-                      <Row className="rowPaddingSm">
-                          <Col xs={12} sm={12} md={12}>
-                             <div>driver is <Badge>{this.state._nearest_driver_eta}</Badge> away.</div>
-                          </Col>
-                      </Row>
-
-                      <Row className="rowPaddingSm">
-                          <Col xs={12} sm={12} md={12}>
-                          {this.state._nearest_driver_available ? 
-                           <Button  onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)} bsStyle="success" bsSize="small" block>REQUEST RIDE</Button>
-                           : 
-                           ''
-                          }
-                           </Col>
-                      </Row>
-                      <Row className="rowPaddingSm">
-                          <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.cancelRide(e)} bsStyle="default" bsSize="small" block>CANCEL RIDE</Button>
-                          </Col>
-                      </Row>
-
-                  </Grid>
+                    {this.state._nearest_driver_eta}
                   </div>
                  
               </div>
@@ -1119,47 +1137,67 @@ class PickUpMap extends Component {
                 <strong>Oh! </strong> No connection. Try again.
                 <p> 
                  <Grid fluid>
-                     <Row className="rowPaddingSm">
-                          <Col xs={6} sm={6} md={6}>
+                     <Grid.Row className="rowPaddingSm">
+                          <Grid.Column xs={6} sm={6} md={6}>
                            <Button  onClick={(e) => this.findRoute(this.state.pickup_latlng, this.state.dropoff_latlng, e)} bsStyle="warning" bsSize="small" block>TRY AGAIN</Button>
-                          </Col>
+                          </Grid.Column>
 
-                          <Col xs={6} sm={6} md={6}>
+                          <Grid.Column xs={6} sm={6} md={6}>
                            <Button  onClick={(e) => this.resetRide(e)}  bsSize="small" block>CANCEL</Button>
-                          </Col>
+                          </Grid.Column>
 
-                     </Row>
+                     </Grid.Row>
                  </Grid>   
                  </p> 
               </div>
 
               <div className="u-driver-dashboard shake-ride-to-pickup" id="u-driver-dashboard"> 
                 <div className="notify-rider" id="notify-rider"> Get ready ! driver coming.</div>
-                 <Grid fluid>
-                    <Row>
-                        <Col xs={4} sm={4} md={4}><Image src={this.state._driverImage} height={45} circle></Image></Col>
-                        <Col xs={4} sm={4} md={4}><Image src={this.state._driverCarImage} height={45} circle></Image></Col>
-                        <Col xs={4} sm={4} md={4}>{this.state._driverCarModel} {this.state._driverPlateNo}</Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}>{this.state._driverName}</Col>
-                        <Col xs={6} sm={6} md={6}>{this.state._driverMobile}</Col>
-                    </Row>
+                 <Grid columns={3}>
+                    <Grid.Row className="row_xs">
+                        <Grid.Column mobile={5} tablet={5} computer={6}>
+                           <Image src={this.state._driverImage} height={45} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center" textAlign="center">
+                           <Image src={this.state._driverCarImage} height={45} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center">
+                         {this.state._driverCarModel} {this.state._driverPlateNo}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_xs">
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                           {this.state._driverName}
+                        </Grid.Column>
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                         {this.state._driverMobile}
+                        </Grid.Column>
+                    </Grid.Row>
                  </Grid>
               </div>
 
               <div className="u-driver-dashboard-2 shake-ride-to-pickup" id="u-driver-dashboard-2"> 
                 <div className="notify-rider_2" id="notify-rider_2"> Ride inprogress</div>
-                 <Grid fluid>
-                    <Row>
-                        <Col xs={4} sm={4} md={4}><Image src={this.state._driverImage} height={45} circle></Image></Col>
-                        <Col xs={4} sm={4} md={4}><Image src={this.state._driverCarImage} height={45} circle></Image></Col>
-                        <Col xs={4} sm={4} md={4}>{this.state._driverCarModel} {this.state._driverPlateNo}</Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}>{this.state._driverName}</Col>
-                        <Col xs={6} sm={6} md={6}>{this.state._driverMobile}</Col>
-                    </Row>
+                 <Grid columns={3}>
+                    <Grid.Row className="row_xs">
+                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center" textAlign="center">
+                          <Image src={this.state._driverImage} height={45} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center" textAlign="center">
+                          <Image src={this.state._driverCarImage} height={45} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center" textAlign="center">
+                         {this.state._driverCarModel} {this.state._driverPlateNo}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_xs">
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                          {this.state._driverName}
+                        </Grid.Column>
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                        {this.state._driverMobile}
+                        </Grid.Column>
+                    </Grid.Row>
                  </Grid>
               </div>
 

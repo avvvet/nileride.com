@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Grid, Row, Col, PageHeader, FormGroup} from 'react-bootstrap';
+import { Grid, Image } from 'semantic-ui-react'
 import ApplyToRide from './apply_to_ride';
 import RiderLoginForm from './rider_login';
 
@@ -18,34 +18,22 @@ class RiderLogin extends Component {
     return(
      <div>
          <div>
-           <Grid>
-            <Row>
-              <Col xs={12} sm={12} md={12}>
-                <PageHeader>
-                    AWET
-                </PageHeader>
-              </Col>
-            </Row>
+           <Grid container columns={1} centered  stackable>
+           <Grid.Row columns={1}>
+              <Grid.Column mobile={12} tablet={12} computer={12}>
+                <div id='FormError' className='FormError'></div>
+              </Grid.Column>
+            </Grid.Row>
 
-            <Row className="text-center">
-              <Col xs={12} sm={12} md={12}>
-                <div id="FormError"></div>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col xs={12} sm={6} md={6}>
-                <div className="riderLoginBox">
+            <Grid.Row columns={2}>
+              <Grid.Column mobile={12} tablet={12} computer={12}>
                   <RiderLoginForm></RiderLoginForm>
-                </div>
-              </Col>
+              </Grid.Column>
 
-              <Col xs={12} sm={6} md={6}>
-                <div className="riderApplyBox">
+              <Grid.Column mobile={12} tablet={12} computer={12}>
                   <ApplyToRide></ApplyToRide>
-                </div>
-              </Col>
-            </Row>
+              </Grid.Column>
+            </Grid.Row>
           </Grid>
          </div>
      </div>

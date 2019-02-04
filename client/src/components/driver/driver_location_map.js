@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
-import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
+import { Grid, Message, Button, Label ,Form, Image, Header, Card } from 'semantic-ui-react'
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
 //import socketClient from 'socket.io-client';
 
-import DriverMenu from './driver_menu';
 import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
+import MissedRide from './missed_ride';
 import DriverDashBoard from './driver_dashboard'
 import { resolve } from 'path';
 
@@ -52,7 +52,22 @@ var currentLocationIcon = L.icon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [20, -5] // point from which the popup should open relative to the iconAnchor
 });
- 
+
+const options_model = [
+    { key: '1', text: 'VITZ', value: 'VITZ' },
+    { key: '2', text: 'COROLLA', value: 'COROLLA' },
+]
+
+const options_model_year = [
+    { key: '1', text: '2019', value: '2019' },
+    { key: '2', text: '2018', value: '2015' },
+]
+
+const options_code = [
+    { key: '1', text: '01', value: '01' },
+    { key: '2', text: '03', value: '03' },
+]
+
 class DriverLocation extends Component {
    constructor() {
        super();
@@ -313,21 +328,18 @@ class DriverLocation extends Component {
          })
          .always((ride) => {
              console.log('always ', ride);
-             if(!_.isNull(ride)) {
+             
+             if(!_.isNull(ride) && !_.isUndefined(ride.driver)) {
                 if(ride.status === 1) {
-                    sound.volume(0.7, this.soundAccept);        
-                    this.setState({
-                        ridePrice: ride.route_price,
-                        rideDistance: ride.route_distance,
-                        rideTime: ride.route_time,
-                        rideUser: ride.user.firstName + ' ' + ride.user.middleName,
-                        userMobile: ride.user.mobile,
-                        userPic: "/assets/profile/user/" + ride.user.profile,
-                    });
-                    document.getElementById('check-ride-dashboard').style.visibility="visible";
-                    this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
-                    clearInterval(this.timerCheckForRide);
-                    clearInterval(this.timerUserLocation);  //stop locating while accepting the request
+                   let PromiseOneTimeCall = new Promise((res,rej) => {
+                       this.setState({
+                           _ride_alert_first_time_flag : true
+                       });
+                       res(true);
+                   });
+                   PromiseOneTimeCall.then(() => {
+                       this.ride_alert(ride);
+                   });
                 } else if (ride.status === 7) {
                     this.acceptRideAction(ride);
                     clearInterval(this.timerCheckForRide);
@@ -342,10 +354,30 @@ class DriverLocation extends Component {
                     });
                     this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
                     clearInterval(this.timerCheckForRide);
+                } else if (ride.driver.status === 2) {   //you have missed the ride 
+                    document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
+                    document.getElementById('missed-ride').style.visibility="visible"; 
+                    render(<MissedRide></MissedRide>,document.getElementById('missed-ride'));
                 }        
              }
              
          }); 
+    }
+
+    ride_alert = (ride) => {
+            sound.volume(0.7, this.soundAccept);        
+            this.setState({
+                ridePrice: ride.route_price,
+                rideDistance: ride.route_distance,
+                rideTime: ride.route_time,
+                rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+                userMobile: ride.user.mobile,
+                userPic: "/assets/profile/user/" + ride.user.profile,
+            });
+            document.getElementById('check-ride-dashboard').style.visibility="visible";
+            this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
+            //clearInterval(this.timerCheckForRide);
+            clearInterval(this.timerUserLocation);  //stop locating while accepting the request
     }
 
     acceptRide = () => {
@@ -360,6 +392,8 @@ class DriverLocation extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
+                alert('Jesus');
+                console.log('jsesu', ride);
                 if(ride){
                    this.acceptRideAction(ride);
                 }  
@@ -628,7 +662,7 @@ class DriverLocation extends Component {
         const err = this.validateVarification();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+            render(<Message negative>{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var data = {
                 varification_code : this.state.varificationCode
@@ -656,7 +690,7 @@ class DriverLocation extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
-                render(<Alert bsStyle="danger" >Verification faild !</Alert>,document.getElementById('FormError'));
+                render(<Message negative>Verification faild !</Message>,document.getElementById('FormError'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -667,7 +701,7 @@ class DriverLocation extends Component {
         const err = this.validateCarRegistration();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('err_car_register'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('err_car_register'));
         } else {
             var data = {
                 model : this.state.model,
@@ -702,7 +736,7 @@ class DriverLocation extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
-                render(<Alert bsStyle="danger" >Car registration faild !</Alert>,document.getElementById('err_car_register'));
+                render(<Message negative >Car registration faild !</Message>,document.getElementById('err_car_register'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -755,7 +789,7 @@ class DriverLocation extends Component {
         if(err.length > 0){
             e.target.disabled = false;
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('ProfileError'));
+            render(<Message bsStyle="danger" >{error_list}</Message>,document.getElementById('ProfileError'));
         } else {
             this.uploadProfile(e);
             this.setState({
@@ -785,13 +819,13 @@ class DriverLocation extends Component {
                    this.getDriver(sessionStorage.getItem("_auth_driver"));
                 } else {
                     e.target.disabled = false;
-                    render(<Alert bsStyle="danger" >Not updated. Try again !</Alert>,document.getElementById('ProfileError'));
+                    render(<Message bsStyle="danger" >Not updated. Try again !</Message>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
                 e.target.disabled = false;
-                render(<Alert bsStyle="danger" >Connection error, try again !</Alert>,document.getElementById('ProfileError'));
+                render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
@@ -800,121 +834,135 @@ class DriverLocation extends Component {
         render(<DriverRideCancel ride_id={this.state.ride_id} rideCompletedAction={this.rideCompletedAction}></DriverRideCancel>,document.getElementById('driver-ride-cancel'));
     }
 
+    onChangeModel = (event, data) => {
+        this.setState({
+            model : data.value
+        });
+    }
+
+    onChangeModelYear = (event, data) => {
+        this.setState({
+            model_year : data.value
+        });
+    }
+
+    onChangeCode = (event, data) => {
+        this.setState({
+           code : data.value
+        });
+    }
+
     render(){
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
-                <Grid fluid>
-                    <Row className="text-center">
-                      {this.state.driver.hasProfile === true ?  
-                      <Col xs={4} sm={4} md={4}><Image src={'/assets/profile/driver/' + this.state.driver.profile} height={35} circle></Image></Col>
-                      : 
-                      <Col xs={4} sm={4} md={4}><Image src={'/assets/awet-rider-m.png'} height={35} circle></Image></Col>
-                      }
-                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}</Col>
-                      <Col xs={4} sm={4} md={4} className="colPadding">{this.state.isLogedIn === true ? <NavLink to="/driver/login">Logout</NavLink> : <NavLink to="/driver/login">Login</NavLink>}</Col>   
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}>earning</Col>
-                        <Col xs={6} sm={6} md={6}>ride </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}><Badge>{this.state.amount + ' br'}</Badge></Col>
-                        <Col xs={6} sm={6} md={6}><Badge>{this.state.total_rides}</Badge></Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}>charge </Col>
-                        <Col xs={6} sm={6} md={6}>account</Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6} sm={6} md={6}><Badge className="charge">{this.state.charge}</Badge></Col>
-                        <Col xs={6} sm={6} md={6}><Badge className="account">active</Badge></Col>
-                    </Row>
-                </Grid>
+                    <Card color='teal'>
+                    <Card.Content>
+                        
+                        {this.state.driver.hasProfile === true ?  
+                        <Image floated='right' size='mini' src={'/assets/profile/driver/' + this.state.driver.profile} circular />
+                        : 
+                        <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
+                        }
+                       
+                        <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}</Card.Header>
+                        <Card.Meta>
+                            {this.state.isLogedIn === true ?
+                                <Label as={NavLink} to="/driver/login" basic pointing color="green">
+                                LOGOUT
+                                </Label>  
+                            :
+                                <Label as={NavLink} to="/driver/login" basic pointing color="blue">
+                                LOGIN
+                                </Label>
+                            }
+                        </Card.Meta>
+                        <Card.Description>
+                            <Grid columns={2} centered divided>
+                                <Grid.Row>
+                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                     Birr <Label size="large" color="green" circular>{this.state.amount} </Label>
+                                    </Grid.Column>
+                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                     Charge <Label size="large" color="yellow" circular>{this.state.charge}</Label>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center" >
+                                      Ride  <Label color="teal" size="large" circular>{this.state.total_rides}</Label> 
+                                    </Grid.Column>
+                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                     <Label color="olive">Status Working</Label>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
+                        </Card.Description>
+                    </Card.Content>
+                    
+                    </Card>
                 </div>
                 
-                {this.state.driver.isCarRegistered === false ? 
+                {this.state.driver.isCarRegistered === false && this.state.driver.verified === true ? 
                 <div className="register-car" id="register-car">
                         <form>
-                        <Alert bsStyle="warning" onDismiss={this.handleDismiss}>
-                            <h4>Register your car !</h4>
+                        <Message>
+                            <Message.Header>Register your car !</Message.Header>
                             <p>
-                                Enter correct information about your car. 
-                                Incorrect or false information will lead to
+                                Enter correct information.false information will lead to
                                 block your account.
                             </p>
                             <p>
-                               <Grid fluid>
-                                   <Row>
-                                   <Col xs={6} sm={6} md={6}>
-                                   <FormGroup>
-                                        <ControlLabel>Model</ControlLabel>
-                                        <FormControl name="model" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
-                                            <option value="">select</option>
-                                            <option value="corolla">COROLLA</option>
-                                            <option value="vitiz">VITIZ</option>
-                                            <option value="vitiz">LIFAN</option>
-                                        </FormControl>
-                                    </FormGroup>
-                                   </Col>
-                                   <Col xs={6} sm={6} md={6}> 
-                                   <FormGroup>
-                                        <ControlLabel>Year</ControlLabel>
-                                        <FormControl name="model_year" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
-                                            <option value="">select</option>
-                                            <option value="2019">2019</option>
-                                            <option value="2018">2018</option>
-                                            <option value="2017">2017</option>
-                                            <option value="2016">2016</option>
-                                            <option value="2015">2015</option>
-                                            <option value="2014">2014</option>
-                                            <option value="2013">2013</option>
-                                        </FormControl>
-                                    </FormGroup>
-                                   </Col>
-                                   </Row>
+                               <Grid columns={2}>
+                                    <Grid.Row>
+                                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                                        <Form>
+                                        <Form.Select name='model' fluid label='Model' options={options_model} placeholder='Model' onChange={this.onChangeModel}/>
+                                        </Form>
+                                        </Grid.Column>
+                                    
+                                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                                        <Form>
+                                        <Form.Select name='model_year' fluid label='Model Year' options={options_model_year} placeholder='Year' onChange={this.onChangeModelYear}/>
+                                        </Form>
+                                        </Grid.Column>
+                                    </Grid.Row>
 
-                                   <Row>
-                                   <Col xs={6} sm={6} md={6}>
-                                   <FormGroup>
-                                        <ControlLabel>Code</ControlLabel>
-                                        <FormControl name="code" componentClass="select" placeholder="select" onChange={e => this.change(e)}>
-                                            <option value="">select</option>
-                                            <option value="01">01</option>
-                                            <option value="02">02</option>
-                                            <option value="03">03</option>
-                                        </FormControl>
-                                    </FormGroup>
-                                   </Col>
-                                   <Col xs={6} sm={6} md={6}> 
-                                   <FormGroup>
-                                        <ControlLabel>Plate #</ControlLabel>
-                                        <FormControl
+                                   <Grid.Row>
+                                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                                        <Form>
+                                        <Form.Select name='code' fluid label='Plate Code' options={options_code} placeholder='Code' onChange={this.onChangeCode}/>
+                                        </Form>
+                                        </Grid.Column>
+
+                                        <Grid.Column mobile={8} tablet={8} computer={8}> 
+                                        <Form>
+                                        Plate #
+                                        <input
                                         name="plate_no"
                                         type="text"
                                         value={this.state.plate_no}
                                         placeholder="Plate No."
                                         onChange={e => this.change(e)}
                                         >
-                                        </FormControl>
-                                    </FormGroup>
-                                   </Col>
-                                   </Row>
+                                        </input>
+                                        </Form>
+                                        </Grid.Column>
+                                   </Grid.Row>
 
-                                   <Row>
-                                    <Col xs={12} sm={12} md={12}>
-                                    <Button bsStyle="warning" onClick={(e) => this.onValidateCarRegister(e)} block>REGISTER</Button>
-                                    </Col>
-                                   </Row>
+                                   <Grid.Row>
+                                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                                        <Button color="green" onClick={(e) => this.onValidateCarRegister(e)} fluid>REGISTER</Button>
+                                        </Grid.Column>
+                                   </Grid.Row>
 
-                                   <Row className="rowPadding">
-                                    <Col xs={12} sm={12} md={12}>
+                                   <Grid.Row >
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
                                       <div className="err_car_register" id="err_car_register"></div>
-                                    </Col>
-                                   </Row>
+                                    </Grid.Column>
+                                   </Grid.Row>
                                </Grid>
                             </p>
-                        </Alert>
+                        </Message>
                         </form>
                 </div>
                 : ''}
@@ -922,166 +970,191 @@ class DriverLocation extends Component {
                 {this.state.driver.verified === false ?  
                 <div className="account-verify" id="account-verfiy">
                         <form>
-                        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-                            <h4>Final step! Varify your mobile!</h4>
+                        <Message success>
+                            <Message.Header>Final step! Varify your mobile!</Message.Header>
                             <p>
-                                If the mobile number {this.state.driverMobile} is yours. 
+                                If the mobile number <strong> {this.state.driver.mobile}</strong> is yours. 
                                 Enter the text message sent to your mobile
                                 and click varify.
                             </p>
                             <p>
-                               <Grid fluid>
-                                   <Row>
-                                   <Col xs={6} sm={6} md={6}>
-                                        <FormGroup>
-                                        <FormControl
+                               <Grid columns={2}>
+                                   <Grid.Row>
+                                     <Grid.Column mobile={8} tablet={8} computer={8} >
+                                        <Form>
+                                        <input
                                         name="varificationCode"
                                         type="text"
                                         value={this.state.varificationCode}
                                         placeholder="XXXXX"
                                         onChange={e => this.change(e)}
                                         >
-                                        </FormControl>
-                                        </FormGroup>
-                                   </Col>
-                                   <Col xs={6} sm={6} md={6}> 
-                                     <Button bsStyle="primary" onClick={(e) => this.onVarify(e)} block>VARIFY</Button>
-                                   </Col>
-                                   </Row>
-                                   <Row>
-                                    <Col xs={12} sm={12} md={12}>
+                                        </input>
+                                        </Form>
+                                     </Grid.Column>
+
+                                     <Grid.Column mobile={8} tablet={8} computer={8}> 
+                                       <Button color="green" onClick={(e) => this.onVarify(e)} fluid>VARIFY</Button>
+                                     </Grid.Column>
+                                     
+                                   </Grid.Row>
+
+                                   <Grid.Row >
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
                                       <div className="FormError" id="FormError"></div>
-                                    </Col>
-                                   </Row>
+                                    </Grid.Column>
+                                   </Grid.Row>
+                                  
                                </Grid>
                             </p>
-                        </Alert>
+                        </Message>
                         </form>
                 </div>
                 : ''}
 
                 {this.state.driver.verified === true && this.state.driver.isCarRegistered === true && this.state.driver.hasProfile === false ? 
                 <div className="div-profile" id="div-profile">
-                <Grid fluid>
-                <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-                                <h4>Finaly ! Profile picture.</h4>
+                    <Grid columns={1} >
+                            <Message info>
+                              <Message.Header>Finaly ! Profile picture.</Message.Header>
                                 <p>
                                     Helps to identify who you are.
                                 </p>
                                 <p>
-                                    <form>
-                                        <Row className="text-center"> 
-                                            <Col xs={6} sm={6} sm={6}>
-                                            <FormGroup>
-                                            <FormControl
+                                        <Grid.Row>
+                                           <Grid.Column mobile={16} tablet={16} computer={16}>
+                                            <Image src = {this.state.imagePreviewUrl} height={35} circle centered></Image>
+                                           </Grid.Column>
+                                        </Grid.Row>
+
+                                        <Grid.Row> 
+                                            <Grid.Column mobile={16} tablet={16} computer={16}>
+                                            <Form>
+                                            <input
                                                 title=" "
                                                 className="file1"
                                                 name="profile_pic"
                                                 type="file"
                                                 onChange={e => this._onChange_profile(e)}
                                             >
-                                            </FormControl> 
-                                            </FormGroup>
-                                            </Col>
+                                            </input> 
+                                            </Form>
+                                            </Grid.Column>
+                                        </Grid.Row>
 
-                                            <Col xs={6} sm={6} sm={6}>
-                                            <Image src = {this.state.imagePreviewUrl} height={35} circle></Image>
-                                        </Col>
-                                        </Row>
+                                           
+                                        <Grid.Row>
+                                            <Grid.Column mobile={16} tablet={16} computer={16}>
+                                            <Button color="green" onClick={(e) => this.onProfileUpload(e)}  disabled={false} fluid>Upload Image</Button>
+                                            </Grid.Column>
+                                        </Grid.Row>
 
-                                        <Row className="rowPaddingSm text-center">
-                                            <Col xs={12} sm={12} md={12}>
-                                            <Button  onClick={(e) => this.onProfileUpload(e)} bsStyle="info" bsSize="small" disabled={false}>Upload Image</Button>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                        <Col xs={12} sm={12} md={12}>
-                                        <div className="ProfileError" id="ProfileError"></div>
-                                        </Col>
-                                    </Row>
-                                    </form>
+                                        <Grid.Row>
+                                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                                           <div className="ProfileError" id="ProfileError"></div>
+                                        </Grid.Column>
+                                    </Grid.Row>
                                 </p>
-                            </Alert>
+                            </Message>
                 </Grid>
                 </div>
                 : '' }
 
-                <div id="driver-ride-cancel" className="driver-ride-cancel"></div>
+                <div id="missed-ride" className="missed-ride"></div>
 
                 <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
-                <Grid fluid>
-                    <Row>
-                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
-                    </Row>
+                <Grid columns={4} centered>
+                    <Grid.Row>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          <Image src={this.state.userPic} height={40} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                            <h3>{this.state.ridePrice}</h3>Birr
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                           <h3>{this.state.rideDistance}</h3>km
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          <h3>{this.timeConvert(Number.parseInt(this.state.rideTime))} </h3>
+                        </Grid.Column>
+                    </Grid.Row>
                     
-                    <Row>
-                      <Col xs={12} sm={12} md={12}>
-                       <Button  onClick={(e) => this.acceptRide()} bsStyle="success" bsSize="large" block>ACCEPT RIDE</Button>
-                      </Col>
-                    </Row>
+                    <Grid.Row>
+                      <Grid.Column mobile={16} tablet={16} computer={16}>
+                       <Button size="huge" color="green" onClick={(e) => this.acceptRide()}  bsSize="large" fluid>ACCEPT RIDE</Button>
+                      </Grid.Column>
+                    </Grid.Row>
                 </Grid>
                 </div>
 
                 <div id="driver-pax-action"  className="driver-pax-action shake-ride-to-pickup">
-                  <Grid fluid>
-                    <Row>
-                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
-                    </Row>
-                    <Row>
-                      <Col xs={6} sm={6} md={6}>
+                  <Grid columns={4}>
+                    <Grid.Row className="row_sm">
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                           <Image src={this.state.userPic} height={40} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                         {this.state.ridePrice + ' birr'}
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          {this.state.rideDistance + ' km'}
+                         </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          {this.timeConvert(Number.parseInt(this.state.rideTime))}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_sm">
+                      <Grid.Column mobile={8} tablet={8} computer={8}>
                        {this.state.rideUser}
-                      </Col>
-                      <Col xs={6} sm={6} md={6}>
+                      </Grid.Column>
+                      <Grid.Column mobile={8} tablet={8} computer={8}>
                        {this.state.userMobile}
-                      </Col>
-                    </Row>
+                      </Grid.Column>
+                    </Grid.Row>
                     
-                    <Row>
-                        <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.paxFound()} bsStyle="success" bsSize="small" block>I FOUND THE PASSENGER</Button>
-                        </Col>
-                    </Row>
-                    <Row className="rowPadding">
-                        <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.cancelRide()}  bsSize="small" block>CANCEL RIDE</Button>
-                        </Col>
-                    </Row>
+                    <Grid.Row className="row_sm">
+                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                          <Button  size="medium" color="green" onClick={(e) => this.paxFound()}  fluid>I FOUND THE PASSENGER</Button>
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_sm">
+                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                          <Button size="mini" color="red" onClick={(e) => this.cancelRide()} fluid>CANCEL RIDE</Button>
+                        </Grid.Column>
+                    </Grid.Row>
                   </Grid>
                    
                 </div>
 
                 <div id="driver-pax-end-action"  className="driver-pax-end-action shake-finish-ride">
-                  <Grid fluid>
-                  <Row>
-                        <Col xs={3} sm={3} md={3}><Image src={this.state.userPic} height={35} circle></Image></Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.ridePrice + ' br'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.state.rideDistance + ' km'}</Col>
-                        <Col xs={3} sm={3} md={3}>{this.timeConvert(Number.parseInt(this.state.rideTime))}</Col>
-                    </Row>
-                    <Row>
-                      <Col xs={6} sm={6} md={6}>
+                  <Grid columns={4}>
+                  <Grid.Row className="row_sm">
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          <Image src={this.state.userPic} height={40} circular></Image>
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          {this.state.ridePrice + ' birr'}
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                          {this.state.rideDistance + ' km'}
+                        </Grid.Column>
+                        <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
+                         {this.timeConvert(Number.parseInt(this.state.rideTime))}
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_sm">
+                      <Grid.Column mobile={8} tablet={8} computer={8}>
                        {this.state.rideUser}
-                      </Col>
-                      <Col xs={6} sm={6} md={6}>
+                      </Grid.Column>
+                      <Grid.Column mobile={8} tablet={8} computer={8}>
                        {this.state.userMobile}
-                      </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={12} sm={12} md={12}>
-                          <Button  onClick={(e) => this.rideCompleted()} bsStyle="danger" bsSize="small" block>RIDE COMPLETED</Button>
-                        </Col>
-                    </Row>
-                    <Row className="rowPadding">
-                        <Col xs={12} sm={12} md={12}>
-                          
-                        </Col>
-                    </Row>
+                      </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row className="row_sm">
+                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                          <Button color="orange" size="medium"  onClick={(e) => this.rideCompleted()} fluid>RIDE COMPLETED</Button>
+                        </Grid.Column>
+                    </Grid.Row>
                   </Grid>
                    
                 </div>

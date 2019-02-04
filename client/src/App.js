@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
-
+import Branch from './components/branch';
 import Menu from './components/menu';
 import PickUp from './components/pick_up';
 import DropOff from './components/drop_off';
@@ -32,12 +32,14 @@ class App extends React.Component {
         <BrowserRouter>
           <div>
             <Switch>
-                <Route path="/" component={PickUp} exact />
-                <Route path="/dropoff" component={DropOff} exact/>
+                <Route path="/" component={Branch} exact />
+                
+                <Route path="/user/login" component={RiderLogin} exact/>
+                <Route path="/user" component={PickUp} exact/>
 
                 <Route path="/driver" component={DriverPage} exact/>
                 <Route path="/driver/login" component={DriverLogin} exact/>
-                <Route path="/user/login" component={RiderLogin} exact/>
+
             </Switch>
           </div>
         </BrowserRouter>  

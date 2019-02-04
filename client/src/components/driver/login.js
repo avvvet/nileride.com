@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Grid, Row, Col, PageHeader, FormGroup} from 'react-bootstrap';
+import { Grid, Header, Image } from 'semantic-ui-react'
 import ApplyToDrive from './apply_to_drive';
 import DriverLoginForm from './driver_login';
 
@@ -22,35 +22,24 @@ class DriverLogin extends Component {
          <div> Driver dashboard </div>
        ) : (
          <div>
-           <Grid>
-            <Row>
-              <Col xs={12} sm={12} md={12}>
-                <PageHeader>
-                    AWET
-                </PageHeader>
-              </Col>
-            </Row>
+           <Grid container columns={1} centered  stackable >
+            <Grid.Row columns={1}>
+              <Grid.Column mobile={12} tablet={12} computer={12}>
+                <div id='FormError' className='FormError'></div>
+              </Grid.Column>
+            </Grid.Row>
 
-            <Row className="text-center">
-              <Col xs={12} sm={12} md={12}>
-                <div id="FormError"></div>
-              </Col>
-            </Row>
+            <Grid.Row columns={2}>
 
-            <Row>
-              <Col xs={12} sm={6} md={6}>
-                <div className="driverApplyBox">
+              <Grid.Column mobile={12} tablet={12} computer={12}>
+                <DriverLoginForm></DriverLoginForm>
+              </Grid.Column>
+
+              <Grid.Column mobile={12} tablet={12} computer={12}>
                   <ApplyToDrive></ApplyToDrive>
-                </div>
-                
-              </Col>
+              </Grid.Column>
 
-              <Col xs={12} sm={6} md={6}>
-                <div className="driverLoginBox">
-                  <DriverLoginForm></DriverLoginForm>
-                </div>
-              </Col>
-            </Row>
+            </Grid.Row>
           </Grid>
          </div>
        )} 

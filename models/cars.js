@@ -18,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   cars.associate = function(models) {
-    // associations can be defined here
+    // sundenly the kings of king and lords of lord will come
+    cars.belongsTo(models.drivers, {
+      foreignKey: 'driver_id'
+    });
   };
   return cars;
 };

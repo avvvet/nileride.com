@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Grid, Row, Col, FormGroup, FormControl, ControlLabel, Tooltip, PageHeader, Button, Alert} from 'react-bootstrap';
+import { Grid, Message, Form, Button, Header, Image } from 'semantic-ui-react'
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
 import $ from 'jquery';
@@ -46,7 +46,13 @@ class DriverLoginForm extends Component {
         const err = this.validateDriverLogin();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Alert bsStyle="danger" >{error_list}</Alert>,document.getElementById('FormError'));
+            render(
+                <Message negative>
+                    <Message.Header>There are some errors with your login</Message.Header>
+                    <p>{error_list}</p>
+                </Message>,
+                document.getElementById('FormError')
+            );
         } else {
             var login = {
                 email: this.state.loginEmail,
@@ -79,9 +85,9 @@ class DriverLoginForm extends Component {
             error: function(xhr, status, err) {
                 console.log('errrrr',err.toString());
                 if(err.toString() === 'Unauthorized'){
-                  render(<Alert bsStyle="danger" onDismiss={this.handleDismiss}> Invalid account ! please check your email and password</Alert>,document.getElementById('FormError'));
+                  render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
                 } else {
-                    render(<Alert bsStyle="danger" onDismiss={this.handleDismiss}> Somthing wrong ! try again.</Alert>,document.getElementById('FormError'));  
+                    render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
                 }  
             }.bind(this)
         });  
@@ -93,55 +99,47 @@ class DriverLoginForm extends Component {
       }
       return(
         <div>
-           <Grid fluid>
-                <Row>
-                    <Col xs={12} sm={12} md={12}>
-                    <PageHeader>
-                        LOGIN
-                        <Tooltip placement="bottom" className="in" id="tooltip-bottom">
-                              Exsting driver login here.
-                        </Tooltip>
-                    </PageHeader>
-                    </Col>
-                </Row> 
-                <form>
-                <Row>
-                    <Col xs={12} sm={12} md={12}>
-                    <FormGroup>
-                    <ControlLabel>Email</ControlLabel>
-                    <FormControl
-                    name="loginEmail"
-                    type="text"
-                    value={this.state.loginEmail}
-                    placeholder="Email Address"
-                    onChange={e => this.change(e)}
-                    >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                    <Col xs={12} sm={12} md={12}>
-                    <FormGroup>
-                    <ControlLabel>Password</ControlLabel>
-                    <FormControl
-                    name="loginPassword"
-                    type="password"
-                    value={this.state.loginPassword}
-                    placeholder="Password"
-                    onChange={e => this.change(e)}
-                    >
-                    </FormControl>
-                    </FormGroup>
-                    </Col>
-                </Row>
+           <Header as='h3' textAlign='center' color='teal'>Driver Login</Header>
+           <div className="driverLoginBox">
+           <Grid container columns={1} centered  stackable>
+                <Grid.Row columns={1}>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                        <Form>
+                        <label>Email</label>
+                        <input
+                        name="loginEmail"
+                        type="text"
+                        value={this.state.loginEmail}
+                        placeholder="Email Address"
+                        onChange={e => this.change(e)}
+                        >
+                        </input>
+                        </Form>
+                    </Grid.Column>
 
-                <Row className="text-center">
-                    <Col xs={12} sm={12} md={12}>
-                    <Button type="submit" bsSize="large" bsStyle="primary" onClick={e => this.onDriverLogin(e)}  >LOGIN</Button>
-                    </Col> 
-                </Row>
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                        <Form>
+                        <label>Password</label>
+                        <input
+                        name="loginPassword"
+                        type="password"
+                        value={this.state.loginPassword}
+                        placeholder="Password"
+                        onChange={e => this.change(e)}
+                        >
+                        </input>
+                        </Form>
+                    </Grid.Column>
+                </Grid.Row>
 
-                </form>
+                <Grid.Row className="text-center">
+                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                     <Button color='teal' size='large' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
+                    </Grid.Column> 
+                </Grid.Row>
+
                 </Grid>
+            </div>
         </div>
       )
   }

@@ -59,6 +59,14 @@ models.drivers.hasMany(models.payments, {
   sourceKey: 'token'
 });
 
+models.drivers.hasMany(models.cars, {
+  foreignKey: 'driver_id',
+  sourceKey: 'token'
+});
+models.cars.belongsTo(models.drivers, {
+  foreignKey: 'driver_id',
+  targetKey: 'token'
+});
 
 
 module.exports = models;
