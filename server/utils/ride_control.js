@@ -12,7 +12,7 @@ const ride_control_auto = async () => {
         return models.riderequests.findAll(
             { 
                 where: [sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('SECOND'), sequelize.col('createdAt'), sequelize.fn("now")), {
-                    [Op.gt] : 10000000
+                    [Op.gt] : 10
                 }), {status : 1}], 
                 transaction: t ,
                 raw : true
