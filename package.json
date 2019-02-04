@@ -26,6 +26,7 @@
     "multer": "^1.4.1",
     "mysql2": "^1.6.4",
     "nodemailer": "^5.0.0",
+    "pm2": "^3.2.9",
     "sequelize": "^4.41.2",
     "sequelize-cli": "^5.4.0",
     "sequelize-tokenify": "^0.1.8",
