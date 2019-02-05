@@ -38,7 +38,6 @@ class MissedRide extends Component {
                 if(_ride[0] === 1){
                     document.getElementById('missed-ride').style.visibility="hidden"; 
                     render('',document.getElementById('missed-ride'));
-                    e.target.disabled = false;
                 } else {
                     render('error, not updated',document.getElementById('missed-confirm-error')); 
                 }

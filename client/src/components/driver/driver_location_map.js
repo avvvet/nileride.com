@@ -355,6 +355,7 @@ class DriverLocation extends Component {
                     this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
                     clearInterval(this.timerCheckForRide);
                 } else if (ride.driver.status === 2) {   //you have missed the ride 
+                    sound.volume(0,this.soundAccept);
                     document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
                     document.getElementById('missed-ride').style.visibility="visible"; 
                     render(<MissedRide></MissedRide>,document.getElementById('missed-ride'));

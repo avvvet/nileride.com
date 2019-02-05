@@ -25,11 +25,30 @@ class DriverBusy extends Component {
         render('',document.getElementById('driver-busy'));
         document.getElementById('driver-busy').style.visibility="hidden"; 
     }
-    
+
+    _driver_busy_ok = (e) => {
+        var data = {};
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/busy_ok",
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+                this.props.resetRide();
+                render('',document.getElementById('driver-busy'));
+                document.getElementById('driver-busy').style.visibility="hidden";
+            }.bind(this),
+            error: function(xhr, status, err) {
+                
+            }.bind(this)
+        });  
+    }
+
     render(){
         return(
             <div>
-                <Message success>
+                <Message negative>
                     <Message.Header>Sorry, all drivers are busy !</Message.Header>
                     <p>
                         we have tried to assign your ride to nearest drivers.
@@ -41,7 +60,7 @@ class DriverBusy extends Component {
                         <Grid columns={1}>
                             <Grid.Row>
                                 <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center"> 
-                                    <Button color="green" onClick={(e) => this._no(e)} >OK</Button>
+                                    <Button color="green" onClick={(e) => this._driver_busy_ok(e)} >OK</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

@@ -526,6 +526,41 @@ app.post('/ride/paxFound', (req, res) => {
       });
 });
 
+app.post('/ride/busy_ok', (req, res) => {
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {user_id: token, status: 2}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 22 },
+                    { where: { user_id: token, status: 2} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         return ride;  /// update successfull return ride
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                return null;
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
 app.post('/driver/ready_for_work', (req, res) => {
     var token = req.header('x-auth');
     var sequelize = models.sequelize;
@@ -710,7 +745,7 @@ app.post('/ride/check_ride_user', (req, res) => {
     //THANK YOU JESUS THANK YOU 
     const Op = Sequelize.Op;
     models.riderequests.findOne({ 
-        where : {user_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 222}, {[Op.ne]: 444}]}},
+        where : {user_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 22}, {[Op.ne]: 222}, {[Op.ne]: 444}]}},
         order : [
             ['id', 'DESC']
         ],

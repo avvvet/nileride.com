@@ -677,7 +677,7 @@ class PickUpMap extends Component {
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
                    
                     document.getElementById('driver-busy').style.visibility="visible";
-                    render(<DriverBusy></DriverBusy>,document.getElementById('driver-busy'));
+                    render(<DriverBusy resetRide={this.resetRide}></DriverBusy>,document.getElementById('driver-busy'));
                     
                     clearInterval(this.timerDriverEta_pickup); 
                     clearInterval(this.timerDriverEta_dropoff);
