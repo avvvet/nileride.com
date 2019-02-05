@@ -18,19 +18,21 @@ class RiderLogin extends Component {
     return(
      <div>
          <div>
-           <Grid container columns={1} centered  stackable>
-           <Grid.Row columns={1}>
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+           <Grid container columns={1} centered>
+           <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                 <div id='FormError' className='FormError'></div>
               </Grid.Column>
             </Grid.Row>
 
-            <Grid.Row columns={2}>
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+            <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                   <RiderLoginForm></RiderLoginForm>
               </Grid.Column>
+            </Grid.Row>
 
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+            <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                   <ApplyToRide></ApplyToRide>
               </Grid.Column>
             </Grid.Row>

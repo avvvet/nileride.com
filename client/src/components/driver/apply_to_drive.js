@@ -24,7 +24,8 @@ class ApplyToDrive extends Component {
             gender: '',
             plateNo: '',
             errors: [],
-            auth: false
+            auth: false,
+            show_form : false
         }
     }
 
@@ -108,7 +109,7 @@ class ApplyToDrive extends Component {
         const err = this.validateDriverApply();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Message bsStyle="danger" >{error_list}</Message>,document.getElementById('FormError'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var driver = {
                 firstName: this.state.firstName,
@@ -159,6 +160,12 @@ class ApplyToDrive extends Component {
         });  
     }
 
+    _yes = (e) => {
+        this.setState({
+          show_form : true
+        })
+     }
+
 
     render(){
         if(this.state.auth) {
@@ -167,12 +174,22 @@ class ApplyToDrive extends Component {
         
         return(
             <div>
-             <Header as='h3' textAlign='center' color='teal'>New Driver Registration</Header>
+             
+             {this.state.show_form === false ? 
              <div className="driverLoginBox">
-                <Grid container columns={1} centered  stackable>
-                
+               <Grid  columns={1} centered  stackable>
+                 <Grid.Row>
+                     <Grid.Column mobile={18} tablet={18} computer={18}>
+                         <Button color="olive" size="huge" onClick={(e) => this._yes(e)} fluid>REGISTER TO DRIVE</Button>
+                     </Grid.Column>
+                 </Grid.Row>
+               </Grid>
+             </div> 
+             :
+                <div className="driverLoginBox">
+                <Grid columns={1}>
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>First Name</label>
                     <input
@@ -188,7 +205,7 @@ class ApplyToDrive extends Component {
                 </Grid.Row>  
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Father Name</label>
                     <input
@@ -204,7 +221,7 @@ class ApplyToDrive extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Email</label>
                     <input
@@ -216,11 +233,11 @@ class ApplyToDrive extends Component {
                     >
                     </input>
                     </Form>
-                   </Grid.Column>
+                    </Grid.Column>
                 </Grid.Row> 
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Mobile</label>
                     <input
@@ -236,7 +253,7 @@ class ApplyToDrive extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Password</label>
                     <input
@@ -252,20 +269,22 @@ class ApplyToDrive extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
-                      <Form.Select name='gender' fluid label='Gender' options={options} placeholder='Gender' onChange={this.onChangeGender}/>
+                    <Form.Select name='gender' fluid label='Gender' options={options} placeholder='Gender' onChange={this.onChangeGender}/>
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
 
-                <Grid.Row className="text-center">
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
-                    <Button color='teal' size='large' onClick={e => this.onDriverApply(e)}  fluid >APPLY TO DRIVE</Button>
+                <Grid.Row>
+                    <Grid.Column>
+                    <Button color='olive' size='huge' onClick={e => this.onDriverApply(e)}  fluid >APPLY TO DRIVE</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>
-              </div>  
+                </div>  
+             }
+
             </div>
         );
     }

@@ -46,13 +46,7 @@ class DriverLoginForm extends Component {
         const err = this.validateDriverLogin();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(
-                <Message negative>
-                    <Message.Header>There are some errors with your login</Message.Header>
-                    <p>{error_list}</p>
-                </Message>,
-                document.getElementById('FormError')
-            );
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var login = {
                 email: this.state.loginEmail,
@@ -85,9 +79,9 @@ class DriverLoginForm extends Component {
             error: function(xhr, status, err) {
                 console.log('errrrr',err.toString());
                 if(err.toString() === 'Unauthorized'){
-                  render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
+                  render(<Message negative > Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
                 } else {
-                    render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
+                    render(<Message negative > Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
                 }  
             }.bind(this)
         });  
@@ -99,27 +93,27 @@ class DriverLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='teal'>Driver Login</Header>
+           <Header as='h3' textAlign='center' color='teal'>DRIVER LOGIN</Header>
            <div className="driverLoginBox">
-           <Grid container columns={1} centered  stackable>
+           <Grid columns={1}>
                 <Grid.Row columns={1}>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
-                        <label>Email</label>
                         <input
                         name="loginEmail"
                         type="text"
                         value={this.state.loginEmail}
                         placeholder="Email Address"
                         onChange={e => this.change(e)}
+                        size="huge"
                         >
                         </input>
                         </Form>
                     </Grid.Column>
-
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                </Grid.Row>
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
-                        <label>Password</label>
                         <input
                         name="loginPassword"
                         type="password"
@@ -132,9 +126,9 @@ class DriverLoginForm extends Component {
                     </Grid.Column>
                 </Grid.Row>
 
-                <Grid.Row className="text-center">
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
-                     <Button color='teal' size='large' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                     <Button color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
                     </Grid.Column> 
                 </Grid.Row>
 

@@ -22,7 +22,8 @@ class ApplyToRide extends Component {
             password: '',
             gender: '',
             errors: [],
-            auth: false
+            auth: false,
+            show_form : false
         }
     }
 
@@ -106,7 +107,7 @@ class ApplyToRide extends Component {
         const err = this.validateRiderApply();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Message info >{error_list}</Message>,document.getElementById('FormError'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var rider = {
                 firstName: this.state.firstName,
@@ -152,6 +153,11 @@ class ApplyToRide extends Component {
         });  
     }
 
+    _yes = (e) => {
+        this.setState({
+          show_form : true
+        })
+     }
 
     render(){
         if(this.state.auth) {
@@ -160,11 +166,21 @@ class ApplyToRide extends Component {
         
         return(
             <div>
-                <Header as='h3' textAlign='center' color='teal'>New Passenger Registration</Header>
+                {this.state.show_form === false ? 
+             <div className="driverLoginBox">
+               <Grid  columns={1} centered  stackable>
+                 <Grid.Row>
+                     <Grid.Column mobile={18} tablet={18} computer={18}>
+                         <Button color="teal" size="huge" onClick={(e) => this._yes(e)} fluid>NEW PASSENGER</Button>
+                     </Grid.Column>
+                 </Grid.Row>
+               </Grid>
+             </div> 
+             :
                 <div className="driverLoginBox">
-                <Grid container columns={1} centered  stackable>
+                <Grid columns={1}>
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>First Name</label>
                     <input
@@ -180,7 +196,7 @@ class ApplyToRide extends Component {
                 </Grid.Row>   
 
                 <Grid.Row> 
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Father Name</label>
                     <input
@@ -196,7 +212,7 @@ class ApplyToRide extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Email</label>
                     <input
@@ -212,7 +228,7 @@ class ApplyToRide extends Component {
                 </Grid.Row>  
 
                 <Grid.Row>      
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Mobile</label>
                     <input
@@ -228,7 +244,7 @@ class ApplyToRide extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <label>Password</label>
                     <input
@@ -244,20 +260,21 @@ class ApplyToRide extends Component {
                 </Grid.Row>   
 
                  <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                       <Form.Select name='gender' fluid label='Gender' options={options} placeholder='Gender' onChange={this.onChangeGender}/>
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
 
-                <Grid.Row className="text-center">
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
-                    <Button color='teal' size='large' onClick={e => this.onRiderApply(e)}  fluid >APPLY FOR RIDE</Button>
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Button color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >NEW PASSENGER</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>
-                </div>
+                </div>  
+             }
             </div>
         );
     }

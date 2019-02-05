@@ -22,23 +22,23 @@ class DriverLogin extends Component {
          <div> Driver dashboard </div>
        ) : (
          <div>
-           <Grid container columns={1} centered  stackable >
+           <Grid container columns={1} centered>
             <Grid.Row columns={1}>
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                 <div id='FormError' className='FormError'></div>
               </Grid.Column>
             </Grid.Row>
 
-            <Grid.Row columns={2}>
-
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+            <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                 <DriverLoginForm></DriverLoginForm>
               </Grid.Column>
-
-              <Grid.Column mobile={12} tablet={12} computer={12}>
+            </Grid.Row>
+              
+            <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18}>
                   <ApplyToDrive></ApplyToDrive>
               </Grid.Column>
-
             </Grid.Row>
           </Grid>
          </div>

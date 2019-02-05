@@ -46,7 +46,7 @@ class RiderLoginForm extends Component {
         const err = this.validateRiderLogin();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Message bsStyle="danger" >{error_list}</Message>,document.getElementById('FormError'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
             var login = {
                 email: this.state.loginEmail,
@@ -77,9 +77,9 @@ class RiderLoginForm extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 if(err.toString() === 'Unauthorized'){
-                  render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
+                  render(<Message negative> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
                 } else {
-                    render(<Message bsStyle="danger" onDismiss={this.handleDismiss}> Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
+                    render(<Message negative> Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
                 }  
             }.bind(this)
         });  
@@ -91,14 +91,13 @@ class RiderLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='teal'>Passenger Login</Header>
+           <Header as='h3' textAlign='center' color='teal'>PASSENGER LOGIN</Header>
            <div className="driverLoginBox">
-           <Grid container columns={1} centered  stackable>
+           <Grid columns={1}>
                 
                 <Grid.Row>
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
-                    <label>Email</label>
                     <input
                     name="loginEmail"
                     type="text"
@@ -111,9 +110,8 @@ class RiderLoginForm extends Component {
                     </Grid.Column>
                 </Grid.Row>   
                 <Grid.Row> 
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
-                    <label>Password</label>
                     <input
                     name="loginPassword"
                     type="password"
@@ -126,9 +124,9 @@ class RiderLoginForm extends Component {
                     </Grid.Column>
                 </Grid.Row>
 
-                <Grid.Row className="text-center">
-                    <Grid.Column mobile={12} tablet={12} computer={12}>
-                    <Button color='teal' size='large' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Button color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>

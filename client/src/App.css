@@ -565,13 +565,12 @@ div.rowPaddingSm {
 .driverLoginBox {
   background-color: #ffffff;
   padding-left: 18px;
-  padding-right: 0px;
-  padding-top: 10px;
+  padding-right: 18px;
+  padding-top: 20px;
   padding-bottom: 18px;
   border: solid #e3dcdc 1px;
   border-radius: 10px;
-  margin-bottom: 33px;
-  
+  margin-bottom: 0px;
 }
 
 .riderLoginBox {
