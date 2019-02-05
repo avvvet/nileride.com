@@ -22,6 +22,7 @@ models.riderequests = require('../models/ride_requests')(sequelize, Sequelize);
 models.payments = require('../models/payments')(sequelize, Sequelize);
 models.verifications = require('../models/verifications')(sequelize, Sequelize);
 models.cars = require('../models/cars')(sequelize, Sequelize);
+models.ratings = require('../models/ratings')(sequelize, Sequelize);
 
 models.riderequests.belongsTo(models.users, {
   foreignKey: 'user_id',

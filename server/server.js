@@ -594,6 +594,83 @@ app.post('/driver/ready_for_work', (req, res) => {
       });
 });
 
+app.post('/ride/busy_ok', (req, res) => {
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {user_id: token, status: 2}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.riderequests.update(
+                    { status: 22 },
+                    { where: { user_id: token, status: 2} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         return ride;  /// update successfull return ride
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                return null;
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
+app.post('/ride/rating', (req, res) => {
+    var body = _.pick(req.body, ['ride_id','driver_id', 'rating']);
+    console.log('tessssssssssssssssst', body);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+             where: {id: body.ride_id, status: 7777 }, transaction: t}
+        ).then(r => {
+            if(r){
+                return models.riderequests.update(
+                    { status: 777 },
+                    { where: { id: body.ride_id, status: 7777}, transaction: t } 
+                  ).then(result => {
+                     if(result[0]===1) {
+                         console.log("restuuuuuuuu", result[0]);
+                        return models.ratings.create(
+                               body,
+                              {transaction: t}
+                            ).then((rating) => { 
+                                console.log("yyyyyyyyyy", rating);
+                               return rating;
+                            });
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('Transaction driver not updated');
+            }
+        })
+      }).then(function (result) {
+          res.send(result);
+      }).catch(function (err) {
+
+          console.log(err);
+        res.sendStatus(400).send();
+      });
+});
 
 app.post('/ride/completed', (req, res) => {
     var body = _.pick(req.body, ['status']);
@@ -605,7 +682,7 @@ app.post('/ride/completed', (req, res) => {
         }, {transaction: t}).then( (ride) => {
             if(ride){
               return models.riderequests.update(
-                    { status: 777 },
+                    { status: 7777 },
                     { where: { driver_id: token, status: 77 } } ,
                     {transaction: t}
                   ).then(result => {
@@ -777,7 +854,7 @@ app.post('/ride/check_ride_driver', (req, res) => {
     //I WORSHIP YOU JESUS YOU ARE GOOD GOOD FATHER 
     const Op = Sequelize.Op;
     models.riderequests.findOne({ 
-        where : {driver_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 222}, {[Op.ne]: 444}]}},
+        where : {driver_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 7777}, {[Op.ne]: 222}, {[Op.ne]: 444}]}},
         order : [
             ['id', 'DESC']
         ],

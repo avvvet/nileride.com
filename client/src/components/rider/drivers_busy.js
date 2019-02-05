@@ -22,8 +22,8 @@ class DriverBusy extends Component {
     }
 
     _no = (e) => {
-        render('',document.getElementById('driver-busy'));
-        document.getElementById('driver-busy').style.visibility="hidden"; 
+        render('',document.getElementById('div-notification-1'));
+        document.getElementById('div-notification-1').style.visibility="hidden"; 
     }
 
     _driver_busy_ok = (e) => {
@@ -36,8 +36,8 @@ class DriverBusy extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                 this.props.resetRide();
-                render('',document.getElementById('driver-busy'));
-                document.getElementById('driver-busy').style.visibility="hidden";
+                render('',document.getElementById('div-notification-1'));
+                document.getElementById('div-notification-1').style.visibility="hidden";
             }.bind(this),
             error: function(xhr, status, err) {
                 

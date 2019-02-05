@@ -8,7 +8,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import DriverBusy from './rider/drivers_busy';
-
+import Rate from './rider/rate';
 import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
 
@@ -565,7 +565,9 @@ class PickUpMap extends Component {
                 data: JSON.stringify(objRideRequest), 
                 contentType: "application/json",
                 success: function(ride, textStatus, jqXHR) {
+                    console.log('repy of request ', ride);
                     if(!_.isNull(ride)) {
+                        console.log('yes yes yes ');
                         this.rideRequestAction(ride);
                     }
                 }.bind(this),
@@ -676,14 +678,27 @@ class PickUpMap extends Component {
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
                    
-                    document.getElementById('driver-busy').style.visibility="visible";
-                    render(<DriverBusy resetRide={this.resetRide}></DriverBusy>,document.getElementById('driver-busy'));
+                    document.getElementById('div-notification-1').style.visibility="visible";
+                    render(<DriverBusy resetRide={this.resetRide}></DriverBusy>,document.getElementById('div-notification-1'));
+                    
+                    clearInterval(this.timerDriverEta_pickup); 
+                    clearInterval(this.timerDriverEta_dropoff);
+                    clearInterval(this.timerRideStatus);
+                    
+                }  else if(ride.status === 7777) { // rate your ride 
+                    document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                   
+                    document.getElementById('div-notification-1').style.visibility="visible";
+                    render(<Rate resetRide={this.resetRide} ride={ride}></Rate>,document.getElementById('div-notification-1'));
                     
                     clearInterval(this.timerDriverEta_pickup); 
                     clearInterval(this.timerDriverEta_dropoff);
                     clearInterval(this.timerRideStatus);
                     
                 }
+
                 
               } else {
                 document.getElementById('ride-request-dashboard').style.visibility="hidden";
@@ -735,6 +750,7 @@ class PickUpMap extends Component {
         });
         map.locate({setView: true, maxZoom: 15});
         this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
+        this.timerRideStatus = null;
     }
 
     cancelRide = () => {
@@ -1073,7 +1089,7 @@ class PickUpMap extends Component {
               </div>
               : '' }
               
-              <div className="driver-busy" id="driver-busy"></div>
+              <div className="div-notification-1" id="div-notification-1"></div>
 
               <div className="driver-cancel-ride" id="driver-cancel-ride"> 
                 <strong>Cancelled ! </strong> driver cancelled your ride.
