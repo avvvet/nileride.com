@@ -124,7 +124,7 @@ body {
 .user-info {
   color: #ffffff;
   position: fixed;
-  top: 5%;
+  top: 10%;
   left: 55%;
   width: 258px;
   height: 44px;
@@ -136,8 +136,8 @@ body {
 .div-intro {
   color: #ffffff;
   position: fixed;
-  top: 21%;
-  left: 55%;
+  top: 25%;
+  left: 54%;
   width: 258px;
   height: 52px;
   border: 2px solid white;
@@ -169,8 +169,8 @@ body {
 .div-notification-1 {
   color: #ffffff;
   position: fixed;
-  top: 29%;
-  left: 57%;
+  top: 36%;
+  left: 55%;
   width: 300px;
   height: 44px;
   transform: translate(-55%, -55%);
@@ -250,24 +250,16 @@ body {
 }
 
 .ride-route-try {
-  color: #5f5b5b;
   position: fixed;
   margin: -100px 0 0 -100px;
   top: 57%;
   right: 51%;
   width: 312px;
   height: 72px;
-  border: 2px solid white;
   background-color: #f5e3a5;
   transform: translate(50%, 50%);
   z-index: 2000;
-  padding-top: 6px;
-  padding-right: 11px;
-  padding-left: 15px;
   text-align: center;
-  box-shadow: 10px 10px 10px gray;
-  border-radius: 60px;
-  box-sizing: border-box;
   visibility: hidden;
 }
 

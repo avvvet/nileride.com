@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import {Grid, Row, Col, Alert, Image, Button, Badge, FormControl, FormGroup, ControlLabel} from 'react-bootstrap';
+import {Grid, Button, Form , Message} from 'semantic-ui-react';
 import $ from 'jquery';
+
+const options_reason = [
+    { key: '1', text: 'I DO NOT WANT TO WORK', value: 'I-DO-NOT-WANT-TO-WORK' },
+    { key: '2', text: 'PASSANGER-NOT-FOUND', value: 'PASSANGER-NOT-FOUND' },
+]
+
 class DriverRideCancel extends Component {
     constructor() {
        super();
@@ -14,52 +20,35 @@ class DriverRideCancel extends Component {
 
     }
 
-    getErrorList(errors){
-        var i = 0;
-        let error_list = errors.map(error => {
-            return <li key={i++}>{error}</li>
-        });
-        return error_list;
-    }
 
-    _onchange = (e) => {
+    _onchange = (e, data) => {
         this.setState({
-            [e.target.name]: e.target.value
-        })
+            _reason : data.value
+        });
+
     }
 
-    validateReason = () => {
-       
-        let errors = [];
-        if(this.state._reason.length === 0) {
-            errors.push("Select reason for cancel.");
-        } 
-        return errors;
-    }
 
     _onsubmit = (e) => {
-        console.log('reason', this.state._reason);
-        e.target.disabled = true;
-        e.preventDefault();
-        const err = this.validateReason();
-        if(err.length > 0){
-            e.target.disabled = false;
-            let error_list = this.getErrorList(err);
-            render(<div className="div_error">{error_list}</div>,document.getElementById('div-error-reason'));
-        } else {
-            var data = {
-                reason : this.state._reason,
-                ride_id : this.props.ride_id
-            }
-
-            this.submit_reason(data, e);
-            this.setState({
-                _show_confirm : true,
-                _show_reason : false,
-                _reason : '',
-                errors: []
-            });
+     e.preventDefault();
+     e.target.disabled = true;
+     if(this.state._reason.length === 0) {
+        render(<Message negative >select reason !</Message>,document.getElementById('div-error-reason'));
+        e.target.disabled = false;
+     } else {
+        var data = {
+            reason : this.state._reason,
+            ride_id : this.props.ride_id
         }
+
+        this.submit_reason(data, e);
+        this.setState({
+            _show_confirm : false,
+            _show_reason : false,
+            _reason : '',
+            errors: []
+        });
+     }
     }
 
     submit_reason = (data,e) => {
@@ -70,11 +59,11 @@ class DriverRideCancel extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-                console.log('so what comes', data);
                if(data.length > 0){
                  if(data[0] === 1) {
-                    render('',document.getElementById('driver-ride-cancel'));
                     this.props.rideCompletedAction();
+                    document.getElementById('div-notification-1').style.visibility="hidden";
+                    render('',document.getElementById('div-notification-1'));
                  }
                } 
             }.bind(this),
@@ -92,70 +81,60 @@ class DriverRideCancel extends Component {
     }
 
     _no = (e) => {
-        render('',document.getElementById('driver-ride-cancel'));
+        document.getElementById('div-notification-1').style.visibility="hidden";
+        render('',document.getElementById('div-notification-1'));
     }
 
     render(){
         return(
             <div>
               {this.state._show_confirm === true ?
-              <div className="div-confirm" id="div-confirm"> 
-                <strong>Are you sure ! </strong> . you want to cancel ?
-                <p> 
-                 <Grid fluid>
-                     <Row className="rowPaddingSm">
-                          <Col xs={6} sm={6} md={6}>
-                           <Button  onClick={(e) => this._no(e)}  bsSize="small" block>NO</Button>
-                          </Col>
-                          <Col xs={6} sm={6} md={6}>
-                           <Button  onClick={(e) => this._yes(e)} bsStyle="danger" bsSize="small" block>YES</Button>
-                          </Col>
-                     </Row>
-                 </Grid>   
-                 </p> 
-              </div>
+              <Message>
+                 <Message.Header> Are you sure to cancel ?</Message.Header>
+                 <p>
+                 <div className='ui two buttons'>
+                    <Button  onClick={(e) => this._no(e)}   color="green" >NO</Button>
+                    <Button  onClick={(e) => this._yes(e)}  color="red" >YES</Button>
+                </div>
+                </p>
+              </Message>
               : ''
               }
 
               {this.state._show_reason === true ? 
-                    <div>
-                        <div className="div-reason" id="div-reason"> 
-                            <p> 
-                            <form>
-                            <Grid fluid>
-                                <Row className="rowPaddingSm">
-                                    <Col xs={12} sm={12} md={12}>
-                                    <FormGroup>
-                                        <ControlLabel>SELECT REASON</ControlLabel>
-                                        <FormControl name="_reason" componentClass="select" placeholder="select" onChange={e => this._onchange(e)}>
-                                            <option value="">select</option>
-                                            <option value="MY-CAR-NOT-WORKING">MY CAR NOT WORKING</option>
-                                            <option value="PASSANGE-NOT-FOUND">PASSANGE NOT FOUND</option>
-                                            <option value="HIGHT-TRAFIC">HIGHT TRAFIC</option>
-                                            <option value="OTHER">OTHER</option>
-                                        </FormControl>
-                                        </FormGroup>
-                                    </Col>
-                                </Row>
-                                <Row className="rowPaddingSm">
-                                    <Col xs={6} sm={6} md={6}>
-                                    <Button  onClick={(e) => this._onsubmit(e)} bsStyle="danger" bsSize="small" block>SUBMIT</Button>
-                                    </Col>
-                                    <Col xs={6} sm={6} md={6}>
-                                    <Button  onClick={(e) => this._no(e)}  bsSize="small" bsStyle="success" block>BACK</Button>
-                                    </Col>
-                                </Row>
+                        <Message>
+                        <Message.Header>Why you are cancelling ?</Message.Header>
+                        <p>
+                            <Grid columns={1}>
+                                <Grid.Row>
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                                    <Form>
+                                    <Form.Select name='_reason' fluid label='Reason' options={options_reason} placeholder='Reason' onChange={this._onchange}/>
+                                    </Form>
+                                    </Grid.Column>
+                               </Grid.Row>
 
-                                <Row>
-                                    <Col xs={12} sm={12} md={12}>
-                                        <div className="div-error-reason" id="div-error-reason"></div>
-                                    </Col>
-                                </Row>
-                            </Grid>
-                            </form>   
-                            </p> 
-                        </div>
-                    </div>
+                               <Grid.Row className="row_xs">
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                                    <Button color="green" onClick={(e) => this._onsubmit(e)} fluid>SUBMIT</Button>
+                                    </Grid.Column>
+                               </Grid.Row>
+
+                               <Grid.Row className="row_sm">
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                                    <Button color="red" onClick={(e) => this._no(e)} fluid>NO</Button>
+                                    </Grid.Column>
+                               </Grid.Row>
+
+                               <Grid.Row>
+                                <Grid.Column mobile={16} tablet={16} computer={16}>
+                                  <div className="div-error-reason" id="div-error-reason"></div>
+                                </Grid.Column>
+                               </Grid.Row>
+                           </Grid>
+                        </p>
+                    </Message>
+
               : ''
               }
             </div>

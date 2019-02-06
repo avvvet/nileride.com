@@ -790,7 +790,7 @@ class DriverLocation extends Component {
         if(err.length > 0){
             e.target.disabled = false;
             let error_list = this.getErrorList(err);
-            render(<Message bsStyle="danger" >{error_list}</Message>,document.getElementById('ProfileError'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('ProfileError'));
         } else {
             this.uploadProfile(e);
             this.setState({
@@ -832,7 +832,8 @@ class DriverLocation extends Component {
     }
 
     cancelRide = (e) => {
-        render(<DriverRideCancel ride_id={this.state.ride_id} rideCompletedAction={this.rideCompletedAction}></DriverRideCancel>,document.getElementById('driver-ride-cancel'));
+        document.getElementById('div-notification-1').style.visibility="visible";
+        render(<DriverRideCancel ride_id={this.state.ride_id} rideCompletedAction={this.rideCompletedAction}></DriverRideCancel>,document.getElementById('div-notification-1'));
     }
 
     onChangeModel = (event, data) => {
@@ -905,7 +906,6 @@ class DriverLocation extends Component {
                 
                 {this.state.driver.isCarRegistered === false && this.state.driver.verified === true ? 
                 <div className="register-car" id="register-car">
-                        <form>
                         <Message>
                             <Message.Header>Register your car !</Message.Header>
                             <p>
@@ -964,7 +964,7 @@ class DriverLocation extends Component {
                                </Grid>
                             </p>
                         </Message>
-                        </form>
+                       
                 </div>
                 : ''}
 
@@ -972,7 +972,7 @@ class DriverLocation extends Component {
                 <div className="account-verify" id="account-verfiy">
                         <form>
                         <Message success>
-                            <Message.Header>Final step! Varify your mobile!</Message.Header>
+                            <Message.Header>Varify your mobile!</Message.Header>
                             <p>
                                 If the mobile number <strong> {this.state.driver.mobile}</strong> is yours. 
                                 Enter the text message sent to your mobile
@@ -1156,9 +1156,11 @@ class DriverLocation extends Component {
                           <Button color="orange" size="medium"  onClick={(e) => this.rideCompleted()} fluid>RIDE COMPLETED</Button>
                         </Grid.Column>
                     </Grid.Row>
-                  </Grid>
-                   
+                  </Grid>  
                 </div>
+
+                <div className="div-notification-1" id="div-notification-1"></div>
+
 
                 <div className="mapid" id="mapid"></div>
                 

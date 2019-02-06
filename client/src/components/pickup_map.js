@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 import DriverBusy from './rider/drivers_busy';
 import Rate from './rider/rate';
+import DriverCancelRide from './rider/driver_cancel_ride';
 import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
 
@@ -647,6 +648,7 @@ class PickUpMap extends Component {
                     });   
                 } else if(ride.status === 77) {  //ride on progress 
                     PromiseSetDriverData.then(()=> {
+                        document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
                         this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
@@ -658,7 +660,9 @@ class PickUpMap extends Component {
                         document.getElementById('u-driver-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
 
-                        document.getElementById('driver-cancel-ride').style.visibility="visible";
+                        document.getElementById('div-notification-1').style.visibility="visible";
+                        render(<DriverCancelRide resetRide={this.resetRide} ride={ride}></DriverCancelRide>,document.getElementById('div-notification-1'));
+                    
 
                         clearInterval(this.timerDriverEta_pickup); 
                         clearInterval(this.timerDriverEta_dropoff);
@@ -932,28 +936,6 @@ class PickUpMap extends Component {
         });  
     }
 
-    confirm_ride_cancelled = () => { // driver cancelled the ride request and user is confirming the cancel
-        var driver = {
-            status : 777
-        };
-        $.ajax({ 
-            type:"POST",
-            url:"/user/confirmDriverRideCancelled",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
-            data: JSON.stringify(driver), 
-            contentType: "application/json",
-            success: (_ride) => {
-                if(_ride){
-                    document.getElementById('driver-cancel-ride').style.visibility="hidden";
-                    this.resetRide();
-                }  
-            },
-            error: function(xhr, status, err) {
-                console.error('ride completed error', err.toString());
-            }.bind(this)
-        });  
-    }
-
     render(){ 
 
         if(this.state._signInFlag) {
@@ -1036,7 +1018,7 @@ class PickUpMap extends Component {
               <div className="div-intro" id="div-intro">
                <Grid fluid>
                  <Grid.Row> 
-                     <Grid.Column xs={12} sm={12} sm={12}>Start by clicking your pickup and dropoff from the map.</Grid.Column>
+                     <Grid.Column xs={12} sm={12} sm={12}>Click map for your pickup and dropoff.</Grid.Column>
                  </Grid.Row>
                </Grid>
               </div>
@@ -1091,19 +1073,6 @@ class PickUpMap extends Component {
               
               <div className="div-notification-1" id="div-notification-1"></div>
 
-              <div className="driver-cancel-ride" id="driver-cancel-ride"> 
-                <strong>Cancelled ! </strong> driver cancelled your ride.
-                <p> 
-                 <Grid fluid>
-                     <Grid.Row className="rowPaddingSm">
-                          <Grid.Column xs={12} sm={12} md={12}>
-                           <Button  onClick={(e) => this.confirm_ride_cancelled(e)}  bsSize="small" block>OK</Button>
-                          </Grid.Column>
-                     </Grid.Row>
-                 </Grid>   
-                 </p> 
-              </div>
-
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
                 <Card color='teal'>
@@ -1150,21 +1119,15 @@ class PickUpMap extends Component {
               </div>
 
               <div className="ride-route-try" id="ride-route-try"> 
-                <strong>Oh! </strong> No connection. Try again.
-                <p> 
-                 <Grid fluid>
-                     <Grid.Row className="rowPaddingSm">
-                          <Grid.Column xs={6} sm={6} md={6}>
-                           <Button  onClick={(e) => this.findRoute(this.state.pickup_latlng, this.state.dropoff_latlng, e)} bsStyle="warning" bsSize="small" block>TRY AGAIN</Button>
-                          </Grid.Column>
-
-                          <Grid.Column xs={6} sm={6} md={6}>
-                           <Button  onClick={(e) => this.resetRide(e)}  bsSize="small" block>CANCEL</Button>
-                          </Grid.Column>
-
-                     </Grid.Row>
-                 </Grid>   
-                 </p> 
+                <Message>
+                 <Message.Header>Oh! No connection. Try again.</Message.Header>
+                 <p>
+                 <div className='ui two buttons'>
+                    <Button  onClick={(e) => this.findRoute(this.state.pickup_latlng, this.state.dropoff_latlng, e)}   color="green" >TRY AGAIN</Button>
+                    <Button  onClick={(e) => this.resetRide(e)}  color="red" >CANCEL</Button>
+                </div>
+                </p>
+              </Message>
               </div>
 
               <div className="u-driver-dashboard shake-ride-to-pickup" id="u-driver-dashboard"> 

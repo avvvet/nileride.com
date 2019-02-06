@@ -780,18 +780,18 @@ app.post('/driver/ride/cancel', (req, res) => {
       });
 });
 
-app.post('/user/confirmDriverRideCancelled', (req, res) => {
-    var body = _.pick(req.body, ['status']);
+app.post('/user/driver_cancel_ride_ok', (req, res) => {
+    var body = _.pick(req.body, ['ride_id']);
     var token = req.header('x-auth');
     var sequelize = models.sequelize;
     return sequelize.transaction(function (t) {
         return models.riderequests.findOne({
-            where : {user_id: token, status: 4}  
+            where : {id : body.ride_id, user_id: token, status: 4}  
         }, {transaction: t}).then( (ride) => {
             if(ride){
               return models.riderequests.update(
-                    { status: 777 },
-                    { where: { user_id: token, status: 4} } ,
+                    { status: 444 },
+                    { where: {id : body.ride_id, user_id: token, status: 4} } ,
                     {transaction: t}
                   ).then(result => {
                      if(result){
@@ -854,7 +854,7 @@ app.post('/ride/check_ride_driver', (req, res) => {
     //I WORSHIP YOU JESUS YOU ARE GOOD GOOD FATHER 
     const Op = Sequelize.Op;
     models.riderequests.findOne({ 
-        where : {driver_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 7777}, {[Op.ne]: 222}, {[Op.ne]: 444}]}},
+        where : {driver_id: token, status: {[Op.and] : [{[Op.ne]: 777}, {[Op.ne]: 7777}, {[Op.ne]: 222}, {[Op.ne]: 4}, {[Op.ne]: 444}]}},
         order : [
             ['id', 'DESC']
         ],
