@@ -220,7 +220,7 @@ class DriverLocation extends Component {
         var radius = e.accuracy / 1024;
         radius = radius.toFixed(2);
         L.marker(e.latlng, {icon: currentLocationIcon}).addTo(locationGroup)
-        .bindPopup("You are " + radius + " meters from this point").openPopup();
+        .bindPopup("You are here");
         
         L.circle(e.latlng, radius).addTo(locationGroup);
         map.setView(e.latlng,17);
@@ -242,7 +242,7 @@ class DriverLocation extends Component {
    driverCurrentLocation = () => {
     let PromiseLocateDriver = new Promise((resolve, reject)=>{
             var map = this.state.map;
-            map.locate();
+            map.locate({setView: false, maxZoom: 15});
             resolve(true); 
     });
 
@@ -511,7 +511,7 @@ class DriverLocation extends Component {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
         L.marker(_pickup_latlng, {icon: pickUpIcon}).addTo(markerGroup)
-        .bindPopup("Pick passenger here.").openPopup();
+        .bindPopup("Pick passenger here.");
         map.setView(_pickup_latlng,15);
         this.showPickUpRoute(_driver_latlang, _pickup_latlng);
     }
@@ -563,7 +563,7 @@ class DriverLocation extends Component {
             L.marker(latlng1, {icon: pickUpIcon}).addTo(markerGroup)
             .bindPopup("Pickup location.").openPopup();
             L.marker(latlng2, {icon: dropOffIcon}).addTo(markerGroup)
-            .bindPopup("Final dropoff location.").openPopup();
+            .bindPopup("Final dropoff location.");
             map.setView(latlng2,15);
             
             this.showDropOffRoute(latlng1,latlng2);

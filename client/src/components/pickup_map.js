@@ -19,7 +19,7 @@ var yourLocation = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
     shadowUrl: '',
 
-    iconSize:     [40, 40], // size of the icon
+    iconSize:     [35, 35], // size of the icon
     shadowSize:   [50, 64], // size of the shadow
     iconAnchor:   [12, 50], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
@@ -134,7 +134,7 @@ class PickUpMap extends Component {
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
                 this.getDrivers();
                 var map = this.state.map;
-                map.locate({setView: true, maxZoom: 17});
+                map.locate({setView: false, maxZoom: 15});
                 resolve(true);
         });
 
@@ -239,9 +239,9 @@ class PickUpMap extends Component {
 
     componentDidMount(){
         this.getUser(sessionStorage.getItem("_auth_user"));
-        //var map = L.map('mapid').setView([9.0092, 38.7645], 16);
-        var map = L.map('mapid');
-        map.locate({setView: true, maxZoom: 17});
+        var map = L.map('mapid').setView([9.0092, 38.7645], 16);
+        //var map = L.map('mapid');
+        map.locate({setView: true, maxZoom: 15});
         
         this.setState({map : map});
 
@@ -258,16 +258,18 @@ class PickUpMap extends Component {
         this.getDrivers(map);
 
         map.on('locationfound', (e) => {
+            
             var locationGroup = this.state.locationGroup;
             locationGroup.clearLayers();
             this.setState({current_latlng : e.latlng});
               var radius = e.accuracy / 1024;
               radius = radius.toFixed(2);
-            //   L.marker(e.latlng, {icon: yourLocation}).addTo(locationGroup)
-            //   .bindPopup("You are " + radius + " meters from this point").openPopup();
-                
+            L.marker(e.latlng, {icon: yourLocation}).addTo(locationGroup)
+            .bindPopup("You are here.");
+            //.bindPopup("You are " + radius + " meters from this point").openPopup();
+
               L.circle(e.latlng, radius).addTo(locationGroup);
-              map.setView(e.latlng,15);
+             // map.setView(e.latlng,15);
               this.setState({currentLatLng : e.latlng});
         });
         
