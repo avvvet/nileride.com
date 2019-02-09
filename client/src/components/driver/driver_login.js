@@ -43,11 +43,14 @@ class DriverLoginForm extends Component {
 
     onDriverLogin = (e) => {
         e.preventDefault();
+        $('.btn_login').addClass("loading");
         const err = this.validateDriverLogin();
         if(err.length > 0){
+            $('.btn_login').removeClass("loading");
             let error_list = this.getErrorList(err);
             render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
+            $('.btn_login').removeClass("loading");
             var login = {
                 email: this.state.loginEmail,
                 password: this.state.loginPassword
@@ -63,21 +66,21 @@ class DriverLoginForm extends Component {
     }
 
   driverLogin = (login) => {
-      console.log('test', login);
+       $('.btn_login').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/driver/login",
             data: JSON.stringify(login), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-            // localStorage.setItem("_auth_driver", data.token);
+             $('.btn_login').removeClass("loading");
              sessionStorage.setItem("_auth_driver", data.token);
              this.setState({
                 auth: data.token
              });   
             }.bind(this),
             error: function(xhr, status, err) {
-                console.log('errrrr',err.toString());
+                $('.btn_login').removeClass("loading");
                 if(err.toString() === 'Unauthorized'){
                   render(<Message negative > Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
                 } else {
@@ -128,7 +131,7 @@ class DriverLoginForm extends Component {
 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                     <Button color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
+                     <Button className="btn_login" color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
                     </Grid.Column> 
                 </Grid.Row>
 

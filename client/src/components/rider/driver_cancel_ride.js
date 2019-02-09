@@ -61,14 +61,14 @@ class DriverCancelRide extends Component {
                     </p>
 
                     <p>
-                        <Grid columns={1}>
+                        <Grid container columns={1}>
                             <Grid.Row>
-                                <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center"> 
+                                <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
                                     <Button color="green" onClick={(e) => this._driver_cancel_ride_ok(e)} fluid>OK</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>
-                                <Grid.Column xs={18} sm={18} md={18}>
+                                <Grid.Column xs={16} sm={16} md={16}>
                                     <div className="div-error" id="driver-busy-error"></div>
                                 </Grid.Column>
                             </Grid.Row>

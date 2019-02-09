@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const models = require('../models');
 var _ = require('lodash');
-
+const env = require('../../env');
 
 
 const ride_control_auto = async () => {
@@ -12,7 +12,7 @@ const ride_control_auto = async () => {
         return models.riderequests.findAll(
             { 
                 where: [sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('SECOND'), sequelize.col('createdAt'), sequelize.fn("now")), {
-                    [Op.gt] : 10
+                    [Op.gt] : env.MISSED_RIDE_DURATION
                 }), {status : 1}], 
                 transaction: t ,
                 raw : true

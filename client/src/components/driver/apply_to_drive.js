@@ -137,13 +137,14 @@ class ApplyToDrive extends Component {
     }
 
     driverApply = (driver) => {
+        $('.btn_apply').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/driver/apply",
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-              //localStorage.setItem("_auth_driver", data.token);
+              $('.btn_apply').removeClass("loading");
               sessionStorage.setItem("_auth_driver", data.token);
               this.setState({
                   auth: data.token
@@ -155,6 +156,7 @@ class ApplyToDrive extends Component {
               
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_apply').removeClass("loading");
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -278,7 +280,7 @@ class ApplyToDrive extends Component {
 
                 <Grid.Row>
                     <Grid.Column>
-                    <Button color='olive' size='huge' onClick={e => this.onDriverApply(e)}  fluid >APPLY TO DRIVE</Button>
+                    <Button className="btn_apply" color='olive' size='huge' onClick={e => this.onDriverApply(e)}  fluid >APPLY TO DRIVE</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>

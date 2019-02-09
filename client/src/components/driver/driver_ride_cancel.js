@@ -52,6 +52,8 @@ class DriverRideCancel extends Component {
     }
 
     submit_reason = (data,e) => {
+        e.preventDefault(); 
+        $('.btn_reason_submit').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/driver/ride/cancel",
@@ -59,6 +61,7 @@ class DriverRideCancel extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+               $('.btn_reason_submit').removeClass("loading");
                if(data.length > 0){
                  if(data[0] === 1) {
                     this.props.rideCompletedAction();
@@ -68,6 +71,7 @@ class DriverRideCancel extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_reason_submit').removeClass("loading");
                 render(<div className="div-error">connection error, try again</div>,document.getElementById('div-error-reason'));
             }.bind(this)
         });  
@@ -81,6 +85,7 @@ class DriverRideCancel extends Component {
     }
 
     _no = (e) => {
+        $('.btn_ride_cancel').removeClass("disabled");
         document.getElementById('div-notification-1').style.visibility="hidden";
         render('',document.getElementById('div-notification-1'));
     }
@@ -116,7 +121,7 @@ class DriverRideCancel extends Component {
 
                                <Grid.Row className="row_xs">
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
-                                    <Button color="green" onClick={(e) => this._onsubmit(e)} fluid>SUBMIT</Button>
+                                    <Button className="btn_reason_submit" color="green" onClick={(e) => this._onsubmit(e)} fluid>SUBMIT</Button>
                                     </Grid.Column>
                                </Grid.Row>
 

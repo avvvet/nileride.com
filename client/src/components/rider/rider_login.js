@@ -43,11 +43,14 @@ class RiderLoginForm extends Component {
 
     onRiderLogin = (e) => {
         e.preventDefault();
+        $('.btn_login').addClass("loading");
         const err = this.validateRiderLogin();
         if(err.length > 0){
+            $('.btn_login').removeClass("loading");
             let error_list = this.getErrorList(err);
             render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
         } else {
+            $('.btn_login').removeClass("loading");
             var login = {
                 email: this.state.loginEmail,
                 password: this.state.loginPassword
@@ -63,19 +66,22 @@ class RiderLoginForm extends Component {
     }
 
     riderLogin = (login) => {
+        $('.btn_login').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/user/login",
             data: JSON.stringify(login), 
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
-             console.log('this user login', user);
+             $('.btn_login').removeClass("loading");
+             
              sessionStorage.setItem("_auth_user", user.token);
              this.setState({
                 auth: user.token
              });   
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_login').removeClass("loading");
                 if(err.toString() === 'Unauthorized'){
                   render(<Message negative> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
                 } else {
@@ -126,7 +132,7 @@ class RiderLoginForm extends Component {
 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                    <Button color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>
+                    <Button className="btn_login" color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>

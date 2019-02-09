@@ -27,6 +27,9 @@ class DriverBusy extends Component {
     }
 
     _driver_busy_ok = (e) => {
+        e.preventDefault(); 
+        $('.btn_busy_ok').addClass("loading");
+
         var data = {};
         $.ajax({ 
             type:"POST",
@@ -35,12 +38,13 @@ class DriverBusy extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+                $('.btn_busy_ok').removeClass("loading");
                 this.props.resetRide();
                 render('',document.getElementById('div-notification-1'));
                 document.getElementById('div-notification-1').style.visibility="hidden";
             }.bind(this),
             error: function(xhr, status, err) {
-                
+                $('.btn_busy_ok').removeClass("loading"); 
             }.bind(this)
         });  
     }
@@ -57,14 +61,14 @@ class DriverBusy extends Component {
                     </p>
 
                     <p>
-                        <Grid columns={1}>
+                        <Grid container columns={1}>
                             <Grid.Row>
-                                <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center"> 
-                                    <Button color="green" onClick={(e) => this._driver_busy_ok(e)} >OK</Button>
+                                <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
+                                    <Button className="btn_busy_ok" color="green" onClick={(e) => this._driver_busy_ok(e)} fluid >OK</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>
-                                <Grid.Column xs={18} sm={18} md={18}>
+                                <Grid.Column mobile={16} tablet={16} computer={16}>
                                     <div className="div-error" id="driver-busy-error"></div>
                                 </Grid.Column>
                             </Grid.Row>

@@ -10,6 +10,7 @@ const env = {
   //NODE_ENV:'development',
   NODE_ENV:'production',
   EMAIL_CC_A: 'avvvet@gmail.com',
-  EMAIL_CC_B: 'natimancloud@gmail.com'
+  EMAIL_CC_B: 'natimancloud@gmail.com',
+  MISSED_RIDE_DURATION: 20,
 };
 module.exports = env;

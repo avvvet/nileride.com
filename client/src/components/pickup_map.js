@@ -564,41 +564,46 @@ class PickUpMap extends Component {
         .addTo(map);  
     }
 
-    rideRequest = (latlng) => {
-        
-            var user_token = sessionStorage.getItem("_auth_user");
-            var objRideRequest = {
-                user_id: user_token,
-                driver_id: this.state._nearest_driver_token,
-                pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
-                dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
-                route_distance: this.state.route_distance,
-                route_time: this.state.route_time,
-                route_price: this.state.route_price,
-                status: 1
-            };
-    
-            $.ajax({ 
-                type:"POST",
-                url:"/ride/rideRequest",
-                headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
-                data: JSON.stringify(objRideRequest), 
-                contentType: "application/json",
-                success: function(ride, textStatus, jqXHR) {
-                    console.log('repy of request ', ride);
-                    if(!_.isNull(ride)) {
-                        console.log('yes yes yes ');
-                        this.rideRequestAction(ride);
-                    }
-                }.bind(this),
-                error: function(xhr, status, err) {
-                    // if(xhr.status === 401){
-                    //    this.setState({_signInFlag:true});
-                    // }
-                    console.log('ride request reply error', xhr.status);
-                    console.error(xhr, status, err.toString());
-                }.bind(this)
-            });  
+    rideRequest = (e) => {
+        e.preventDefault(); 
+        //e.target.disabled = true;
+        $('.btn').addClass("disabled");
+
+        var user_token = sessionStorage.getItem("_auth_user");
+        var objRideRequest = {
+            user_id: user_token,
+            driver_id: this.state._nearest_driver_token,
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
+            route_distance: this.state.route_distance,
+            route_time: this.state.route_time,
+            route_price: this.state.route_price,
+            status: 1
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/rideRequest",
+            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(ride, e) {
+                $('.btn').removeClass("disabled");
+                console.log('repy of request ', ride);
+                if(!_.isNull(ride)) {
+                    console.log('yes yes yes ');
+                    this.rideRequestAction(ride);
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                e.target.disabled = false;
+                // if(xhr.status === 401){
+                //    this.setState({_signInFlag:true});
+                // }
+                console.log('ride request reply error', xhr.status);
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
     }
 
     chkTimerRideStatus = () => {
@@ -677,10 +682,9 @@ class PickUpMap extends Component {
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
-                        //this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
-                        //show route from driver to pickup only one time 
+
                         if(this.state.dropoff_eta_flag === false){
-                            this._dropoff_eta(this.state.dropoff_latlng, this.state._driverCurrentLocation)
+                            this._dropoff_eta(this.state.pickup_latlng, this.state.dropoff_latlng)
                         }
                     });
 
@@ -793,6 +797,13 @@ class PickUpMap extends Component {
 
      _dropoff_eta = (latlng1, latlng2) => {
         var map = this.state.map;
+        var markerGroup = this.state.markerGroup;
+        markerGroup.clearLayers();  
+        L.marker(latlng1, {icon: marker_a}).addTo(markerGroup)
+        .bindPopup("Pickup location.");
+        L.marker(latlng2, {icon: marker_b}).addTo(markerGroup)
+        .bindPopup("Final dropoff location.");
+
         if(this.routeControl){
             map.removeControl(this.routeControl);
             this.routeControl = null;
@@ -995,6 +1006,7 @@ class PickUpMap extends Component {
     }
 
     varify = (data) => {
+        $('.btn_mobile_varify').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/user/mobile_verification",
@@ -1002,6 +1014,7 @@ class PickUpMap extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+                $('.btn_mobile_varify').removeClass("loading");
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
@@ -1009,6 +1022,7 @@ class PickUpMap extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_mobile_varify').removeClass("loading");
                 render(<Message bsStyle="danger" >Verification faild !</Message>,document.getElementById('FormError'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
@@ -1016,6 +1030,7 @@ class PickUpMap extends Component {
     }
 
     uploadProfile = (e) => {
+        $('.btn_upload').addClass("loading");
         const formData = new FormData();
         formData.append('myImage',this.state.file);
         console.log('dataaa', formData, this.state.file);
@@ -1028,6 +1043,7 @@ class PickUpMap extends Component {
             contentType: false,
             processData: false,
             success: function(data, textStatus, jqXHR) {
+              $('.btn_upload').removeClass("loading");
               if(data.length > 0) {
                 if(data[0] === 1) {
                    document.getElementById('div-profile').style.visibility = 'hidden';
@@ -1040,6 +1056,7 @@ class PickUpMap extends Component {
               }
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_upload').removeClass("loading");
                 e.target.disabled = false;
                 render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
@@ -1066,11 +1083,11 @@ class PickUpMap extends Component {
                         <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider!'}</Card.Header>
                         <Card.Meta>
                         {this.state.isLogedIn === true ?
-                          <Label as={NavLink} to="/user/login" basic pointing color="green">
+                          <Label as={NavLink} to="/" basic pointing color="green">
                             LOGOUT
                           </Label>  
                         :
-                          <Label as={NavLink} to="/user/login" basic pointing color="blue">
+                          <Label as={NavLink} to="/" basic pointing color="blue">
                             LOGIN
                           </Label>
                         }
@@ -1113,7 +1130,7 @@ class PickUpMap extends Component {
                                       </Grid.Column>
 
                                       <Grid.Column mobile={8} tablet={8} computer={8}> 
-                                         <Button color='teal' size='large' onClick={e => this.onVarify(e)} >VARIFY</Button>
+                                         <Button className="btn_mobile_varify" color='teal' size='large' onClick={e => this.onVarify(e)} >VARIFY</Button>
                                        </Grid.Column>
                                        <div className="FormError" id="FormError"></div>
                                    </Grid.Row>
@@ -1160,7 +1177,7 @@ class PickUpMap extends Component {
 
                     <Grid.Row>
                         <Grid.Column>
-                            <Button fluid color="teal" onClick={(e) => this.onProfileUpload(e)}  disabled={false}>Upload Image</Button>
+                            <Button className="btn_upload" fluid color="teal" onClick={(e) => this.onProfileUpload(e)}>Upload Image</Button>
                         </Grid.Column>
                     </Grid.Row>
 
@@ -1199,7 +1216,7 @@ class PickUpMap extends Component {
                     </Card.Content>
                     <Card.Content extra>
                      <div className='ui two buttons'>
-                        <Button color='green' onClick={(e) => this.rideRequest(this.state.pickup_latlng, e)}>
+                        <Button className="btn" color='green' onClick={(e) => this.rideRequest(e)}>
                             REQUEST 
                         </Button>
                         <Button basic color='red' onClick={(e) => this.cancelRide(e)}>

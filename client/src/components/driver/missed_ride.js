@@ -26,6 +26,7 @@ class MissedRide extends Component {
     }
 
     confirm_missed_ride = (e) => {
+        $('.btn_confirm_missed').addClass("loading");
         let data = {};
         e.target.disabled = true;
         $.ajax({ 
@@ -35,6 +36,7 @@ class MissedRide extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: (_ride) => {
+                $('.btn_confirm_missed').removeClass("loading");
                 if(_ride[0] === 1){
                     document.getElementById('missed-ride').style.visibility="hidden"; 
                     render('',document.getElementById('missed-ride'));
@@ -43,6 +45,7 @@ class MissedRide extends Component {
                 }
             },
             error: function(xhr, status, err) {
+                $('.btn_confirm_missed').removeClass("loading");
                 render('error, try again',document.getElementById('missed-confirm-error'));
             }.bind(this)
         });  
@@ -64,13 +67,10 @@ class MissedRide extends Component {
                        <h3>Are you ready to work now ?</h3>
                     </p>
                     <p>
-                        <Grid columns={2}>
+                        <Grid container columns={2}>
                             <Grid.Row>
-                                <Grid.Column mobile={8} tablet={8} computer={8}> 
-                                    <Button color="green" onClick={(e) => this.confirm_missed_ride(e)} fluid>YES</Button>
-                                </Grid.Column>
-                                <Grid.Column mobile={8} tablet={8} computer={8}> 
-                                    <Button color="grey" onClick={(e) => this.onVarify(e)} fluid>NO</Button>
+                                <Grid.Column mobile={16} tablet={16} computer={16}> 
+                                    <Button className="btn_confirm_missed" color="green" onClick={(e) => this.confirm_missed_ride(e)} fluid>YES</Button>
                                 </Grid.Column>
                             </Grid.Row>
 

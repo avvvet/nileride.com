@@ -47,6 +47,8 @@ class Rate extends Component {
     }
 
     _rating = (e) => {
+        e.preventDefault(); 
+        $('.btn_rating').addClass("loading");
         var data = {
             ride_id : this.state._ride_id,
             driver_id : this.state._driver_id,
@@ -59,12 +61,13 @@ class Rate extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+                $('.btn_rating').removeClass("loading");
                 this.props.resetRide();
                 render('',document.getElementById('div-notification-1'));
                 document.getElementById('div-notification-1').style.visibility="hidden";
             }.bind(this),
             error: function(xhr, status, err) {
-                
+                e.target.disabled = false;
             }.bind(this)
         });  
     }
@@ -100,7 +103,7 @@ class Rate extends Component {
                             </Grid.Row>
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button color="green" onClick={(e) => this._on_rating(e)} fluid>SEND</Button>
+                                    <Button className="btn_rating" color="green" onClick={(e) => this._on_rating(e)} fluid>COMMENT</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

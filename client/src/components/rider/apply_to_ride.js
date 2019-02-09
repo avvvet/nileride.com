@@ -131,23 +131,21 @@ class ApplyToRide extends Component {
     }
 
     riderApply = (rider) => {
+        $('.btn_apply').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/user/apply",
             data: JSON.stringify(rider), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+              $('.btn_apply').removeClass("loading");
               sessionStorage.setItem("_auth_user", data.token);
               this.setState({
                   auth: data.token
               });  
-              
-              console.log('token', data.token);
-              //render(<Message bsStyle="success" onDismiss={this.handleDismiss}><h4>{data.firstName}, You have successfully applied to drive. </h4> <br /> Please check your email to activate your driving account. <br /> after checking your email , login to your account using your email address, <h6>{data.email}</h6></Message>,document.getElementById('FormError'));
-              console.log("rider applied success", data);
-              
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_apply').removeClass("loading");
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -269,7 +267,7 @@ class ApplyToRide extends Component {
 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                    <Button color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >NEW PASSENGER</Button>
+                    <Button className="btn_apply" color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >NEW PASSENGER</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>

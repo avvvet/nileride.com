@@ -24,6 +24,26 @@ const sound = new Howl({
     loop: true,
     volume: 0.0
 });
+var marker_a = L.icon({
+    iconUrl: '/assets/marker_a.png',
+    shadowUrl: '',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [20, 39], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
+});
+var marker_b = L.icon({
+    iconUrl: '/assets/marker_b.png',
+    shadowUrl: '',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [20, 39], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
+});
 var pickUpIcon = L.icon({
     iconUrl: '/assets/awet-rider-m.png',
     shadowUrl: '',
@@ -397,8 +417,9 @@ class DriverLocation extends Component {
             clearInterval(this.timerUserLocation);  //stop locating while accepting the request
     }
 
-    acceptRide = () => {
-        console.log('accept called');
+    acceptRide = (e) => {
+        e.preventDefault(); 
+        $('.btn_accept_ride').addClass("loading");
         var driver = {
             status : 7
         };
@@ -410,12 +431,14 @@ class DriverLocation extends Component {
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
                 //alert('Jesus');
+                $('.btn_accept_ride').removeClass("loading");
                 console.log('jsesu', ride);
                 if(ride){
                    this.acceptRideAction(ride);
                 }  
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_accept_ride').removeClass("loading");
                 console.error('accept test case error', err.toString());
             }.bind(this)
         });  
@@ -452,7 +475,9 @@ class DriverLocation extends Component {
         });
     }
 
-    rideCompleted = () => {
+    rideCompleted = (e) => {
+        e.preventDefault(); 
+        $('.btn_ride_completed').addClass("loading");
         var driver = {
             status : 777
         };
@@ -463,12 +488,13 @@ class DriverLocation extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
-                console.log('payment returned', _ride);
+                $('.btn_ride_completed').removeClass("loading");
                 if(_ride){
                     this.rideCompletedAction(_ride);
                 }  
             },
             error: function(xhr, status, err) {
+                e.target.disabled = true;
                 console.error('ride completed error', err.toString());
             }.bind(this)
         });  
@@ -501,7 +527,9 @@ class DriverLocation extends Component {
         });
     }
 
-    paxFound = () => {
+    paxFound = (e) => {
+        e.preventDefault(); 
+        $('.btn_pax_found').addClass("loading");
         var driver = {
             status : 77
         };
@@ -512,11 +540,13 @@ class DriverLocation extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
+                $('.btn_pax_found').removeClass("loading");
                 if(_ride){
                     this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
                 }  
             },
             error: function(xhr, status, err) {
+                $('.btn_pax_found').removeClass("loading");
                 console.error('ride completed error', err.toString());
             }.bind(this)
         });  
@@ -526,7 +556,7 @@ class DriverLocation extends Component {
     showPickUpLocation = (_pickup_latlng, _driver_latlang) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
-        L.marker(_pickup_latlng, {icon: pickUpIcon}).addTo(markerGroup)
+        L.marker(_pickup_latlng, {icon: marker_a}).addTo(markerGroup)
         .bindPopup("Pick passenger here.");
        // map.setView(_pickup_latlng,15);
         this.showPickUpRoute(_driver_latlang, _pickup_latlng);
@@ -578,20 +608,22 @@ class DriverLocation extends Component {
             
             var map = this.state.map;
             var markerGroup = this.state.markerGroup;
-            // L.marker(latlng1, {icon: pickUpIcon}).addTo(markerGroup)
-            // .bindPopup("Pickup location.").openPopup();
-            // L.marker(latlng2, {icon: dropOffIcon}).addTo(markerGroup)
-            // .bindPopup("Final dropoff location.");
-            // //map.setView(latlng2,15);
+            L.marker(latlng1, {icon: marker_a}).addTo(markerGroup)
+            .bindPopup("Pickup location.");
+            L.marker(latlng2, {icon: marker_b}).addTo(markerGroup)
+            .bindPopup("Final dropoff location.");
+            //map.setView(latlng2,15);
             
             this.showDropOffRoute(latlng1,latlng2);
         });
     }
 
     showDropOffRoute = (latlng1, latlng2) => {
-        alert(11);
         var map = this.state.map;
-        map.removeControl(this.routeControl);
+        if(this.routeControl){
+            map.removeControl(this.routeControl);
+            this.routeControl = null;
+        }
         this.routeControl = L.Routing.control({
             waypoints: [
              L.latLng(latlng1),
@@ -600,17 +632,25 @@ class DriverLocation extends Component {
             routeWhileDragging: false,
             addWaypoints : false, //disable adding new waypoints to the existing path
             show: false,
+            showAlternatives: false,
             createMarker: function (){
                 return null;
+            },
+            lineOptions: {
+                styles: [{color: 'red', opacity: 1, weight: 3}]
             },
             router: L.Routing.osrmv1({
                 serviceUrl: env.ROUTING_SERVICE
             })
         })
-        .on('routesfound', (route)=>{
-            alert(1);
+        .on('routesfound', (route) => {
+           console.log(route);
+        })
+        .on('routingerror', (err) => {
+            console.log(err.error.status);
         })
         .addTo(map);  
+        
     }
 
     timeConvert = (n) => {
@@ -681,6 +721,7 @@ class DriverLocation extends Component {
 
     onVarify = (e) => {
         e.preventDefault();
+      
         const err = this.validateVarification();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
@@ -698,6 +739,7 @@ class DriverLocation extends Component {
     }
 
     varify = (data) => {
+        $('.btn_mobile_varify').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/driver/mobile_verification",
@@ -705,6 +747,7 @@ class DriverLocation extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+               $('.btn_mobile_varify').removeClass("loading");
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
@@ -712,6 +755,7 @@ class DriverLocation extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_mobile_varify').removeClass("loading");
                 render(<Message negative>Verification faild !</Message>,document.getElementById('FormError'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
@@ -744,6 +788,7 @@ class DriverLocation extends Component {
     }
 
     validateCarRegister = (data) => {
+        $('.btn_car_register').addClass("loading");
         $.ajax({ 
             type:"POST",
             url:"/car/register",
@@ -751,6 +796,7 @@ class DriverLocation extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+                $('.btn_car_register').removeClass("loading");
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('register-car'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
@@ -758,6 +804,7 @@ class DriverLocation extends Component {
                } 
             }.bind(this),
             error: function(xhr, status, err) {
+                $('.btn_car_register').removeClass("loading");
                 render(<Message negative >Car registration faild !</Message>,document.getElementById('err_car_register'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
@@ -805,7 +852,6 @@ class DriverLocation extends Component {
     }
 
     onProfileUpload = (e) => {
-        e.target.disabled = true;
         e.preventDefault();
         const err = this.validateProfile();
         if(err.length > 0){
@@ -823,6 +869,7 @@ class DriverLocation extends Component {
     }
 
     uploadProfile = (e) => {
+        $('.btn_upload').addClass("loading");
         const formData = new FormData();
         formData.append('myImage',this.state.file);
         console.log('dataaa', formData, this.state.file);
@@ -835,24 +882,26 @@ class DriverLocation extends Component {
             contentType: false,
             processData: false,
             success: function(data, textStatus, jqXHR) {
+              $('.btn_upload').removeClass("loading");
               if(data.length > 0) {
                 if(data[0] === 1) {
                    document.getElementById('div-profile').style.visibility = 'hidden';
                    this.getDriver(sessionStorage.getItem("_auth_driver"));
                 } else {
-                    e.target.disabled = false;
                     render(<Message bsStyle="danger" >Not updated. Try again !</Message>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
-                e.target.disabled = false;
+                $('.btn_upload').removeClass("loading");
                 render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
 
     cancelRide = (e) => {
+        e.preventDefault(); 
+        $('.btn_ride_cancel').addClass("disabled");
         document.getElementById('div-notification-1').style.visibility="visible";
         render(<DriverRideCancel ride_id={this.state.ride_id} rideCompletedAction={this.rideCompletedAction}></DriverRideCancel>,document.getElementById('div-notification-1'));
     }
@@ -891,11 +940,11 @@ class DriverLocation extends Component {
                         <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}</Card.Header>
                         <Card.Meta>
                             {this.state.isLogedIn === true ?
-                                <Label as={NavLink} to="/driver/login" basic pointing color="green">
+                                <Label as={NavLink} to="/" basic pointing color="green">
                                 LOGOUT
                                 </Label>  
                             :
-                                <Label as={NavLink} to="/driver/login" basic pointing color="blue">
+                                <Label as={NavLink} to="/" basic pointing color="blue">
                                 LOGIN
                                 </Label>
                             }
@@ -973,7 +1022,7 @@ class DriverLocation extends Component {
 
                                    <Grid.Row>
                                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                                        <Button color="green" onClick={(e) => this.onValidateCarRegister(e)} fluid>REGISTER</Button>
+                                        <Button className="btn_car_register" color="green" onClick={(e) => this.onValidateCarRegister(e)} fluid>REGISTER</Button>
                                         </Grid.Column>
                                    </Grid.Row>
 
@@ -1016,7 +1065,7 @@ class DriverLocation extends Component {
                                      </Grid.Column>
 
                                      <Grid.Column mobile={8} tablet={8} computer={8}> 
-                                       <Button color="green" onClick={(e) => this.onVarify(e)} fluid>VARIFY</Button>
+                                       <Button className="btn_mobile_varify" color="green" onClick={(e) => this.onVarify(e)} fluid>VARIFY</Button>
                                      </Grid.Column>
                                      
                                    </Grid.Row>
@@ -1067,7 +1116,7 @@ class DriverLocation extends Component {
                                            
                                         <Grid.Row>
                                             <Grid.Column mobile={16} tablet={16} computer={16}>
-                                            <Button color="green" onClick={(e) => this.onProfileUpload(e)}  disabled={false} fluid>Upload Image</Button>
+                                            <Button className="btn_upload" color="green" onClick={(e) => this.onProfileUpload(e)}  fluid>Upload Image</Button>
                                             </Grid.Column>
                                         </Grid.Row>
 
@@ -1085,7 +1134,7 @@ class DriverLocation extends Component {
                 <div id="missed-ride" className="missed-ride"></div>
 
                 <div className="check-ride-dashboard shake-ride-request" id="check-ride-dashboard"> 
-                <Grid columns={4} centered>
+                <Grid container columns={4} centered>
                     <Grid.Row>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
                           <Image src={this.state.userPic} height={40} circular></Image>
@@ -1101,9 +1150,9 @@ class DriverLocation extends Component {
                         </Grid.Column>
                     </Grid.Row>
                     
-                    <Grid.Row>
+                    <Grid.Row className="row_xs">
                       <Grid.Column mobile={16} tablet={16} computer={16}>
-                       <Button size="huge" color="green" onClick={(e) => this.acceptRide()}  bsSize="large" fluid>ACCEPT RIDE</Button>
+                       <Button className="btn_accept_ride" size="huge" color="green" onClick={(e) => this.acceptRide(e)}  bsSize="large" fluid>ACCEPT RIDE</Button>
                       </Grid.Column>
                     </Grid.Row>
                 </Grid>
@@ -1136,12 +1185,12 @@ class DriverLocation extends Component {
                     
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button  size="medium" color="green" onClick={(e) => this.paxFound()}  fluid>I FOUND THE PASSENGER</Button>
+                          <Button className="btn_pax_found" size="medium" color="green" onClick={(e) => this.paxFound(e)}  fluid>I FOUND THE PASSENGER</Button>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button size="mini" color="red" onClick={(e) => this.cancelRide()} fluid>CANCEL RIDE</Button>
+                          <Button className="btn_ride_cancel" size="mini" color="red" onClick={(e) => this.cancelRide(e)} fluid>CANCEL RIDE</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>
@@ -1174,7 +1223,7 @@ class DriverLocation extends Component {
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button color="orange" size="medium"  onClick={(e) => this.rideCompleted()} fluid>RIDE COMPLETED</Button>
+                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompleted(e)} fluid>RIDE COMPLETED</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>  
