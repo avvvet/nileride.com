@@ -62,6 +62,8 @@ class PickUpMap extends Component {
             pickup_flag: 'off',
             dropoff_flag: 'off',
             pickup_location : 'Select your pickup location',
+            pickup_eta_flag : false,
+            dropoff_eta_flag : false,
             pickup_latlng : {
                 lat: 0,
                 lng: 0
@@ -118,15 +120,17 @@ class PickUpMap extends Component {
             rideCompleteFlag: false,
             _nearest_driver_token : '',
             _nearest_driver_distance : 0,
-            _nearest_driver_eta : 0 ,
+            _nearest_driver_eta : '0 min' ,
             _nearest_driver_available : false,
             _nearest_driver_latlng : {
                 lat: 0,
                 lng:0
             },
+            count_driver : 0,
             _signInFlag : false,
             _fire_driver_eta_flag : false,
-            errors: []
+            errors: [],
+            init_map_click : false
         }
     }
 
@@ -134,7 +138,7 @@ class PickUpMap extends Component {
         let PromiseLocateDriver = new Promise((resolve, reject)=>{
                 this.getDrivers();
                 var map = this.state.map;
-                map.locate({setView: false, maxZoom: 15});
+                map.locate({setView: false, maxZoom: 16});
                 resolve(true);
         });
 
@@ -189,15 +193,16 @@ class PickUpMap extends Component {
             success: function(currentDrivers, textStatus, jqXHR) {
                 var carMarkerGroup = this.state.carMarkerGroup;
                 carMarkerGroup.clearLayers();  //lets clear and update it 
+                var count_driver = 0;
                 if(currentDrivers){
-                    
+                    count_driver = currentDrivers.length;
                     for (var i = 0; i < currentDrivers.length; i++) {
                         L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
                         .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
                         .addTo(carMarkerGroup);
                     }
                 }
- 
+
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log('getdrivers error', err.toString());
@@ -225,6 +230,7 @@ class PickUpMap extends Component {
                       _nearest_driver_latlng : driver[0].currentLocation.coordinates,
                       _nearest_driver_available : true
                   })
+                  this.nearest_driver_eta(pickup_latlng, driver[0].currentLocation.coordinates);
                 } else {
                   this.setState({
                     _nearest_driver_available : false
@@ -241,7 +247,7 @@ class PickUpMap extends Component {
         this.getUser(sessionStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         //var map = L.map('mapid');
-        map.locate({setView: true, maxZoom: 15});
+        map.locate({setView: true, maxZoom: 17});
         
         this.setState({map : map});
 
@@ -271,6 +277,7 @@ class PickUpMap extends Component {
               L.circle(e.latlng, radius).addTo(locationGroup);
              // map.setView(e.latlng,15);
               this.setState({currentLatLng : e.latlng});
+              
         });
         
         function onLocationError(e) {
@@ -303,13 +310,9 @@ class PickUpMap extends Component {
             if(this.state.dropoff_flag === 'on' && this.state.pickup_flag ==='on' & this.state.isRouteFound === false) {
                 var latlng1 = this.state.pickup_latlng;
                 var latlng2 = this.state.dropoff_latlng;
-                document.getElementById('div-intro').style.visibility = "hidden"
                 this.findRoute(latlng1, latlng2);
             }
-             
-            if(this.state.pickup_flag ==='on') {  //ready nearest driver
-                clearInterval(this.timerUserLocation);  //user start selecting location stop current location change
-            }
+            
         }); 
         
         this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
@@ -422,7 +425,7 @@ class PickUpMap extends Component {
        this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
     }
 
-    nearestDriverRouteInfo = (user_pickup_latlng, nearest_driver_latlng) => {
+    nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
         console.log('neareest data ', nearest_driver_latlng, user_pickup_latlng);
         var map = this.state.map;
         if(this._neearest_driver_routeControl){
@@ -446,16 +449,14 @@ class PickUpMap extends Component {
             })
         })
         .on('routesfound', (e)=> {
+            console.log('route', e);
             var routes = e.routes;
             var _distance = routes[0].summary.totalDistance;
             var _ride_time = routes[0].summary.totalTime;
             
             _distance = (_distance/1000).toFixed(2);
             var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-            this.setState({
-                _nearest_driver_eta : _ride_time_string 
-            });
-           
+           console.log('time', _ride_time_string);
             function timeConvert(n) {
                 var num = n;
                 var hours = (num / 3600);
@@ -472,6 +473,22 @@ class PickUpMap extends Component {
                 map.removeControl(this._neearest_driver_routeControl);
                 this._neearest_driver_routeControl = null;
             }
+            
+               document.getElementById('div-eta').style.visibility='visible';
+                render(
+                    <div>
+                      <Card>
+                      <Card.Content>
+                        <Card.Header>Driver</Card.Header>
+                        <Card.Meta><h5>{_ride_time_string}</h5></Card.Meta>
+                        <Card.Meta>away</Card.Meta>
+                      </Card.Content>
+                      </Card>                   
+                    </div>
+                  ,document.getElementById('div-eta')
+                  );
+           
+            
         })
         .on('routingerror', (err) => {
             console.log(err.error.status);
@@ -631,13 +648,14 @@ class PickUpMap extends Component {
                             pickup_latlng : ride.pickup_latlng.coordinates,
                             dropoff_latlng : ride.dropoff_latlng.coordinates,
                             pickup_flag : 'on', 
-                            dropoff_flag : 'on'
+                            dropoff_flag : 'on',
+                            isRouteFound : true
                         });
-                        clearInterval(this.timerUserLocation);  //lets stop current location as the user already on request
+                        //clearInterval(this.timerUserLocation);  //lets stop current location as the user already on request
                         
                         res(true);
                     });   
-                }
+                } 
 
                 if(ride.status === 1) {  // wait for driver to accept 1=waiting 2=driver notreply but waiting
                     this.rideRequestAction(ride);
@@ -646,14 +664,24 @@ class PickUpMap extends Component {
                     PromiseSetDriverData.then(() => {
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="visible"; 
-                        this.checkEtaPickUp(this.state.pickup_latlng, 'pickup');
+                        //this.checkEtaPickUp(this.state.pickup_latlng, 'pickup');
+
+                        //show route from driver to pickup only one time 
+                        if(this.state.pickup_eta_flag === false){
+                            this._pickup_eta(this.state.pickup_latlng, this.state._driverCurrentLocation)
+                        }
+
                     });   
                 } else if(ride.status === 77) {  //ride on progress 
                     PromiseSetDriverData.then(()=> {
                         document.getElementById('ride-request-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard').style.visibility="hidden";
                         document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
-                        this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
+                        //this.checkEtaDropOff(this.state.dropoff_latlng, 'dropoff');
+                        //show route from driver to pickup only one time 
+                        if(this.state.dropoff_eta_flag === false){
+                            this._dropoff_eta(this.state.dropoff_latlng, this.state._driverCurrentLocation)
+                        }
                     });
 
                 } else if(ride.status === 4) { // driver cancel the ride after accepting  
@@ -724,6 +752,84 @@ class PickUpMap extends Component {
 
     }
 
+    _pickup_eta = (latlng1, latlng2) => {
+         var map = this.state.map;
+         if(this.routeControl){
+             map.removeControl(this.routeControl);
+             this.routeControl = null;
+         }
+         this.routeControl = L.Routing.control({
+             waypoints: [
+              L.latLng(latlng1),
+              L.latLng(latlng2)
+             ],
+             routeWhileDragging: false,
+             addWaypoints : false, //disable adding new waypoints to the existing path
+             show: false,
+             showAlternatives: false,
+             createMarker: function (){
+                 return null;
+             },
+             lineOptions: {
+                 styles: [{color: 'red', opacity: 1, weight: 3}]
+             },
+             router: L.Routing.osrmv1({
+                 serviceUrl: env.ROUTING_SERVICE
+             })
+         })
+         .on('routesfound', (route) => {
+            this.setState({
+                pickup_eta_flag : true
+            })
+         })
+         .on('routingerror', (err) => {
+             console.log(err.error.status);
+             this.setState({
+                pickup_eta_flag : false
+            })
+         })
+         .addTo(map);  
+     }
+
+     _dropoff_eta = (latlng1, latlng2) => {
+        var map = this.state.map;
+        if(this.routeControl){
+            map.removeControl(this.routeControl);
+            this.routeControl = null;
+        }
+        this.routeControl = L.Routing.control({
+            waypoints: [
+             L.latLng(latlng1),
+             L.latLng(latlng2)
+            ],
+            routeWhileDragging: false,
+            addWaypoints : false, //disable adding new waypoints to the existing path
+            show: false,
+            showAlternatives: false,
+            createMarker: function (){
+                return null;
+            },
+            lineOptions: {
+                styles: [{color: 'red', opacity: 1, weight: 3}]
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: env.ROUTING_SERVICE
+            })
+        })
+        .on('routesfound', (route) => {
+           this.setState({
+               dropoff_eta_flag : true
+           })
+        })
+        .on('routingerror', (err) => {
+            console.log(err.error.status);
+            this.setState({
+               dropoff_eta_flag : false
+           })
+        })
+        .addTo(map);  
+    }
+
     checkEtaPickUp = (latlng, status) => {
         if(_.isUndefined(this.timerDriverEta_pickup)){
             this.timerDriverEta_pickup = setInterval(this.getDriverEta, 10000, latlng, status);  // eta from driver current latlng to pickup 
@@ -740,6 +846,7 @@ class PickUpMap extends Component {
     resetRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = "hidden";
+        document.getElementById('div-eta').style.visibility = "hidden";
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -755,12 +862,13 @@ class PickUpMap extends Component {
             rideCompleteFlag: false
         });
         map.locate({setView: true, maxZoom: 15});
-        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
+        //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
         this.timerRideStatus = null;
     }
 
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+        document.getElementById('div-eta').style.visibility='hidden';
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -776,7 +884,7 @@ class PickUpMap extends Component {
             rideCompleteFlag: false
         });
         map.locate({setView: true, maxZoom: 15});
-        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
+        //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
     }
 
     validateVarification = () => {
@@ -954,7 +1062,7 @@ class PickUpMap extends Component {
                         : 
                         <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
                         }
-                       
+                         
                         <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider!'}</Card.Header>
                         <Card.Meta>
                         {this.state.isLogedIn === true ?
@@ -966,6 +1074,7 @@ class PickUpMap extends Component {
                             LOGIN
                           </Label>
                         }
+                       
                         </Card.Meta>
                         
                     </Card.Content>
@@ -1017,15 +1126,8 @@ class PickUpMap extends Component {
               </div>
               : ''}
 
-              <div className="div-intro" id="div-intro">
-               <Grid fluid>
-                 <Grid.Row> 
-                     <Grid.Column xs={12} sm={12} sm={12}>Click map for your pickup and dropoff.</Grid.Column>
-                 </Grid.Row>
-               </Grid>
-              </div>
-
-
+              <div className="div-eta" id="div-eta"></div>
+              
               {this.state.user.verified === true && this.state.user.hasProfile === false ? 
                <div className="div-profile" id="div-profile">
                <Grid>
@@ -1106,8 +1208,6 @@ class PickUpMap extends Component {
                      </div>
                     </Card.Content>
                     </Card>
-                      
-                    {this.state._nearest_driver_eta}
                   </div>
                  
               </div>

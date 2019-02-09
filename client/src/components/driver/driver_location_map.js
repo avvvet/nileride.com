@@ -223,7 +223,7 @@ class DriverLocation extends Component {
         .bindPopup("You are here");
         
         L.circle(e.latlng, radius).addTo(locationGroup);
-        map.setView(e.latlng,17);
+        //map.setView(e.latlng,17);
          
     });
     
@@ -351,9 +351,25 @@ class DriverLocation extends Component {
                         rideUser: ride.user.firstName + ' ' + ride.user.middleName,
                         userMobile: ride.user.mobile,
                         userPic: "/assets/profile/user/" + ride.user.profile,
+                        pickup_latlng : ride.pickup_latlng.coordinates,
+                        dropoff_latlng: ride.dropoff_latlng.coordinates,
+                        stopMapViewFlag : true
                     });
-                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
-                    clearInterval(this.timerCheckForRide);
+                    let PromiseSetlatlng = new Promise((res,rej) => {
+                        this.setState({
+                            pickup_latlng : ride.pickup_latlng.coordinates,
+                            dropoff_latlng: ride.dropoff_latlng.coordinates,
+                            stopMapViewFlag : true
+                        });
+
+                        res(true);
+                    });
+
+                    PromiseSetlatlng.then(()=>{
+                        this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
+                        clearInterval(this.timerCheckForRide);
+                    })
+                    
                 } else if (ride.driver.status === 2) {   //you have missed the ride 
                     sound.volume(0,this.soundAccept);
                     document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
@@ -393,7 +409,7 @@ class DriverLocation extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
-                alert('Jesus');
+                //alert('Jesus');
                 console.log('jsesu', ride);
                 if(ride){
                    this.acceptRideAction(ride);
@@ -512,7 +528,7 @@ class DriverLocation extends Component {
         var markerGroup = this.state.markerGroup;
         L.marker(_pickup_latlng, {icon: pickUpIcon}).addTo(markerGroup)
         .bindPopup("Pick passenger here.");
-        map.setView(_pickup_latlng,15);
+       // map.setView(_pickup_latlng,15);
         this.showPickUpRoute(_driver_latlang, _pickup_latlng);
     }
 
@@ -551,6 +567,7 @@ class DriverLocation extends Component {
     }
 
     showDropOffLocation = (latlng1,latlng2) => {
+        
          let PromiseRemoveShowDropoff = new Promise((resolve, rejects) => {
             document.getElementById("driver-pax-action").style.visibility = "hidden";
             document.getElementById("driver-pax-end-action").style.visibility = "visible";
@@ -558,19 +575,21 @@ class DriverLocation extends Component {
         });
 
         PromiseRemoveShowDropoff.then(()=>{
+            
             var map = this.state.map;
             var markerGroup = this.state.markerGroup;
-            L.marker(latlng1, {icon: pickUpIcon}).addTo(markerGroup)
-            .bindPopup("Pickup location.").openPopup();
-            L.marker(latlng2, {icon: dropOffIcon}).addTo(markerGroup)
-            .bindPopup("Final dropoff location.");
-            map.setView(latlng2,15);
+            // L.marker(latlng1, {icon: pickUpIcon}).addTo(markerGroup)
+            // .bindPopup("Pickup location.").openPopup();
+            // L.marker(latlng2, {icon: dropOffIcon}).addTo(markerGroup)
+            // .bindPopup("Final dropoff location.");
+            // //map.setView(latlng2,15);
             
             this.showDropOffRoute(latlng1,latlng2);
         });
     }
 
     showDropOffRoute = (latlng1, latlng2) => {
+        alert(11);
         var map = this.state.map;
         map.removeControl(this.routeControl);
         this.routeControl = L.Routing.control({
@@ -588,7 +607,9 @@ class DriverLocation extends Component {
                 serviceUrl: env.ROUTING_SERVICE
             })
         })
-        .on('routesfound', this.routeFound)
+        .on('routesfound', (route)=>{
+            alert(1);
+        })
         .addTo(map);  
     }
 

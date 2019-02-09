@@ -133,24 +133,16 @@ body {
   visibility: visible;
 }
 
-.div-intro {
+.div-eta {
   color: #ffffff;
   position: fixed;
-  top: 25%;
-  left: 54%;
-  width: 258px;
+  top: 30%;
+  left: 28%;
+  width: 72px;
   height: 52px;
-  border: 2px solid white;
-  background-color: #ef6a36;
   transform: translate(-55%, -55%);
   z-index: 2000;
-  padding-top: 3px;
-  padding-left: 11px;
-  padding-right: 9px;
   text-align: center;
-  box-shadow: 10px 10px 10px gray;
-  border-radius: 60px;
-  box-sizing: border-box;
   visibility: visible;
 }
 
