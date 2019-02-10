@@ -2,6 +2,6 @@
 
 const env = {
   ROUTING_SERVICE: 'https://nileride.com/route/v1',
-  LOCATION_ACCURACY: 1
+  LOCATION_ACCURACY: 10
 };
 module.exports = env;
