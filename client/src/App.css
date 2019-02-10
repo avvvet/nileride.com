@@ -681,6 +681,19 @@ input[type="file"] {
   width: 40px !important;
   border-radius: 50%;
   border: solid;
-  border-color: goldenrod;
+  border-width: 1px;
+  border-color: yellow;
+  box-shadow: 10px 10px 10px gray;
+}
+
+.image-icon-driver img {
+  height: 40px !important;
+  width: 40px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgb(236, 174, 38);
+  box-shadow: 10px 10px 10px gray;
 }
 

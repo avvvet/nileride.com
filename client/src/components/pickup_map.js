@@ -45,7 +45,17 @@ var marker_b = L.icon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
 });
-
+var img = `<img src='/assets/nile_ride_driver.png' />`;
+var driver_icon = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-driver',
+    iconSize:     [35, 35], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
 class PickUpMap extends Component {
     constructor(){
         super();
@@ -175,17 +185,6 @@ class PickUpMap extends Component {
     }
     
     getDrivers = (map) => {
-        var awetRideIcon = L.icon({
-            iconUrl: '/assets/awet-ride-marker-1.png',
-            shadowUrl: '',
-        
-            iconSize:     [70, 39], // size of the icon
-            shadowSize:   [50, 64], // size of the shadow
-            iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-            shadowAnchor: [4, 62],  // the same for the shadow
-            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-        });
-        
         $.ajax({ 
             type:"GET",
             url:"/drivers",
@@ -197,8 +196,8 @@ class PickUpMap extends Component {
                 if(currentDrivers){
                     count_driver = currentDrivers.length;
                     for (var i = 0; i < currentDrivers.length; i++) {
-                        L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: awetRideIcon})
-                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName +  ' <br> Plate : ' + currentDrivers[i].plateNo)
+                        L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
+                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName)
                         .addTo(carMarkerGroup);
                     }
                 }
@@ -264,36 +263,35 @@ class PickUpMap extends Component {
         this.getDrivers(map);
 
         map.on('locationfound', (e) => {
-            var img;
-            if(this.state.user.hasProfile === true) {
-                img = `<img src='/assets/profile/user/${this.state.user.profile}' />` 
-            } else {
-                img = `<img src='/assets/awet-rider-m.png' />`
-            }
-            var user_icon = L.divIcon({
-                html: img,
-                shadowUrl: '',
-                className: 'image-icon',
-                iconSize:     [35, 35], // size of the icon
-                shadowSize:   [50, 64], // size of the shadow
-                iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
-                shadowAnchor: [4, 62],  // the same for the shadow
-                popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
-            });
+            var radius = e.accuracy / 1024;
+            radius = radius.toFixed(2);
+            if(radius < env.LOCATION_ACCURACY){
+                var locationGroup = this.state.locationGroup;
+                locationGroup.clearLayers();
+                this.setState({current_latlng : e.latlng});
+                var img;
+                if(this.state.user.hasProfile === true) {
+                    img = `<img src='/assets/profile/user/${this.state.user.profile}' />` 
+                } else {
+                    img = `<img src='/assets/awet-rider-m.png' />`
+                }
+                var user_icon = L.divIcon({
+                    html: img,
+                    shadowUrl: '',
+                    className: 'image-icon',
+                    iconSize:     [35, 35], // size of the icon
+                    shadowSize:   [50, 64], // size of the shadow
+                    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [4, 62],  // the same for the shadow
+                    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+                });
 
-            var locationGroup = this.state.locationGroup;
-            locationGroup.clearLayers();
-            this.setState({current_latlng : e.latlng});
-              var radius = e.accuracy / 1024;
-              radius = radius.toFixed(2);
-            L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup)
-            .bindPopup("You are here.");
-            //.bindPopup("You are " + radius + " meters from this point").openPopup();
-
-              L.circle(e.latlng, radius).addTo(locationGroup);
-             // map.setView(e.latlng,15);
-              this.setState({currentLatLng : e.latlng});
-              
+                L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup)
+                .bindPopup("You are here.");
+                L.circle(e.latlng, radius).addTo(locationGroup);
+                // map.setView(e.latlng,15);
+                this.setState({currentLatLng : e.latlng});
+            }     
         });
         
         function onLocationError(e) {

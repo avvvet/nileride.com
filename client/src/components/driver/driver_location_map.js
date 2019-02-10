@@ -73,6 +73,18 @@ var currentLocationIcon = L.icon({
     popupAnchor:  [20, -5] // point from which the popup should open relative to the iconAnchor
 });
 
+var img = `<img src='/assets/nile_ride_driver.png' />`;
+var driver_icon = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-driver',
+    iconSize:     [35, 35], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
+
 const options_model = [
     { key: '1', text: 'VITZ', value: 'VITZ' },
     { key: '2', text: 'COROLLA', value: 'COROLLA' },
@@ -233,18 +245,18 @@ class DriverLocation extends Component {
     this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);
 
     map.on('locationfound', (e) => {
-        var locationGroup = this.state.locationGroup;
-        locationGroup.clearLayers();
-        
-        this.setState({current_latlng : e.latlng});
         var radius = e.accuracy / 1024;
         radius = radius.toFixed(2);
-        L.marker(e.latlng, {icon: currentLocationIcon}).addTo(locationGroup)
-        .bindPopup("You are here");
-        
-        L.circle(e.latlng, radius).addTo(locationGroup);
-        //map.setView(e.latlng,17);
-         
+        if(radius < env.LOCATION_ACCURACY){
+            var locationGroup = this.state.locationGroup;
+            locationGroup.clearLayers();
+            this.setState({current_latlng : e.latlng});
+            L.marker(e.latlng, {icon: driver_icon}).addTo(locationGroup)
+            .bindPopup("You are here");
+            
+            L.circle(e.latlng, radius).addTo(locationGroup);
+            //map.setView(e.latlng,17);
+        } 
     });
     
     function onLocationError(e) {
