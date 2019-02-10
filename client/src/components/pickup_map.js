@@ -771,7 +771,14 @@ class PickUpMap extends Component {
     }
 
     _pickup_eta = (latlng1, latlng2) => {
-         var map = this.state.map;
+        var map = this.state.map;
+        var markerGroup = this.state.markerGroup;
+        markerGroup.clearLayers();  
+        L.marker(latlng1, {icon: marker_a}).addTo(markerGroup)
+        .bindPopup("Pickup location.");
+        L.marker(latlng2, {icon: driver_icon}).addTo(markerGroup)
+        .bindPopup("Final dropoff location.");
+
          if(this.routeControl){
              map.removeControl(this.routeControl);
              this.routeControl = null;
