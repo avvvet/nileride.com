@@ -676,3 +676,11 @@ input[type="file"] {
   padding-top: 20px;
 }
 
+.image-icon img {
+  height: 40px !important;
+  width: 40px !important;
+  border-radius: 50%;
+  border: solid;
+  border-color: goldenrod;
+}
+

@@ -264,13 +264,29 @@ class PickUpMap extends Component {
         this.getDrivers(map);
 
         map.on('locationfound', (e) => {
-            
+            var img;
+            if(this.state.user.hasProfile === true) {
+                img = `<img src='/assets/profile/user/${this.state.user.profile}' />` 
+            } else {
+                img = `<img src='/assets/awet-rider-m.png' />`
+            }
+            var user_icon = L.divIcon({
+                html: img,
+                shadowUrl: '',
+                className: 'image-icon',
+                iconSize:     [35, 35], // size of the icon
+                shadowSize:   [50, 64], // size of the shadow
+                iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+                shadowAnchor: [4, 62],  // the same for the shadow
+                popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+            });
+
             var locationGroup = this.state.locationGroup;
             locationGroup.clearLayers();
             this.setState({current_latlng : e.latlng});
               var radius = e.accuracy / 1024;
               radius = radius.toFixed(2);
-            L.marker(e.latlng, {icon: yourLocation}).addTo(locationGroup)
+            L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup)
             .bindPopup("You are here.");
             //.bindPopup("You are " + radius + " meters from this point").openPopup();
 
@@ -870,7 +886,9 @@ class PickUpMap extends Component {
             pickup_flag: 'off',
             dropoff_flag: 'off',
             isRouteFound : false,
-            rideCompleteFlag: false
+            rideCompleteFlag: false,
+            pickup_eta_flag : false,
+            dropoff_eta_flag: false
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
@@ -892,7 +910,9 @@ class PickUpMap extends Component {
             pickup_flag: 'off',
             dropoff_flag: 'off',
             isRouteFound : false,
-            rideCompleteFlag: false
+            rideCompleteFlag: false,
+            pickup_eta_flag : false,
+            dropoff_eta_flag: false
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);

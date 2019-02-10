@@ -143,7 +143,7 @@ class DriverLocation extends Component {
            model : '',
            model_year : '',
            code: '',
-           plate_no : ''
+           plate_no : '',
        }
 
     this.checkForRide = this.checkForRide.bind(this);
@@ -351,18 +351,15 @@ class DriverLocation extends Component {
              
              if(!_.isNull(ride) && !_.isUndefined(ride.driver)) {
                 if(ride.status === 1) {
-                   let PromiseOneTimeCall = new Promise((res,rej) => {
-                       this.setState({
-                           _ride_alert_first_time_flag : true
-                       });
-                       res(true);
-                   });
-                   PromiseOneTimeCall.then(() => {
-                       this.ride_alert(ride);
-                   });
+                   this.ride_alert(ride);
                 } else if (ride.status === 7) {
-                    this.acceptRideAction(ride);
-                    clearInterval(this.timerCheckForRide);
+                    let PromiseOneTimeCall = new Promise((res,rej) => {
+                        clearInterval(this.timerCheckForRide);
+                        res(true);
+                    });
+                    PromiseOneTimeCall.then(() => {
+                        this.acceptRideAction(ride);
+                    });
                 } else if (ride.status === 77) {
                     this.setState({
                         ridePrice: ride.route_price,
@@ -431,7 +428,7 @@ class DriverLocation extends Component {
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
                 //alert('Jesus');
-                $('.btn_accept_ride').removeClass("loading");
+               // 
                 console.log('jsesu', ride);
                 if(ride){
                    this.acceptRideAction(ride);
@@ -464,7 +461,8 @@ class DriverLocation extends Component {
              pickup_latlng : ride.pickup_latlng.coordinates,
              dropoff_latlng: ride.dropoff_latlng.coordinates,
              stopMapViewFlag : true
-         })
+         });
+         $('.btn_accept_ride').removeClass("loading");
          resolve();
         });
          
