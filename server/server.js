@@ -88,6 +88,10 @@ app.get('/user/login', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/admin', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
 
 console.log('client path', clientPath);
 app.use(bodyParser.json());
@@ -1053,7 +1057,7 @@ app.get('/driver/get', (req, res) => {
 
 //driver-apply
 app.post('/driver/apply', (req, res) => {
-    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'plateNo', 'password', 'token']);
+    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'gender', 'plateNo', 'password', 'token']);
     body.token = jwt.sign(body.email, 'JESUSMYHEALER');
     
     let PromiseHashedPassword = new Promise((res, rej) => {
@@ -1232,6 +1236,96 @@ app.post('/car/register', (req, res) => {
         console.log('trsancation car registration rollback ', err);
       });
 });
+
+app.post('/admin/users', (req, res) => {
+    models.users.findAll({
+        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', [Sequelize.fn('count', Sequelize.col('ride_requests.id')), 'total_rides']],
+        raw: true,
+        include: [
+        {
+            model: models.riderequests,
+            attributes: []
+        }
+        ],
+        group: ['users.id']
+    }).then(user =>{
+        if(user){
+         res.send(user);
+        }
+    })
+});
+
+app.post('/admin/drivers', (req, res) => {
+    models.drivers.findAll({
+        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 
+                    [Sequelize.fn('count', Sequelize.col('ratings.id')), 'rating'],
+                    [Sequelize.literal('SUM(ratings.rating) / COUNT(ratings.id)'), 'avg_rating'],
+                    [Sequelize.literal('COUNT(ratings.id)'), 'count_rating']
+        ],
+        raw: true,
+        include: [
+            {
+                model: models.ratings,
+                attributes: []
+            }
+        ],
+        group: ['drivers.token','ratings.driver_id']
+    }).then(driver =>{
+        console.log('Jesus', driver);
+        if(driver){
+         res.send(driver);
+        }
+    })
+});
+
+app.post('/admin/drivers/payment', (req, res) => {
+    models.drivers.findAll({
+        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 
+                    [Sequelize.fn('sum', Sequelize.col('payments.amount')), 'amount'], 
+                    [Sequelize.fn('sum', Sequelize.col('payments.charge_dr')), 'charge_dr'],
+                    [Sequelize.fn('sum', Sequelize.col('payments.charge_cr')), 'charge_cr'],
+                    [Sequelize.literal('SUM(payments.charge_cr) - SUM(payments.charge_dr)'), 'charge'],
+                    [Sequelize.fn('count', Sequelize.col('payments.id')), 'total_rides']
+        ],
+        raw: true,
+        include: [
+            {
+                model: models.payments,
+                attributes: []
+            }
+        ],
+        group: ['drivers.token','payments.driver_id']
+    }).then(driver =>{
+        console.log('Jesus', driver);
+        if(driver){
+         res.send(driver);
+        }
+    })
+});
+
+app.post('/admin/rides', (req, res) => {
+    models.riderequests.findAll({
+        attributes: ['id','pickup_latlng','dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status', 
+        ],
+        raw: false,
+        include: [
+            {
+                model: models.drivers,
+                attributes: ['firstName','middleName', 'email', 'mobile', 'profile']
+            },
+            {
+                model: models.users,
+                attributes: ['firstName','middleName', 'email', 'mobile', 'profile']
+            }
+        ]
+    }).then(rides =>{
+        console.log('Jesus', rides);
+        if(rides){
+         res.send(rides);
+        }
+    })
+});
+
 
 io.on('connect', (socket)=> {
    console.log('Client connected', socket.id);

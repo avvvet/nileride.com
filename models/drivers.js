@@ -39,6 +39,9 @@ module.exports = (sequelize, DataTypes) => {
     drivers.hasMany(models.cars, {
       foreignKey: 'driver_id'
     });
+    drivers.hasMany(models.ratings, {
+      foreignKey: 'driver_id'
+    });
   };
   
   return drivers;

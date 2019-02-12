@@ -42,11 +42,29 @@ models.drivers.hasMany(models.riderequests, {
   sourceKey: 'token'
 });
 
+models.ratings.belongsTo(models.drivers, {
+  foreignKey: 'driver_id',
+  targetKey: 'token'
+});
+models.drivers.hasMany(models.ratings, {
+  foreignKey: 'driver_id',
+  sourceKey: 'token'
+});
+
 models.payments.belongsTo(models.riderequests, {
   foreignKey: 'ride_id',
   targetKey: 'id'
 });
 models.riderequests.hasOne(models.payments, {
+  foreignKey: 'ride_id',
+  sourceKey: 'id'
+});
+
+models.ratings.belongsTo(models.riderequests, {
+  foreignKey: 'ride_id',
+  targetKey: 'id'
+});
+models.riderequests.hasOne(models.ratings, {
   foreignKey: 'ride_id',
   sourceKey: 'id'
 });

@@ -6,7 +6,14 @@ module.exports = (sequelize, DataTypes) => {
     rating: DataTypes.INTEGER
   }, {});
   ratings.associate = function(models) {
-    // associations can be defined here
+    //all I trust is Jesus - Please father help me to success is this one
+    ratings.belongsTo(models.drivers, {
+      foreignKey: 'driver_id'
+    });
+    ratings.belongsTo(models.riderequests, {
+      foreignKey: 'ride_id',
+      targetKey: 'id'
+    });
   };
   return ratings;
 };

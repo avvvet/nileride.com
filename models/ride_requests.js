@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'ride_id',
       sourceKey: 'id'
     });
+    riderequests.hasOne(models.ratings, {
+      foreignKey: 'ride_id',
+      sourceKey: 'id'
+    });
   };
   return ride_requests;
 };

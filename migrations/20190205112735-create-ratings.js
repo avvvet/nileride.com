@@ -9,10 +9,18 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       ride_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'ride_requests',
+          key: 'id'
+        }
       },
       driver_id: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        references: {
+          model: 'drivers',
+          key: 'token'
+        }
       },
       rating: {
         type: Sequelize.INTEGER
