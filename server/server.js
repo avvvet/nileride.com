@@ -92,6 +92,10 @@ app.get('/admin', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/admin/control_panel', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
 
 console.log('client path', clientPath);
 app.use(bodyParser.json());
@@ -943,6 +947,40 @@ app.post('/driver/login', (req, res) => {
   });
  
 });
+
+app.post('/admin/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    console.log('data', body);
+    //lets get the driver by email
+    models.admins.findOne({ where : {email: body.email}}).then( (admin) => {
+       if(!admin) {
+          res.status(401).send();
+       }
+       
+       let PromisePasswordCompare = new Promise((resolve, reject) => {
+         bcrypt.compare(body.password, admin.password, (err, compareFlag) => {
+             if(err){
+                 reject(err);
+             } else {
+                 resolve(compareFlag);
+             }
+         });
+       });
+       
+       PromisePasswordCompare.then((compareFlag) => {
+           if(compareFlag === true){
+              res.header('x-auth', admin.token).send(admin);
+           } else {
+              res.status(401).send();
+           }
+       },(r) => {
+           console.log('rrr', r);
+  
+       });
+  
+    });
+   
+  });
 
 app.post('/driver', (req, res) => {
   var body = _.pick(req.body, ['email', 'password', 'token']);

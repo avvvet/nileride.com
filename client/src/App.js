@@ -9,7 +9,8 @@ import DropOff from './components/drop_off';
 import DriverPage from './components/driver/driver_page';
 import DriverLogin from './components/driver/login';
 import RiderLogin from './components/rider/login';
-import Admin from './components/admin/admin.js';
+import AdminLogin from './components/admin/admin_login';
+import ControlPanel from './components/admin/control_panel';
 import './App.css';
 
 
@@ -40,8 +41,8 @@ class App extends React.Component {
 
                 <Route path="/driver" component={DriverPage} exact/>
                 <Route path="/driver/login" component={DriverLogin} exact/>
-                <Route path="/admin" component={Admin} exact />
-
+                <Route path="/admin" component={AdminLogin} exact />
+                <Route path="/admin/control_panel" component={ControlPanel} exact />
             </Switch>
           </div>
         </BrowserRouter>  
