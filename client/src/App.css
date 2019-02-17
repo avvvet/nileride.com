@@ -138,7 +138,7 @@ body {
   position: fixed;
   top: 30%;
   left: 28%;
-  width: 72px;
+  width: 79px;
   height: 52px;
   transform: translate(-55%, -55%);
   z-index: 2000;
@@ -697,3 +697,7 @@ input[type="file"] {
   box-shadow: 10px 10px 10px gray;
 }
 
+.card card-style-1 {
+  background-color:rgb(236, 174, 38);
+  box-shadow: 10px 10px 10px gray;
+}

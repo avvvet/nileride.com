@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
-import { Image, Table, Checkbox, Rating} from 'semantic-ui-react'
+import { Image, Table, Checkbox, Rating, Label} from 'semantic-ui-react'
 import $ from 'jquery';
 class Drivers extends Component {
     constructor(){
@@ -45,14 +45,25 @@ class Drivers extends Component {
                 <Table.Cell>{driver.gender}</Table.Cell>
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
-                <Table.Cell>{driver.verified}</Table.Cell>
-                <Table.Cell>{driver.isOnline}</Table.Cell>
                 <Table.Cell>{driver.count_rating}</Table.Cell>
                 <Table.Cell><Rating icon='star' defaultRating={driver.avg_rating} maxRating={5} /></Table.Cell>
+                <Table.Cell textAlign="center">{this.convert_status(driver.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>
         );
         return row;
+    }
+
+    convert_status = (code) => {
+         if(code === 0) {
+             return <Label size="mini" color="green" circular>waiting</Label>;
+         } else if(code === 1 ) {
+             return <Label size="mini" color="orange" circular>driving</Label>
+         } else if(code === 2) {
+             return <Label size="mini" color="red" circular>missed ride</Label>
+         } else if(code === 3) {
+            return <Label size="mini" color="grey" circular>disabled</Label>
+         } 
     }
 
     render(){
@@ -66,10 +77,9 @@ class Drivers extends Component {
                     <Table.HeaderCell>Gener</Table.HeaderCell>
                     <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Email</Table.HeaderCell>
-                    <Table.HeaderCell>Verified</Table.HeaderCell>
-                    <Table.HeaderCell>Online</Table.HeaderCell>
                     <Table.HeaderCell>Rides</Table.HeaderCell>
                     <Table.HeaderCell>Avg.Rating</Table.HeaderCell>
+                    <Table.HeaderCell>Status</Table.HeaderCell>
                     <Table.HeaderCell>Account</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>

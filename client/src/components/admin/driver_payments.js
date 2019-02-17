@@ -10,6 +10,7 @@ class DriverPayments extends Component {
             drivers : []
         }
     }
+
     componentDidMount(){
         this.showDrivers();
     }
@@ -45,10 +46,6 @@ class DriverPayments extends Component {
                 <Table.Cell>{driver.gender}</Table.Cell>
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
-                {driver.verified === 1 ? <Table.Cell><Label size="mini" color="green" circular></Label></Table.Cell> : <Table.Cell><Label size="mini" color="red" circular></Label></Table.Cell>}
-                
-
-                <Table.Cell>{driver.isOnline}</Table.Cell>
                 <Table.Cell>{driver.amount}</Table.Cell>
                 <Table.Cell>{driver.charge_cr}</Table.Cell>
                 <Table.Cell>{driver.charge_dr}</Table.Cell>
@@ -70,8 +67,6 @@ class DriverPayments extends Component {
                     <Table.HeaderCell>Gener</Table.HeaderCell>
                     <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Email</Table.HeaderCell>
-                    <Table.HeaderCell>Verified</Table.HeaderCell>
-                    <Table.HeaderCell>Online</Table.HeaderCell>
                     <Table.HeaderCell>Amount</Table.HeaderCell>
                     <Table.HeaderCell>Charge</Table.HeaderCell>
                     <Table.HeaderCell>Paid</Table.HeaderCell>

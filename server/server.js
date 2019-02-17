@@ -1341,6 +1341,53 @@ app.post('/admin/drivers/payment', (req, res) => {
     })
 });
 
+app.post('/admin/drivers/count', (req, res) => {
+    models.drivers.findAll({
+        attributes: [
+                    [Sequelize.fn('count', Sequelize.col('id')), 'total_drivers']
+        ],
+        where : {verified : true, hasProfile : true, isCarRegistered : true},
+        raw: true
+    }).then(driver =>{
+        console.log('Jesus', driver);
+        if(driver){
+         res.send(driver);
+        }
+    })
+});
+
+app.post('/admin/users/count', (req, res) => {
+    models.users.findAll({
+        attributes: [
+                    [Sequelize.fn('count', Sequelize.col('id')), 'total_users']
+        ],
+        where : {verified : true, hasProfile : true},
+        raw: true
+    }).then(user =>{
+        console.log('Jesus', user);
+        if(user){
+         res.send(user);
+        }
+    })
+});
+
+app.post('/admin/payments/count', (req, res) => {
+    models.payments.findAll({
+        attributes: [
+                        [Sequelize.fn('sum', Sequelize.col('amount')), 'amount'], 
+                        [Sequelize.fn('sum', Sequelize.col('charge_dr')), 'charge_dr'],
+                        [Sequelize.fn('sum', Sequelize.col('charge_cr')), 'charge_cr'],
+                        [Sequelize.literal('SUM(charge_cr) - SUM(charge_dr)'), 'charge'],
+        ],
+        raw: true
+    }).then(payments =>{
+        console.log('Jesus', payments);
+        if(payments){
+         res.send(payments);
+        }
+    });
+});
+
 app.post('/admin/rides', (req, res) => {
     models.riderequests.findAll({
         attributes: ['id','pickup_latlng','dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status', 

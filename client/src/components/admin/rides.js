@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
-import { Image, Table, Checkbox, Rating} from 'semantic-ui-react'
+import { Image, Table, Checkbox, Rating, Label} from 'semantic-ui-react'
 import $ from 'jquery';
 
 class Rides extends Component {
@@ -63,11 +63,28 @@ class Rides extends Component {
                 <Table.Cell>{this.timeConvert(Number.parseInt(ride.route_time))}</Table.Cell>
                 <Table.Cell>{ride.route_price}</Table.Cell>
                 <Table.Cell>{ride.dropoff_latlng.coordinates}</Table.Cell>
-                <Table.Cell>{ride.status}</Table.Cell>
+                <Table.Cell textAlign="center">{this.convert_status(ride.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>
         );
         return row;
+    }
+    
+    convert_status = (code) => {
+        console.log("code ", code);
+         if(code === 1) {
+             return <Label size="mini" color="grey" circular>calling</Label>;
+         } else if(code === 2 || code === 22 || code === 222) {
+             return <Label size="mini" color="red" circular>missed ride</Label>
+         } else if(code === 777 || code === 7777) {
+             return <Label size="mini" color="green" circular>completed</Label>
+         } else if(code === 4 || code === 444) {
+            return <Label size="mini" color="black" circular>canceled</Label>
+         } else if(code === 7) {
+            return <Label size="mini" color="teal" circular>accepted</Label>
+        } else if(code === 77) {
+            return <Label size="mini" color="orange" circular>driving</Label>
+        } 
     }
 
     render(){
@@ -92,6 +109,19 @@ class Rides extends Component {
                 <Table.Body>
                 {this.createGrid(this.state.rides)}
                 </Table.Body>
+                <Table.Footer fullWidth>
+                    <Table.Row>
+                        <Table.HeaderCell />
+                        <Table.HeaderCell colSpan='10'>
+                        <Label size="mini" color="grey" floated="right" circular>calling</Label>
+                        <Label size="mini" color="teal" floated="right" circular>accepted</Label>
+                        <Label size="mini" color="orange" floated="right" circular>pax found</Label>
+                        <Label size="mini" color="red" floated="right" circular>missed ride</Label>
+                        <Label size="mini" color="black" floated="right" circular>canceled</Label>
+                        <Label size="mini" color="green" floated="right" circular>completed</Label>
+                        </Table.HeaderCell>
+                    </Table.Row>
+                </Table.Footer>
              </Table>
             </div>
         );

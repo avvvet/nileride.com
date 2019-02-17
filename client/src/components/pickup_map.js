@@ -513,71 +513,6 @@ class PickUpMap extends Component {
         .addTo(map);  
     }
 
-    getDriverEta = (_to_picup_dropoff, _status) => {
-        console.log('data data ', _to_picup_dropoff);
-        var map = this.state.map;
-        if(this.routeControl){
-            map.removeControl(this.routeControl);
-            this.routeControl = null;
-        }
-        this.routeControl = L.Routing.control({
-            waypoints: [
-             L.latLng(this.state._driverCurrentLocation),
-             L.latLng(_to_picup_dropoff)
-            ],
-            routeWhileDragging: false,
-            addWaypoints : false, //disable adding new waypoints to the existing path
-            show: false,
-            showAlternatives: false,
-            createMarker: function (){
-                return null;
-            },
-            lineOptions: {
-                styles: [{color: 'blue', opacity: 1, weight: 4}]
-            },
-            router: L.Routing.osrmv1({
-                serviceUrl: env.ROUTING_SERVICE
-            })
-        })
-        .on('routesfound', (e)=> {
-            var routes = e.routes;
-            var _distance = routes[0].summary.totalDistance;
-            var _ride_time = routes[0].summary.totalTime;
-            
-            _distance = (_distance/1000).toFixed(2);
-            var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-            if(_status === 'pickup'){
-                document.getElementById('notify-rider').innerHTML = 'Get ready, driver is ' + _ride_time_string + ' away !';
-            } else {
-                document.getElementById('notify-rider_2').innerHTML = 'Ride inprogress. ' + _ride_time_string + ' to dropoff !';
-            }
-            
-            function timeConvert(n) {
-                var num = n;
-                var hours = (num / 3600);
-                var rhours = Math.floor(hours);
-                var minutes = (hours - rhours) * 60;
-                var rminutes = Math.round(minutes);
-                
-                var hDisplay = rhours > 0 ? rhours + " hr" : "";
-                var mDisplay = rminutes > 0 ? rminutes + " min" : "";
-                return hDisplay + mDisplay; 
-            }
-            var map = this.state.map;
-            if(this._neearest_driver_routeControl){
-                map.removeControl(this._neearest_driver_routeControl);
-                this._neearest_driver_routeControl = null;
-            }
-        })
-        .on('routingerror', (err) => {
-            console.log("driver eta route erro", err.error.status);
-            if(err.error.status === -1){
-                // may be change text of eta 
-            }
-        })
-        .addTo(map);  
-    }
-
     rideRequest = (e) => {
         e.preventDefault(); 
         //e.target.disabled = true;
@@ -644,7 +579,6 @@ class PickUpMap extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
-                console.log('what is this ', ride);
               if(!_.isNull(ride.status)){
                 let _model;
                 let _plate;
@@ -687,7 +621,8 @@ class PickUpMap extends Component {
 
                         //show route from driver to pickup only one time 
                         if(this.state.pickup_eta_flag === false){
-                            this._pickup_eta(this.state.pickup_latlng, this.state._driverCurrentLocation)
+                            this._pickup_route(this.state.pickup_latlng, this.state._driverCurrentLocation);
+                            this.timer_pickup_eta = setInterval(this._pickup_eta, 10000);
                         }
 
                     });   
@@ -698,7 +633,9 @@ class PickUpMap extends Component {
                         document.getElementById('u-driver-dashboard-2').style.visibility="visible"; 
 
                         if(this.state.dropoff_eta_flag === false){
-                            this._dropoff_eta(this.state.pickup_latlng, this.state.dropoff_latlng)
+                            this._dropoff_route(this.state.pickup_latlng, this.state.dropoff_latlng);
+                            clearInterval(this.timer_pickup_eta);
+                            this.timer_dropoff_eta = setInterval(this._dropoff_eta, 10000);
                         }
                     });
 
@@ -711,19 +648,19 @@ class PickUpMap extends Component {
                         document.getElementById('div-notification-1').style.visibility="visible";
                         render(<DriverCancelRide resetRide={this.resetRide} ride={ride}></DriverCancelRide>,document.getElementById('div-notification-1'));
                     
-
-                        clearInterval(this.timerDriverEta_pickup); 
-                        clearInterval(this.timerDriverEta_dropoff);
                         clearInterval(this.timerRideStatus);
+                        clearInterval(this.timer_pickup_eta);
+                        clearInterval(this.timer_dropoff_eta);
                     });
                         
                 } else if(ride.status === 0) { // no ride found so end the existing 
                     document.getElementById('ride-request-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                    clearInterval(this.timerDriverEta_pickup); 
-                    clearInterval(this.timerDriverEta_dropoff);
+                    
                     clearInterval(this.timerRideStatus);
+                    clearInterval(this.timer_pickup_eta);
+                    clearInterval(this.timer_dropoff_eta);
                     this.resetRide();
                 } else if(ride.status === 2) { // your request could not get driver
                     document.getElementById('ride-request-dashboard').style.visibility="hidden";
@@ -732,9 +669,9 @@ class PickUpMap extends Component {
                    
                     document.getElementById('div-notification-1').style.visibility="visible";
                     render(<DriverBusy resetRide={this.resetRide}></DriverBusy>,document.getElementById('div-notification-1'));
-                    
-                    clearInterval(this.timerDriverEta_pickup); 
-                    clearInterval(this.timerDriverEta_dropoff);
+                   
+                    clearInterval(this.timer_pickup_eta);
+                    clearInterval(this.timer_dropoff_eta);
                     clearInterval(this.timerRideStatus);
                     
                 }  else if(ride.status === 7777) { // rate your ride 
@@ -745,8 +682,8 @@ class PickUpMap extends Component {
                     document.getElementById('div-notification-1').style.visibility="visible";
                     render(<Rate resetRide={this.resetRide} ride={ride}></Rate>,document.getElementById('div-notification-1'));
                     
-                    clearInterval(this.timerDriverEta_pickup); 
-                    clearInterval(this.timerDriverEta_dropoff);
+                    clearInterval(this.timer_pickup_eta);
+                    clearInterval(this.timer_dropoff_eta);
                     clearInterval(this.timerRideStatus);
                     
                 }
@@ -756,8 +693,8 @@ class PickUpMap extends Component {
                 document.getElementById('ride-request-dashboard').style.visibility="hidden";
                 document.getElementById('u-driver-dashboard').style.visibility="hidden";
                 document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                clearInterval(this.timerDriverEta_pickup); 
-                clearInterval(this.timerDriverEta_dropoff);
+                clearInterval(this.timer_pickup_eta);
+                clearInterval(this.timer_dropoff_eta);
                 clearInterval(this.timerRideStatus);
                 this.timerRideStatus = null;
                 this.resetRide();
@@ -770,7 +707,7 @@ class PickUpMap extends Component {
 
     }
 
-    _pickup_eta = (latlng1, latlng2) => {
+    _pickup_route = (latlng1, latlng2) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
         markerGroup.clearLayers();  
@@ -816,7 +753,7 @@ class PickUpMap extends Component {
          .addTo(map);  
      }
 
-     _dropoff_eta = (latlng1, latlng2) => {
+     _dropoff_route = (latlng1, latlng2) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
         markerGroup.clearLayers();  
@@ -862,17 +799,95 @@ class PickUpMap extends Component {
         .addTo(map);  
     }
 
-    checkEtaPickUp = (latlng, status) => {
-        if(_.isUndefined(this.timerDriverEta_pickup)){
-            this.timerDriverEta_pickup = setInterval(this.getDriverEta, 10000, latlng, status);  // eta from driver current latlng to pickup 
-        }
+    _pickup_eta = () => {
+        
+        var latlng1 = this.state.pickup_latlng;
+        var latlng2 = this.state._driverCurrentLocation;
+        var waypoints = [
+            L.Routing.waypoint(latlng1),
+            L.Routing.waypoint(latlng2)
+           ]
+        var router = L.Routing.osrmv1({
+            serviceUrl: env.ROUTING_SERVICE,
+        });
+        
+        router.route(waypoints, (error, routes) => {
+            if(!_.isUndefined(routes)) {
+                var _ride_time = routes[0].summary.totalTime;
+                var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+        
+                function timeConvert(n) {
+                    var num = n;
+                    var hours = (num / 3600);
+                    var rhours = Math.floor(hours);
+                    var minutes = (hours - rhours) * 60;
+                    var rminutes = Math.round(minutes);
+                    
+                    var hDisplay = rhours > 0 ? rhours + " hr" : "";
+                    var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+                    return hDisplay + mDisplay; 
+                 } 
+                 document.getElementById('div-eta').style.visibility='visible';
+                 render(
+                     <div>
+                       <Card className="card-style-1">
+                       <Card.Content>
+                         <Card.Header>Driver</Card.Header>
+                         <Card.Meta><Label size="large" color="orange" circular>{_ride_time_string}</Label></Card.Meta>
+                         <Card.Meta>away</Card.Meta>
+                       </Card.Content>
+                       </Card>                   
+                     </div>
+                   ,document.getElementById('div-eta')
+                   );
+            }
+           
+        });
     }
 
-    checkEtaDropOff = (latlng, status) => {
-        if(_.isUndefined(this.timerDriverEta_dropoff)){
-            clearInterval(this.timerDriverEta_pickup);
-            this.timerDriverEta_dropoff = setInterval(this.getDriverEta, 10000, latlng, status);  // eta from driver current latlng to pickup 
-        }
+    _dropoff_eta = () => {
+        var latlng1 = this.state._driverCurrentLocation;
+        var latlng2 = this.state.dropoff_latlng;
+        var waypoints = [
+            L.Routing.waypoint(latlng1),
+            L.Routing.waypoint(latlng2)
+           ]
+        var router = L.Routing.osrmv1({
+            serviceUrl: env.ROUTING_SERVICE,
+        });
+        
+        router.route(waypoints, (error, routes) => {
+            if(!_.isUndefined(routes)) {
+                var _ride_time = routes[0].summary.totalTime;
+                var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+        
+                function timeConvert(n) {
+                    var num = n;
+                    var hours = (num / 3600);
+                    var rhours = Math.floor(hours);
+                    var minutes = (hours - rhours) * 60;
+                    var rminutes = Math.round(minutes);
+                    
+                    var hDisplay = rhours > 0 ? rhours + " hr" : "";
+                    var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+                    return hDisplay + mDisplay; 
+                 } 
+                 document.getElementById('div-eta').style.visibility='visible';
+                 render(
+                     <div>
+                       <Card>
+                       <Card.Content>
+                         <Card.Header>dropoff</Card.Header>
+                         <Card.Meta><Label size="large" color="green" circular>{_ride_time_string}</Label></Card.Meta>
+                         <Card.Meta>away</Card.Meta>
+                       </Card.Content>
+                       </Card>                   
+                     </div>
+                   ,document.getElementById('div-eta')
+                   );
+            }
+           
+        });
     }
 
     resetRide = () => {

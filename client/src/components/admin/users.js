@@ -45,9 +45,7 @@ class Users extends Component {
                 <Table.Cell>{user.gender}</Table.Cell>
                 <Table.Cell>{user.mobile}</Table.Cell>
                 <Table.Cell>{user.email}</Table.Cell>
-                <Table.Cell>{user.verified}</Table.Cell>
-                <Table.Cell>{user.isOnline}</Table.Cell>
-                <Table.Cell>{user.total_rides}</Table.Cell>
+                <Table.Cell textAlign="center">{user.total_rides}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>
         );
@@ -65,8 +63,6 @@ class Users extends Component {
                     <Table.HeaderCell>Gener</Table.HeaderCell>
                     <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Email</Table.HeaderCell>
-                    <Table.HeaderCell>Verified</Table.HeaderCell>
-                    <Table.HeaderCell>Online</Table.HeaderCell>
                     <Table.HeaderCell>Rides</Table.HeaderCell>
                     <Table.HeaderCell>Account</Table.HeaderCell>
                     </Table.Row>

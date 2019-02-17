@@ -517,9 +517,13 @@ class DriverLocation extends Component {
             document.getElementById("check-ride-dashboard").style.visibility = "hidden";
             
             var map = this.state.map;
+            if(this.routeControl){
+                map.removeControl(this.routeControl);
+                this.routeControl = null;
+            }
             var markerGroup = this.state.markerGroup;
             markerGroup.clearLayers();
-            //map.removeControl(this.routeControl);
+            
             //map.locate({setView: true, maxZoom: 17});
            
             this.setState({
@@ -563,13 +567,15 @@ class DriverLocation extends Component {
     }
 
     
-    showPickUpLocation = (_pickup_latlng, _driver_latlang) => {
+    showPickUpLocation = (_pickup_latlng, current_latlng) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
         L.marker(_pickup_latlng, {icon: marker_a}).addTo(markerGroup)
         .bindPopup("Pick passenger here.");
+
+        console.log('current loooooocaaaaationnn', this.state.current_latlng);
        // map.setView(_pickup_latlng,15);
-        this.showPickUpRoute(_driver_latlang, _pickup_latlng);
+        this.showPickUpRoute(this.state.current_latlng, _pickup_latlng);
     }
 
     showPickUpRoute = (latlng1, latlng2) => {
@@ -579,7 +585,7 @@ class DriverLocation extends Component {
            map.removeControl(this.routeControl);
            this.routeControl = null;
        }
-       console.log('show pickup route', latlng1)
+      
        this.routeControl = L.Routing.control({
             waypoints: [
              L.latLng(latlng1),
