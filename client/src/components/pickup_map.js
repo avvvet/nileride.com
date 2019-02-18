@@ -592,7 +592,7 @@ class PickUpMap extends Component {
                         //beacuse ride is already started lets stop map click pickup_flag on and dropoff_flag on
                         this.setState({
                             _driverImage: "/assets/profile/driver/" + ride.driver.profile,
-                            _driverCarImage: "/assets/awet-ride.jpeg",
+                            _driverCarImage: "/assets/nile_ride_driver.png",
                             _driverName : ride.driver.firstName + ' ' + ride.driver.middleName,
                             _driverPlateNo: _plate,
                             _driverMobile: ride.driver.mobile,
@@ -697,6 +697,8 @@ class PickUpMap extends Component {
                 clearInterval(this.timer_dropoff_eta);
                 clearInterval(this.timerRideStatus);
                 this.timerRideStatus = null;
+                this.timer_pickup_eta = null;
+                this.timer_dropoff_eta = null;
                 this.resetRide();
               }
             }.bind(this),
@@ -1291,15 +1293,15 @@ class PickUpMap extends Component {
 
               <div className="u-driver-dashboard shake-ride-to-pickup" id="u-driver-dashboard"> 
                 <div className="notify-rider" id="notify-rider"> Get ready ! driver coming.</div>
-                 <Grid columns={3}>
+                 <Grid container columns={3}>
                     <Grid.Row className="row_xs">
-                        <Grid.Column mobile={5} tablet={5} computer={6}>
+                        <Grid.Column mobile={5} tablet={5} computer={5}>
                            <Image src={this.state._driverImage} height={45} circular></Image>
                         </Grid.Column>
-                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center" textAlign="center">
+                        <Grid.Column mobile={5} tablet={5} computer={5} textAlign="center" textAlign="center">
                            <Image src={this.state._driverCarImage} height={45} circular></Image>
                         </Grid.Column>
-                        <Grid.Column mobile={5} tablet={5} computer={6} textAlign="center">
+                        <Grid.Column mobile={6} tablet={6} computer={6} textAlign="center">
                          {this.state._driverCarModel} {this.state._driverPlateNo}
                         </Grid.Column>
                     </Grid.Row>

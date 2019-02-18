@@ -64,7 +64,7 @@ class Branch extends Component {
 
                   <Grid.Row columns={1}>
                     <Grid.Column mobile={12} tablet={12} computer={12}>
-                      <Button color='teal' size='massive' as={NavLink} to='/user/login'  fluid >PASSENGER</Button>
+                      <Button color='teal' size='massive' as={NavLink} to='/user/login'  fluid >ተሳፍሪ PASSENGER</Button>
                     </Grid.Column>
                   </Grid.Row>
 
@@ -78,7 +78,7 @@ class Branch extends Component {
 
                   <Grid.Row columns={1}>
                     <Grid.Column mobile={12} tablet={12} computer={12}>
-                      <Button color='green' size='massive' as={NavLink} to='/driver/login'  fluid >DRIVER</Button>
+                      <Button color='green' size='massive' as={NavLink} to='/driver/login'  fluid >ሹፊር DRIVER</Button>
                     </Grid.Column>
                   </Grid.Row>
 
