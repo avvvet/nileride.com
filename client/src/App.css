@@ -701,3 +701,27 @@ input[type="file"] {
   background-color:rgb(236, 174, 38);
   box-shadow: 10px 10px 10px gray;
 }
+
+.div-faq {
+  color: #000000;
+  position: fixed;
+  bottom: 15%;
+  right: 50%;
+  z-index: 2000;
+  transform: translate(50%, 50%);
+  width: 213px;
+  text-align: center;
+}
+
+.div-faq-txt {
+  position: fixed;
+  top: 12%;
+  right: 50%;
+  z-index: 2010;
+  transform: translate(50%, 0%);
+  width: 355px;
+}
+
+.div-fag-cancel {
+  margin-top: 20px;
+}

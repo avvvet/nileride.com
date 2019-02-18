@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { render } from 'react-dom';
 import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
 import { Grid, Image, Button, Header, Label } from 'semantic-ui-react'
+import Faq from './faq';
+
 class Branch extends Component {
     constructor(){
         super();
@@ -48,7 +51,12 @@ class Branch extends Component {
         map.on('locationerror', onLocationError);
 
         //my Lord is greate  - Jesus I call your name 
-    };
+    }
+
+    _show_faq = (e) => {
+        document.getElementById('div-branch').style.visibility = 'hidden';
+        render(<Faq></Faq>,document.getElementById('div-faq-txt'));
+    }
 
     render(){
         return(
@@ -83,6 +91,14 @@ class Branch extends Component {
                   </Grid.Row>
 
                 </Grid>
+                </div>
+
+                <div id="div-faq-txt" className="div-faq-txt"></div>
+
+                <div id="div-faq" className="div-faq">
+                   <Label size="medium" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
+                      በተደጋጋሚ የሚጠየቁ ጥያቄዎች | FAQ 
+                   </Label>
                 </div>
 
                 <div className="mapid" id="mapid"></div>
