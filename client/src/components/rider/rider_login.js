@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import  { Redirect } from 'react-router-dom'
 import { render } from 'react-dom';
-import { Grid, Message, Form, Button, Header, Image } from 'semantic-ui-react'
+import { Grid, Message, Form, Button, Header, Image, Label } from 'semantic-ui-react'
 import $ from 'jquery';
 
 class RiderLoginForm extends Component {
@@ -97,7 +97,8 @@ class RiderLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='teal'>PASSENGER LOGIN</Header>
+           <Header as='h3' textAlign='center' color='grey'>PASSENGER LOGIN</Header>
+           <Label textAlign='center' color="green" pointing="below">የስልክ ቁጥሮን እና የሚስጢር ኮዶን ያስገቡ !</Label>
            <div className="driverLoginBox">
            <Grid columns={1}>
                 
@@ -108,7 +109,7 @@ class RiderLoginForm extends Component {
                     name="loginEmail"
                     type="text"
                     value={this.state.loginEmail}
-                    placeholder="Email Address"
+                    placeholder="ስልክ ቁጥር mobile"
                     onChange={e => this.change(e)}
                     >
                     </input>
@@ -122,14 +123,14 @@ class RiderLoginForm extends Component {
                     name="loginPassword"
                     type="password"
                     value={this.state.loginPassword}
-                    placeholder="Password"
+                    placeholder="የሚስጢር ኮድ password"
                     onChange={e => this.change(e)}
                     >
                     </input>
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
-
+                
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Button className="btn_login" color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>

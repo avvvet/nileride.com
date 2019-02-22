@@ -40,7 +40,7 @@ class Rate extends Component {
    
     _on_rating = (e) => {
        if(this.state.rating === 0) {
-        render(<Message negative> Please select stars !   (1 star is bad and 5 star  is excellent)</Message>,document.getElementById('div-rateing-error'));
+        render(<Message negative> ኮከብ ይምረጡ ! select stars !</Message>,document.getElementById('div-rateing-error'));
        } else {
            this._rating(e);
        }
@@ -78,9 +78,9 @@ class Rate extends Component {
         return(
             <div>
                 <Message>
-                    <Message.Header>How was the driver and car ?</Message.Header>
+                    <Message.Header>እንዴት ነበር ? How was the ride ?</Message.Header>
                     <p>
-                        Please rate from 1 to 5 star.
+                        እባኮትን ሹፊሩን ከ 1 - 5 ኮከብ በመስጠት ይገምግሙ !
                     </p>
                     
                     <p>

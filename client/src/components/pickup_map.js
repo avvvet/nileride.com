@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
-import { Grid, Message, Form , Label, Button , Card, Image } from 'semantic-ui-react'
+import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react'
 import {NavLink, Redirect} from 'react-router-dom';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
@@ -12,7 +12,7 @@ import Rate from './rider/rate';
 import DriverCancelRide from './rider/driver_cancel_ride';
 import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
-
+import { OpenStreetMapProvider } from 'leaflet-geosearch';
 const env = require('../env');
 var validator = require('validator');
 var yourLocation = L.icon({
@@ -50,9 +50,9 @@ var driver_icon = L.divIcon({
     html: img,
     shadowUrl: '',
     className: 'image-icon-driver',
-    iconSize:     [35, 35], // size of the icon
+    iconSize:     [25, 25], // size of the icon
     shadowSize:   [50, 64], // size of the shadow
-    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
 });
@@ -140,7 +140,18 @@ class PickUpMap extends Component {
             _signInFlag : false,
             _fire_driver_eta_flag : false,
             errors: [],
-            init_map_click : false
+            init_map_click : false,
+            dropoff_search_results : [],
+            dropoff_search : '',
+            pickup_search_results : [],
+            pickup_search : '',
+            input_pickup_size : 'mini',
+            input_dropoff_size : 'large',
+            user_searched_pickup_flag : false,
+            user_searched_pickup_latlng : {
+                lat: 0,
+                lng: 0
+            },
         }
     }
 
@@ -243,6 +254,7 @@ class PickUpMap extends Component {
     }
 
     componentDidMount(){
+        this.nameInput.focus();
         this.getUser(sessionStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         //var map = L.map('mapid');
@@ -279,9 +291,9 @@ class PickUpMap extends Component {
                     html: img,
                     shadowUrl: '',
                     className: 'image-icon',
-                    iconSize:     [35, 35], // size of the icon
+                    iconSize:     [25, 25], // size of the icon
                     shadowSize:   [50, 64], // size of the shadow
-                    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+                    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
                     shadowAnchor: [4, 62],  // the same for the shadow
                     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
                 });
@@ -290,7 +302,13 @@ class PickUpMap extends Component {
                 .bindPopup("You are here.");
                 L.circle(e.latlng, radius).addTo(locationGroup);
                 // map.setView(e.latlng,15);
-                this.setState({currentLatLng : e.latlng});
+                this.setState({
+                    currentLatLng : e.latlng,
+                    pickup_flag : 'on',
+                    pickup_latlng : e.latlng,   //current location become as pickup 
+                    first_time_flag : true
+                });
+                    
             }     
         });
         
@@ -372,6 +390,7 @@ class PickUpMap extends Component {
             map.removeControl(this.routeControl);
             this.routeControl = null;
         }
+
         this.routeControl = L.Routing.control({
             waypoints: [
              L.latLng(latlng1),
@@ -381,9 +400,7 @@ class PickUpMap extends Component {
             addWaypoints : false, //disable adding new waypoints to the existing path
             show: false,
             showAlternatives: false,
-            createMarker: function (){
-                return null;
-            },
+            
             lineOptions: {
                 styles: [{color: 'red', opacity: 1, weight: 3}]
             },
@@ -404,6 +421,7 @@ class PickUpMap extends Component {
     }
     
     routeFound =(e) => {
+        console.log('route found', e.routes);
         var routes = e.routes;
         var _distance = routes[0].summary.totalDistance;
         var _ride_time = routes[0].summary.totalTime;
@@ -436,7 +454,7 @@ class PickUpMap extends Component {
        document.getElementById('ride-route-try').style.visibility = 'hidden';
        document.getElementById('ride-route-status').style.visibility = 'hidden';
        document.getElementById('ride-price-dashboard').style.visibility = "visible";
-       this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
+       //this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
     }
 
     nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
@@ -910,7 +928,9 @@ class PickUpMap extends Component {
             isRouteFound : false,
             rideCompleteFlag: false,
             pickup_eta_flag : false,
-            dropoff_eta_flag: false
+            dropoff_eta_flag: false,
+            dropoff_search : '',
+            pickup_search : ''
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
@@ -934,7 +954,9 @@ class PickUpMap extends Component {
             isRouteFound : false,
             rideCompleteFlag: false,
             pickup_eta_flag : false,
-            dropoff_eta_flag: false
+            dropoff_eta_flag: false,
+            dropoff_search : '',
+            pickup_search : ''
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
@@ -1105,51 +1127,304 @@ class PickUpMap extends Component {
         });  
     }
 
+    _search_pickup = (search) => {
+        if(search.length > 0){
+            const provider = new OpenStreetMapProvider(); 
+            provider
+            .search({ query: search + ' addis ababa' })
+            .then((results) => { 
+              $('.pickup_search').removeClass("loading");
+              // do something with result;
+              console.log('I am winner beacuse I have Jesus', results);
+              this.setState({
+                pickup_search_results : results
+              });
+              document.getElementById('search_result_pickup').style.visibility = 'visible';
+            });
+        } else {
+            $('.pickup_search').removeClass("loading");
+        }
+    }
+
+    pickup_nomi = (results) => {
+        var i = 0;
+        const data = results.map((result) =>
+        <Table.Row key={i++} >
+            <Table.Cell onClick={() => this.handleRowClick_pickup(result)}>{result.label}</Table.Cell>
+        </Table.Row>         
+        );
+        return data;
+    }
+    
+    handleRowClick_pickup = (result) => {
+         //my lord thank you thank you 
+        if(result) {
+          document.getElementById('search_result_pickup').style.visibility = 'hidden';
+          var latlng = {
+            lat : parseFloat(result.y),
+            lng : parseFloat(result.x)
+          }
+          this.setState({
+              pickup_search : result.label,
+              pickup_flag : 'on',
+              user_searched_pickup_flag : true,
+              user_searched_pickup_latlng : latlng,
+              first_time_flag : true
+          });
+        
+          var markerGroup = this.state.markerGroup;
+          var map = this.state.map;
+          L.marker(latlng, {icon: marker_a}).addTo(markerGroup);
+          map.fitBounds(result.bounds);
+
+          if(this.state.dropoff_flag ==='on' ) {
+            var latlng1 = latlng;
+            var latlng2 = this.state.dropoff_latlng;
+            this.findRoute(latlng1, latlng2);
+          }
+
+        }
+    }
+
+    _search_pickup_on_change = (e) => {
+        e.preventDefault();
+        $('.pickup_search').addClass("loading");
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+
+        clearTimeout(this.timeout_pickup);
+
+        this.timeout_pickup = setTimeout(this._search_pickup, 1000, e.target.value);
+    }
+
+    handleFocusPickup = (event) => event.target.select();
+
+    handlClickPickup = (event) => {
+        event.target.select();
+        this.setState({
+            input_pickup_size : 'large',
+            input_dropoff_size : 'mini'
+        })
+    }
+
+    handleClickDropOff = (event) => {
+        event.target.select();
+        this.setState({
+            input_pickup_size : 'mini',
+            input_dropoff_size : 'large'
+        })
+    }
+
+    _search_dropoff = (search) => {
+        if(search.length > 0){
+            const provider = new OpenStreetMapProvider(); 
+            provider
+            .search({ query: search + ' addis ababa' })
+            .then((results) => { 
+              if(results.length > 0) {
+                $('.dropoff_search').removeClass("loading");
+                // do something with result;
+                console.log('I am winner beacuse I have Jesus', results);
+                this.setState({
+                  dropoff_search_results : results
+                });
+                console.log('again winner');
+                document.getElementById('search_result_dropoff').style.visibility = 'visible';
+              } else {
+                $('.dropoff_search').removeClass("loading");
+                this.setState({
+                    dropoff_search_results : [{'label' : 'No result !'}]
+                });
+                console.log('again again winner');
+                document.getElementById('search_result_dropoff').style.visibility = 'visible';
+              }
+            });
+        } else {
+            this.setState({
+                dropoff_search_results : ''
+              });
+              document.getElementById('search_result_dropoff').style.visibility = 'visible';
+            $('.dropoff_search').removeClass("loading");
+        }
+    }
+
+    dropoff_nomi = (results) => {
+
+        if(results) {
+            var i = 0;
+            const data = results.map((result) =>
+            <Table.Row key={i++} >
+                <Table.Cell onClick={() => this.handleRowClick_dropoff(result)}>{result.label}</Table.Cell>
+            </Table.Row>         
+            );
+            return data;
+        } 
+    }
+    
+    handleRowClick_dropoff = (result) => {
+        //my lord thank you thank you 
+        if(result) {
+          var latlng = {
+                lat : parseFloat(result.y),
+                lng : parseFloat(result.x)
+          }
+          document.getElementById('search_result_dropoff').style.visibility = 'hidden';
+          this.setState({
+              dropoff_search : result.label,
+              dropoff_flag: 'on',
+              dropoff_latlng: latlng
+          });
+          var markerGroup = this.state.markerGroup;
+          var map = this.state.map;
+          L.marker(latlng, {icon: marker_b}).addTo(markerGroup);
+          map.fitBounds(result.bounds);
+
+          if(this.state.pickup_flag ==='on') {
+            var latlng1;
+            if(this.state.user_searched_pickup_flag) {
+                latlng1 = this.state.user_searched_pickup_latlng;
+            } else {
+                latlng1 = this.state.pickup_latlng;
+            }
+            
+            var latlng2 = latlng;
+            this.findRoute(latlng1, latlng2);
+          }
+
+        }
+    }
+
+    _search_dropoff_on_change = (e) => {
+        e.preventDefault();
+        $('.dropoff_search').addClass("loading");
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+
+        clearTimeout(this.timeout_dropoff);
+
+        this.timeout_dropoff = setTimeout(this._search_dropoff, 1000, e.target.value);
+    }
+
+    handleFocusDropOff = (event) => event.target.select();
+
+    focus_pickup_search = () => {
+        $('.dropoff_search').focus();
+    }
+
     render(){ 
+         
 
         if(this.state._signInFlag) {
             return <Redirect to='/user/login'  />
         }  
         return(
             <div>
-              <div className="user-info" id="user-info">
-                    <Card color='teal'>
-                    <Card.Content>
-                        
-                        {this.state.user.hasProfile === true ?  
-                        <Image floated='right' size='mini' src={'/assets/profile/user/' + this.state.user.profile} circular />
-                        : 
-                        <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
-                        }
-                         
-                        <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.user.firstName : 'hi rider!'}</Card.Header>
-                        <Card.Meta>
-                        {this.state.isLogedIn === true ?
-                          <Label as={NavLink} to="/" basic pointing color="green">
-                            LOGOUT
-                          </Label>  
-                        :
-                          <Label as={NavLink} to="/" basic pointing color="blue">
-                            LOGIN
-                          </Label>
-                        }
-                       
-                        </Card.Meta>
-                        
-                    </Card.Content>
-                
-                    </Card>
 
+            <div className="search_1" id="search_1">
+                 <div>
+                    <Grid columns={1} centered>
+                        <Grid.Row>
+                            <Grid.Column mobile={16} tablet={16} computer={16}>
+                            <Form>
+                            <Input  
+                                 icon={<Icon name='search' 
+                                 inverted circular link />} 
+                                 placeholder='መነሻ ያሉበት current location' 
+                                 onClick={this.handlClickPickup} 
+                                 onFocus={this.handleFocusPickup} 
+                                 onChange={e => this._search_pickup_on_change(e)}  
+                                 value={this.state.pickup_search} 
+                                 name="pickup_search" 
+                                 className="pickup_search"
+                                 size={this.state.input_pickup_size}
+                                 fluid
+                            />
+                            </Form>
+                            </Grid.Column>
+
+                        </Grid.Row>   
+                    </Grid>
+                    <div className="search_result_pickup" id="search_result_pickup">
+                     <Table celled selectable>
+                      <Table.Body>
+                       {this.pickup_nomi(this.state.pickup_search_results)}
+                      </Table.Body>
+                     </Table>
+                    </div>                
+                </div>
+            
+                <div>
+                    <Grid columns={1} centered>
+                        <Grid.Row>
+                            <Grid.Column mobile={16} tablet={16} computer={16}>
+                            <Form>
+                            <Input  
+                                 icon={<Icon name='search' 
+                                 inverted circular link />} 
+                                 placeholder='ወዴት ይሄዳሉ ? where to ?' 
+                                 onClick={this.handleClickDropOff} 
+                                 onFocus={this.handleFocusDropOff} 
+                                 onChange={e => this._search_dropoff_on_change(e)}  
+                                 value={this.state.dropoff_search} 
+                                 name="dropoff_search" 
+                                 className="dropoff_search"
+                                 size={this.state.input_dropoff_size}
+                                 fluid
+                                 ref={(input) => { this.nameInput = input; }} 
+                            />
+                            </Form>
+                            </Grid.Column>
+
+                        </Grid.Row>   
+                    </Grid>
+                    <div className="search_result_dropoff" id="search_result_dropoff">
+                     <Table celled selectable>
+                      <Table.Body>
+                       {this.dropoff_nomi(this.state.dropoff_search_results)}
+                      </Table.Body>
+                     </Table>
+                    </div>                                  
+                </div>
+                    
+              </div>  
+
+              <div className="user-info" id="user-info">
+                <Grid container columns={2} centered>
+                    <Grid.Row>
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                            {this.state.user.hasProfile === true ?  
+                                <Image floated='right'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar/>
+                                : 
+                                <Image floated='right' height={30}  src={'/assets/awet-rider-m.png'} />
+                            }                         
+                        </Grid.Column>
+                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                            {this.state.isLogedIn === true ?
+                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="green">
+                                LOGOUT
+                                </Label>  
+                            :
+                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="blue">
+                                LOGIN
+                                </Label>
+                            }
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
               </div>
               
               {this.state.user.verified === false ?  
               <div className="account-verify" id="account-verfiy">
                         <form>
                         <Message  positive>
-                            <Message.Header>Final step! Varify your mobile!</Message.Header>
-                            
+                            <Message.Header>ስልኮን ያረጋግጡ varify your mobile!</Message.Header>
                             <p>
-                                If the mobile number <strong>{this.state.user.mobile}</strong> is yours. 
+                                አጭር የጽሁፍ መልዕክት ወደ ተመዘገበው ስልክ ልከናል ፡ እባኮትን የተላከውን
+                                ቁጥር ያስገቡ።
+                            </p>
+                            <p>
                                 Enter the text message sent to your mobile
                                 and click varify.
                             </p>
@@ -1191,7 +1466,11 @@ class PickUpMap extends Component {
                <div className="div-profile" id="div-profile">
                <Grid>
                      <Message info>
-                      <Message.Header>Finally, Profile picture !</Message.Header>
+                      <Message.Header>ፍቶ ያስገቡ profile picture !</Message.Header>
+                            <p>
+                             እባኮትን መልኮን በግልጽ የሚይሳይ ጉርድ ፎቶ ይመረጡ እና ያያይዙ።
+                            </p>
+                               
                             <p>
                                 Helps to identify who you are.
                             </p>
@@ -1302,15 +1581,17 @@ class PickUpMap extends Component {
                            <Image src={this.state._driverCarImage} height={45} circular></Image>
                         </Grid.Column>
                         <Grid.Column mobile={6} tablet={6} computer={6} textAlign="center">
-                         {this.state._driverCarModel} {this.state._driverPlateNo}
+                         {this.state._driverCarModel} <Label color="blue">{this.state._driverPlateNo}</Label>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row className="row_xs">
                         <Grid.Column mobile={8} tablet={8} computer={8}>
-                           {this.state._driverName}
+                           <Label>{this.state._driverName}</Label>
                         </Grid.Column>
                         <Grid.Column mobile={8} tablet={8} computer={8}>
-                         {this.state._driverMobile}
+                         <Label as="a" color="green"><Icon name="phone volume"/>
+                         <a href={'tel:' + this.state._driverMobile}>{this.state._driverMobile}</a>
+                         </Label>
                         </Grid.Column>
                     </Grid.Row>
                  </Grid>

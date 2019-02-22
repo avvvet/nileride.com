@@ -55,22 +55,21 @@ class MissedRide extends Component {
     render(){
         return(
             <div>
-                <Message success>
-                 <Message.Header>You Missed a ride !</Message.Header>
+                <Message negative>
+                 <Message.Header>ስራ አመለጦት !</Message.Header>
                     <p>
-                        This will affect customer and our work. Please 
-                        remind repeated missed ride will lead to closing
-                        your account.
+                        ይህ  በጠቅላላው ስራውን የሚጎዳ ነው ! ይጠንቀቁ እባኮትን ተደጋጋሚ ሰራ ማምለጥ
+                        ሲስተሙ ቀጣይ ስራ ወደ እርሶ እንዳይመጣ ሊያግዶት ይችላል !
                     </p>
 
                     <p>
-                       <h3>Are you ready to work now ?</h3>
+                       <h3>ስራ ለመቀበል ስግጁ ኖት ?</h3>
                     </p>
                     <p>
                         <Grid container columns={2}>
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16}> 
-                                    <Button className="btn_confirm_missed" color="green" onClick={(e) => this.confirm_missed_ride(e)} fluid>YES</Button>
+                                    <Button className="btn_confirm_missed" color="green" onClick={(e) => this.confirm_missed_ride(e)} fluid>ዝግጁ ነኝ</Button>
                                 </Grid.Column>
                             </Grid.Row>
 

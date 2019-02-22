@@ -11,6 +11,7 @@ import DriverLogin from './components/driver/login';
 import RiderLogin from './components/rider/login';
 import AdminLogin from './components/admin/admin_login';
 import ControlPanel from './components/admin/control_panel';
+import Playground from './components/playground';
 import './App.css';
 
 
@@ -43,6 +44,7 @@ class App extends React.Component {
                 <Route path="/driver/login" component={DriverLogin} exact/>
                 <Route path="/admin" component={AdminLogin} exact />
                 <Route path="/admin/control_panel" component={ControlPanel} exact />
+                <Route path="/playground" component={Playground} exact />
             </Switch>
           </div>
         </BrowserRouter>  

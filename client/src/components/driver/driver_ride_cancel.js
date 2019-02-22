@@ -4,8 +4,8 @@ import {Grid, Button, Form , Message} from 'semantic-ui-react';
 import $ from 'jquery';
 
 const options_reason = [
-    { key: '1', text: 'I DO NOT WANT TO WORK', value: 'I-DO-NOT-WANT-TO-WORK' },
-    { key: '2', text: 'PASSANGER-NOT-FOUND', value: 'PASSANGER-NOT-FOUND' },
+    { key: '1', text: 'መስራት አልችልም', value: 'I-DO-NOT-WANT-TO-WORK' },
+    { key: '2', text: 'ተሳፋሪውን ማግኘት አልቻልኩም', value: 'PASSANGER-NOT-FOUND' },
 ]
 
 class DriverRideCancel extends Component {
@@ -33,7 +33,7 @@ class DriverRideCancel extends Component {
      e.preventDefault();
      e.target.disabled = true;
      if(this.state._reason.length === 0) {
-        render(<Message negative >select reason !</Message>,document.getElementById('div-error-reason'));
+        render(<Message negative >ምከንያት ይምረጡ </Message>,document.getElementById('div-error-reason'));
         e.target.disabled = false;
      } else {
         var data = {
@@ -72,7 +72,7 @@ class DriverRideCancel extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 $('.btn_reason_submit').removeClass("loading");
-                render(<div className="div-error">connection error, try again</div>,document.getElementById('div-error-reason'));
+                render(<div className="div-error">ኢንተርኒት መኖሩን እርግጠኛ ይሁኑ እንደገና ይሞክሩ !</div>,document.getElementById('div-error-reason'));
             }.bind(this)
         });  
     }
@@ -95,11 +95,11 @@ class DriverRideCancel extends Component {
             <div>
               {this.state._show_confirm === true ?
               <Message>
-                 <Message.Header> Are you sure to cancel ?</Message.Header>
+                 <Message.Header> እርግጠኛ ኖት ጎዞውን ለመሰረዝ ?</Message.Header>
                  <p>
                  <div className='ui two buttons'>
-                    <Button  onClick={(e) => this._no(e)}   color="green" >NO</Button>
-                    <Button  onClick={(e) => this._yes(e)}  color="red" >YES</Button>
+                    <Button  onClick={(e) => this._no(e)}   color="green" >ይቅር</Button>
+                    <Button  onClick={(e) => this._yes(e)}  color="red" >እርግጠኛ ነኝ</Button>
                 </div>
                 </p>
               </Message>
@@ -108,26 +108,26 @@ class DriverRideCancel extends Component {
 
               {this.state._show_reason === true ? 
                         <Message>
-                        <Message.Header>Why you are cancelling ?</Message.Header>
+                        <Message.Header>ጉዞው ለምን ይሰረዛል ?</Message.Header>
                         <p>
                             <Grid columns={1}>
                                 <Grid.Row>
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
                                     <Form>
-                                    <Form.Select name='_reason' fluid label='Reason' options={options_reason} placeholder='Reason' onChange={this._onchange}/>
+                                    <Form.Select name='_reason' fluid label='ምክንያት' options={options_reason} placeholder='ምከንያት' onChange={this._onchange}/>
                                     </Form>
                                     </Grid.Column>
                                </Grid.Row>
 
                                <Grid.Row className="row_xs">
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
-                                    <Button className="btn_reason_submit" color="green" onClick={(e) => this._onsubmit(e)} fluid>SUBMIT</Button>
+                                    <Button className="btn_reason_submit" color="green" onClick={(e) => this._onsubmit(e)} fluid>አሳውቅ</Button>
                                     </Grid.Column>
                                </Grid.Row>
 
                                <Grid.Row className="row_sm">
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
-                                    <Button color="red" onClick={(e) => this._no(e)} fluid>NO</Button>
+                                    <Button color="red" onClick={(e) => this._no(e)} fluid>ይቅር</Button>
                                     </Grid.Column>
                                </Grid.Row>
 

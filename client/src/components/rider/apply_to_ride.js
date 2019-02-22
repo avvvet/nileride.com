@@ -1,7 +1,7 @@
 import React , { Component } from 'react';
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
-import { Grid,Message, Form, Button, Header, Image } from 'semantic-ui-react'
+import { Grid,Message, Form, Button, Header, Label} from 'semantic-ui-react'
 import $ from 'jquery';
 
 var validator = require('validator');
@@ -107,7 +107,7 @@ class ApplyToRide extends Component {
         const err = this.validateRiderApply();
         if(err.length > 0){
             let error_list = this.getErrorList(err);
-            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
+            render(<Message negative >{error_list}</Message>,document.getElementById('ApplyFormError'));
         } else {
             var rider = {
                 firstName: this.state.firstName,
@@ -164,8 +164,10 @@ class ApplyToRide extends Component {
         
         return(
             <div>
-                {this.state.show_form === false ? 
-             <div className="driverLoginBox">
+             {this.state.show_form === false ? 
+             <div>
+                 <Label textAlign='center' color="red" pointing="below">አዲስ ተሳፋሪ ፡ እዚህ ይመዝገቡ !</Label>
+                 <div className="driverLoginBox">
                <Grid  columns={1} centered  stackable>
                  <Grid.Row>
                      <Grid.Column mobile={18} tablet={18} computer={18}>
@@ -174,8 +176,11 @@ class ApplyToRide extends Component {
                  </Grid.Row>
                </Grid>
              </div> 
+             </div>
+             
              :
                 <div className="driverLoginBox">
+                <Header as='h3' textAlign='center' color='grey'>NEW PASSENGER</Header> 
                 <Grid columns={1}>
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
@@ -266,10 +271,17 @@ class ApplyToRide extends Component {
                 </Grid.Row>
 
                 <Grid.Row>
+                 <Grid.Column mobile={18} tablet={18} computer={18}>
+                  <div id='ApplyFormError' className='ApplyFormError'></div>
+                  </Grid.Column>
+                </Grid.Row>
+                
+                <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Button className="btn_apply" color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >NEW PASSENGER</Button>
                     </Grid.Column> 
                 </Grid.Row>
+
                 </Grid>
                 </div>  
              }

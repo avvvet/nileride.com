@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Message, Form, Button, Header, Image } from 'semantic-ui-react'
+import { Grid, Message, Form, Button, Header, Label } from 'semantic-ui-react'
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
 import $ from 'jquery';
@@ -96,7 +96,8 @@ class DriverLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='teal'>DRIVER LOGIN</Header>
+           <Header as='h3' textAlign='center' color='teal'>የሹፊር መግብያ</Header>
+           <Label textAlign='center' color="green" pointing="below">የስልክ ቁጥሮን እና የሚስጢር ኮዶን ያስገቡ !</Label>
            <div className="driverLoginBox">
            <Grid columns={1}>
                 <Grid.Row columns={1}>
@@ -106,7 +107,7 @@ class DriverLoginForm extends Component {
                         name="loginEmail"
                         type="text"
                         value={this.state.loginEmail}
-                        placeholder="Email Address"
+                        placeholder="ስልክ ቁጥር mobile"
                         onChange={e => this.change(e)}
                         size="huge"
                         >
@@ -121,7 +122,7 @@ class DriverLoginForm extends Component {
                         name="loginPassword"
                         type="password"
                         value={this.state.loginPassword}
-                        placeholder="Password"
+                        placeholder="የሚስጢር ኮድ password"
                         onChange={e => this.change(e)}
                         >
                         </input>
@@ -131,7 +132,7 @@ class DriverLoginForm extends Component {
 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                     <Button className="btn_login" color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >LOGIN</Button>
+                     <Button className="btn_login" color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >አስገባኝ</Button>
                     </Grid.Column> 
                 </Grid.Row>
 

@@ -78,9 +78,9 @@ var driver_icon = L.divIcon({
     html: img,
     shadowUrl: '',
     className: 'image-icon-driver',
-    iconSize:     [35, 35], // size of the icon
+    iconSize:     [25, 25], // size of the icon
     shadowSize:   [50, 64], // size of the shadow
-    iconAnchor:   [19, 20], // point of the icon which will correspond to marker's location
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
 });
@@ -88,16 +88,38 @@ var driver_icon = L.divIcon({
 const options_model = [
     { key: '1', text: 'VITZ', value: 'VITZ' },
     { key: '2', text: 'COROLLA', value: 'COROLLA' },
+    { key: '3', text: 'YARIS', value: 'YARIS' },
+    { key: '4', text: 'PLATIZ', value: 'PLATIZ' },
+    { key: '5', text: 'HYUNDAI', value: 'HYUNDAI' },
+    { key: '6', text: 'LIFAN', value: 'LIFAN' },
+    { key: '7', text: 'OTHER', value: 'OTHER' },
 ]
 
 const options_model_year = [
-    { key: '1', text: '2019', value: '2019' },
-    { key: '2', text: '2018', value: '2015' },
+    { key: '1', text: '2001', value: '2001' },
+    { key: '2', text: '2002', value: '2002' },
+    { key: '3', text: '2003', value: '2003' },
+    { key: '4', text: '2004', value: '2004' },
+    { key: '5', text: '2005', value: '2005' },
+    { key: '6', text: '2006', value: '2006' },
+    { key: '7', text: '2007', value: '2007' },
+    { key: '8', text: '2008', value: '2008' },
+    { key: '9', text: '2009', value: '2009' },
+    { key: '5', text: '2010', value: '2010' },
+    { key: '5', text: '2011', value: '2011' },
+    { key: '5', text: '2012', value: '2012' },
+    { key: '5', text: '2013', value: '2013' },
+    { key: '5', text: '2014', value: '2014' },
+    { key: '5', text: '2015', value: '2015' },
+    { key: '5', text: '2016', value: '2016' },
+    { key: '5', text: '2017', value: '2017' },
+    { key: '5', text: '2018', value: '2018' }
 ]
 
 const options_code = [
     { key: '1', text: '01', value: '01' },
-    { key: '2', text: '03', value: '03' },
+    { key: '2', text: '02', value: '02' },
+    { key: '3', text: '03', value: '03' },
 ]
 
 class DriverLocation extends Component {
@@ -158,17 +180,7 @@ class DriverLocation extends Component {
            plate_no : '',
        }
 
-    this.checkForRide = this.checkForRide.bind(this);
-    this.getDriver = this.getDriver.bind(this);
-    this.driverCurrentLocation = this.driverCurrentLocation.bind(this);
-    this.acceptRide = this.acceptRide.bind(this);
-    this.rideCompleted = this.rideCompleted.bind(this);
-    this.showPickUpLocation = this.showPickUpLocation.bind(this);
-    this.showPickUpRoute = this.showPickUpRoute.bind(this);
-    this.showDropOffLocation = this.showDropOffLocation.bind(this);
-    this.showDropOffRoute = this.showDropOffRoute.bind(this);
-    this.timeConvert = this.timeConvert.bind(this);
-    this.driverRidesInfo = this.driverRidesInfo.bind(this);
+    
    }
    
 
@@ -685,13 +697,13 @@ class DriverLocation extends Component {
         let errors = [];
         
         if(this.state.varificationCode.length === 0) {
-            errors.push("Varification field is empty.");
+            errors.push("የተላከውን ቁጥር አላስገቡም !");
         } else if (validator.isLength(this.state.varificationCode, {min: 5}) === false){
-            errors.push("Code must not be less than 5 characters");
+            errors.push("ቁጥሩ 5 አሀዝ ቁጥር መሆን አለበት !");
         }else if(validator.isLength(this.state.varificationCode, {max: 5}) === false){
-            errors.push("Code is greater than 5 characters");
+            errors.push("ቁጥሩ 5 አሀዝ ቁጥር መሆን አለበት !");
         } else if (validator.isNumeric(this.state.varificationCode, {no_symbols: true} ) === false) {
-            errors.push("Varification number is not valid");
+            errors.push("ትክክለኛ ቁጥር አላስገቡም !");
         }
     
         return errors;
@@ -701,21 +713,21 @@ class DriverLocation extends Component {
         let errors = [];
         
         if(this.state.model.length === 0) {
-            errors.push("Select model.");
+            errors.push("ከዝርዝሩ ሞዴል ይምረጡ !");
         } else if (this.state.model_year.length === 0){
-            errors.push("Select year");
+            errors.push("ዓመት ይምረጡ !");
         }
 
         if(this.state.code.length === 0){
-            errors.push("Select plate code");
+        errors.push("የታርጋ ኮድ ይምረጡ !");
         } 
 
         if(this.state.plate_no.length === 0 ) {
-            errors.push("Plate Number is empty.");
+            errors.push("ታርጋ ቁጥር አላስገቡም !");
         } else if(validator.isAlphanumeric(this.state.plate_no) === false) {
-            errors.push("Plate Number is not valid.");
+            errors.push("ታርጋ ቁጥሩ ትክክል አይደለም !");
         } else if(validator.isLength(this.state.plate_no, {min: 5, max: 6}) === false){
-            errors.push("Plate Number is not correct");
+            errors.push("ታርጋ ቁጥሩ ትክክል አይደለም !");
         }
     
         return errors;
@@ -772,7 +784,7 @@ class DriverLocation extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 $('.btn_mobile_varify').removeClass("loading");
-                render(<Message negative>Verification faild !</Message>,document.getElementById('FormError'));
+                render(<Message negative>ትክክለኛ ቁጥሩ አላስገቡም !</Message>,document.getElementById('FormError'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -821,7 +833,7 @@ class DriverLocation extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 $('.btn_car_register').removeClass("loading");
-                render(<Message negative >Car registration faild !</Message>,document.getElementById('err_car_register'));
+                render(<Message negative >መመዝገብ አልተቻለም እንደገና ይሞክሩ ኢንተርኔት መኖሩን ያረጋግጡ !</Message>,document.getElementById('err_car_register'));
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -848,11 +860,11 @@ class DriverLocation extends Component {
         let errors = [];
         
         if(this.state.file.length === 0) {
-            errors.push("Picture is empty. Browse first.");
+            errors.push("ፎቶ አልመረጡም ! Browse የሚለውን ይጫኑ።");
         } 
 
         if(this.state.file.size > 1024000) {
-            errors.push("Selected Picture is very large");
+            errors.push("የመረጡት ፎቶ መጠን ትልቅ ነው ! አነስተኛ ፎቶ ይምረጡ።");
         }
        
         if(this.state.file.size > 0) {
@@ -860,7 +872,7 @@ class DriverLocation extends Component {
             var t = this.state.file.type.split('/').pop().toLowerCase();
             console.log('ttt', t);
             if (t != "jpeg" && t != "jpg" && t != "png" && t != "bmp" && t != "gif") {
-                errors.push('Please select a valid image file');
+                errors.push('ትክክለኛ የፎቶ ዓይነት ይምረጡ !');
             }
         }
         
@@ -904,13 +916,13 @@ class DriverLocation extends Component {
                    document.getElementById('div-profile').style.visibility = 'hidden';
                    this.getDriver(sessionStorage.getItem("_auth_driver"));
                 } else {
-                    render(<Message bsStyle="danger" >Not updated. Try again !</Message>,document.getElementById('ProfileError'));
+                    render(<Message bsStyle="danger" >በድጋሚ ይሞክሩ ! </Message>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
                 $('.btn_upload').removeClass("loading");
-                render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
+                render(<Message bsStyle="danger" >በድጋሚ ይሞክሩ ! ኢንተርኔት መኖሩን ያረጋግጡ !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
     }
@@ -944,72 +956,72 @@ class DriverLocation extends Component {
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
-                    <Card color='teal'>
-                    <Card.Content>
-                        
-                        {this.state.driver.hasProfile === true ?  
-                        <Image floated='right' size='mini' src={'/assets/profile/driver/' + this.state.driver.profile} circular />
-                        : 
-                        <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
-                        }
-                       
-                        <Card.Header>{this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}</Card.Header>
-                        <Card.Meta>
+                    <Grid container columns={3} centered>
+                        <Grid.Row className="row_sm">
+                            <Grid.Column mobile={6} tablet={6} computer={6} textAlign="center">
+                              {this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}
+                            </Grid.Column>
+                            <Grid.Column mobile={5} tablet={5} computer={5} textAlign="center">
                             {this.state.isLogedIn === true ?
-                                <Label as={NavLink} to="/" basic pointing color="green">
+                                <Label as={NavLink} to="/" basic pointing="left" color="green">
                                 LOGOUT
                                 </Label>  
                             :
-                                <Label as={NavLink} to="/" basic pointing color="blue">
+                                <Label as={NavLink} to="/" basic pointing="left" color="blue">
                                 LOGIN
                                 </Label>
                             }
-                        </Card.Meta>
-                        <Card.Description>
-                            <Grid columns={2} centered divided>
-                                <Grid.Row>
-                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                                     Birr <Label size="large" color="green" circular>{this.state.amount} </Label>
-                                    </Grid.Column>
-                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                                     Charge <Label size="large" color="yellow" circular>{this.state.charge}</Label>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center" >
-                                      Ride  <Label color="teal" size="large" circular>{this.state.total_rides}</Label> 
-                                    </Grid.Column>
-                                    <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                                     <Label color="olive">Status Working</Label>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </Card.Description>
-                    </Card.Content>
-                    
-                    </Card>
+                            </Grid.Column>
+                            <Grid.Column mobile={5} tablet={5} computer={5} textAlign="center">
+                                {this.state.driver.hasProfile === true ?  
+                                <Image floated='right' size='mini' src={'/assets/profile/driver/' + this.state.driver.profile} circular />
+                                : 
+                                <Image floated='right' size='mini' src={'/assets/awet-rider-m.png'} />
+                                }
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                        
+                    <Grid container columns={2} centered divided>
+                        <Grid.Row className="row_sm"> 
+                            <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                ክፍያ <Label size="medium" color="green" circular>{this.state.amount} </Label>
+                            </Grid.Column>
+                            <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                ተቀናሽ <Label size="medium" color="yellow" circular>{this.state.charge}</Label>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row className="row_sm">
+                            <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center" >
+                                ጉዞ <Label color="teal" size="medium" circular>{this.state.total_rides}</Label> 
+                            </Grid.Column>
+                            <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
+                                <Label color="olive">የተፈቀደለት</Label>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                 </div>
                 
                 {this.state.driver.isCarRegistered === false && this.state.driver.verified === true ? 
                 <div className="register-car" id="register-car">
                         <Message>
-                            <Message.Header>Register your car !</Message.Header>
+                            <Message.Header>የሚነዱትን መኪና ይመዝግቡ !</Message.Header>
                             <p>
-                                Enter correct information.false information will lead to
-                                block your account.
+                                የሚነዱትን መኪና መረጃ ትክክለኛ ይመዝግቡ። 
+                                ትክክለኛ ያልሆነ መረጃ ከሲስተሙ እንዲሰረዙ ያስደርጋል።
                             </p>
                             <p>
                                <Grid columns={2}>
                                     <Grid.Row>
                                         <Grid.Column mobile={8} tablet={8} computer={8}>
                                         <Form>
-                                        <Form.Select name='model' fluid label='Model' options={options_model} placeholder='Model' onChange={this.onChangeModel}/>
+                                        <Form.Select name='model' fluid label='ሞዴል' options={options_model} placeholder='ሞዴል' onChange={this.onChangeModel}/>
                                         </Form>
                                         </Grid.Column>
                                     
                                         <Grid.Column mobile={8} tablet={8} computer={8}>
                                         <Form>
-                                        <Form.Select name='model_year' fluid label='Model Year' options={options_model_year} placeholder='Year' onChange={this.onChangeModelYear}/>
+                                        <Form.Select name='model_year' fluid label='የምርት ዓመት' options={options_model_year} placeholder='ዓመት' onChange={this.onChangeModelYear}/>
                                         </Form>
                                         </Grid.Column>
                                     </Grid.Row>
@@ -1017,18 +1029,18 @@ class DriverLocation extends Component {
                                    <Grid.Row>
                                         <Grid.Column mobile={8} tablet={8} computer={8}>
                                         <Form>
-                                        <Form.Select name='code' fluid label='Plate Code' options={options_code} placeholder='Code' onChange={this.onChangeCode}/>
+                                        <Form.Select name='code' fluid label='የታርጋ ኮድ' options={options_code} placeholder='የታርጋ ኮድ' onChange={this.onChangeCode}/>
                                         </Form>
                                         </Grid.Column>
 
-                                        <Grid.Column mobile={8} tablet={8} computer={8}> 
+                                        <Grid.Column mobile={8} tablet={8} computer={8}>  
                                         <Form>
-                                        Plate #
+                                        ታርጋ ቁጥሩ
                                         <input
                                         name="plate_no"
                                         type="text"
                                         value={this.state.plate_no}
-                                        placeholder="Plate No."
+                                        placeholder="ታርጋ ቁጥር"
                                         onChange={e => this.change(e)}
                                         >
                                         </input>
@@ -1038,7 +1050,7 @@ class DriverLocation extends Component {
 
                                    <Grid.Row>
                                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                                        <Button className="btn_car_register" color="green" onClick={(e) => this.onValidateCarRegister(e)} fluid>REGISTER</Button>
+                                        <Button className="btn_car_register" color="green" onClick={(e) => this.onValidateCarRegister(e)} fluid>መዝግብ</Button>
                                         </Grid.Column>
                                    </Grid.Row>
 
@@ -1058,11 +1070,10 @@ class DriverLocation extends Component {
                 <div className="account-verify" id="account-verfiy">
                         <form>
                         <Message success>
-                            <Message.Header>Varify your mobile!</Message.Header>
+                            <Message.Header>ስልኮን ያረጋግጡ !</Message.Header>
                             <p>
-                                If the mobile number <strong> {this.state.driver.mobile}</strong> is yours. 
-                                Enter the text message sent to your mobile
-                                and click varify.
+                                አጭር የጽሁፍ መልዕክት ወደ ተመዘገበው ስልክ ልከናል ፡ 
+                                እባኮትን የተላከውን ቁጥር ያስገቡ።
                             </p>
                             <p>
                                <Grid columns={2}>
@@ -1081,7 +1092,7 @@ class DriverLocation extends Component {
                                      </Grid.Column>
 
                                      <Grid.Column mobile={8} tablet={8} computer={8}> 
-                                       <Button className="btn_mobile_varify" color="green" onClick={(e) => this.onVarify(e)} fluid>VARIFY</Button>
+                                       <Button className="btn_mobile_varify" color="green" onClick={(e) => this.onVarify(e)} fluid>አረጋግጥ</Button>
                                      </Grid.Column>
                                      
                                    </Grid.Row>
@@ -1103,9 +1114,10 @@ class DriverLocation extends Component {
                 <div className="div-profile" id="div-profile">
                     <Grid columns={1} >
                             <Message info>
-                              <Message.Header>Finaly ! Profile picture.</Message.Header>
+                              <Message.Header>ፍቶ ያስገቡ !</Message.Header>
                                 <p>
-                                    Helps to identify who you are.
+                                 እባኮትን መልኮን በግልጽ የሚይሳይ ጉርድ ፎቶ ይመረጡ። 
+                                 እራሶን በሞባይሎ ፎቶ ያንሱና ያያይዙ። መርጦ ሲጨርሱ መዝግብ የሚለውን ይጫኑ።
                                 </p>
                                 <p>
                                         <Grid.Row>
@@ -1118,7 +1130,6 @@ class DriverLocation extends Component {
                                             <Grid.Column mobile={16} tablet={16} computer={16}>
                                             <Form>
                                             <input
-                                                title=" "
                                                 className="file1"
                                                 name="profile_pic"
                                                 type="file"
@@ -1132,7 +1143,7 @@ class DriverLocation extends Component {
                                            
                                         <Grid.Row>
                                             <Grid.Column mobile={16} tablet={16} computer={16}>
-                                            <Button className="btn_upload" color="green" onClick={(e) => this.onProfileUpload(e)}  fluid>Upload Image</Button>
+                                            <Button className="btn_upload" color="green" onClick={(e) => this.onProfileUpload(e)}  fluid>መዝግብ</Button>
                                             </Grid.Column>
                                         </Grid.Row>
 
@@ -1156,10 +1167,10 @@ class DriverLocation extends Component {
                           <Image src={this.state.userPic} height={40} circular></Image>
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                            <h3>{this.state.ridePrice}</h3>Birr
+                            <h3>{this.state.ridePrice}</h3> ብር
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                           <h3>{this.state.rideDistance}</h3>km
+                           <h3>{this.state.rideDistance}</h3>ኪ/ሜ
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
                           <h3>{this.timeConvert(Number.parseInt(this.state.rideTime))} </h3>
@@ -1168,7 +1179,7 @@ class DriverLocation extends Component {
                     
                     <Grid.Row className="row_xs">
                       <Grid.Column mobile={16} tablet={16} computer={16}>
-                       <Button className="btn_accept_ride" size="huge" color="green" onClick={(e) => this.acceptRide(e)}  bsSize="large" fluid>ACCEPT RIDE</Button>
+                       <Button className="btn_accept_ride" size="huge" color="green" onClick={(e) => this.acceptRide(e)}  bsSize="large" fluid>እሰራለሁ ACCEPT</Button>
                       </Grid.Column>
                     </Grid.Row>
                 </Grid>
@@ -1181,10 +1192,10 @@ class DriverLocation extends Component {
                            <Image src={this.state.userPic} height={40} circular></Image>
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                         {this.state.ridePrice + ' birr'}
+                         {this.state.ridePrice + ' ብር'}
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                          {this.state.rideDistance + ' km'}
+                          {this.state.rideDistance + ' ኪ/ሜ'}
                          </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
                           {this.timeConvert(Number.parseInt(this.state.rideTime))}
@@ -1201,12 +1212,12 @@ class DriverLocation extends Component {
                     
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button className="btn_pax_found" size="medium" color="green" onClick={(e) => this.paxFound(e)}  fluid>I FOUND THE PASSENGER</Button>
+                          <Button className="btn_pax_found" size="medium" color="green" onClick={(e) => this.paxFound(e)}  fluid>ተሳፋሪውን አግኝቸዋለሁ</Button>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button className="btn_ride_cancel" size="mini" color="red" onClick={(e) => this.cancelRide(e)} fluid>CANCEL RIDE</Button>
+                          <Button className="btn_ride_cancel" size="medium" color="red" onClick={(e) => this.cancelRide(e)} fluid>ጉዞውን ሰርዝ</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>
@@ -1220,10 +1231,10 @@ class DriverLocation extends Component {
                           <Image src={this.state.userPic} height={40} circular></Image>
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                          {this.state.ridePrice + ' birr'}
+                          {this.state.ridePrice + ' ብር'}
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                          {this.state.rideDistance + ' km'}
+                          {this.state.rideDistance + ' ኪ/ሜ'}
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
                          {this.timeConvert(Number.parseInt(this.state.rideTime))}
@@ -1239,7 +1250,7 @@ class DriverLocation extends Component {
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompleted(e)} fluid>RIDE COMPLETED</Button>
+                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompleted(e)} fluid>ጉዞው አለቀ</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>  

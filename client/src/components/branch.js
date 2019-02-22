@@ -28,6 +28,9 @@ class Branch extends Component {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        
+
+
         this.setState({
             locationGroup : new L.LayerGroup().addTo(map)
         });
@@ -72,7 +75,7 @@ class Branch extends Component {
 
                   <Grid.Row columns={1}>
                     <Grid.Column mobile={12} tablet={12} computer={12}>
-                      <Button color='teal' size='massive' as={NavLink} to='/user/login'  fluid >ተሳፍሪ PASSENGER</Button>
+                      <Button color='teal' size='massive' as={NavLink} to='/user/login'  fluid >ተሳፋሪ PASSENGER</Button>
                     </Grid.Column>
                   </Grid.Row>
 

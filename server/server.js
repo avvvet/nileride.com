@@ -96,6 +96,9 @@ app.get('/admin/control_panel', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/playground', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
 
 console.log('client path', clientPath);
 app.use(bodyParser.json());

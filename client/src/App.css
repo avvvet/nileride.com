@@ -64,16 +64,18 @@ body {
 }
 
 .driver-dashboard {
-  
+  background-color: #b1e08e;
+  border: 2px solid white;
   position: fixed;
-  top: -53px;
-  right: 46%;
-  width: 293px;
-  height: 130px;
-  transform: translate(50%, 50%);
+  top: 4%;
+  right: 50%;
+  width: 264px;
+  height: 114px;
+  transform: translate(50%, 0%);
   z-index: 2000;
-  padding: 5px;
-  
+  padding-top: 15px;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
 }
 
 .user-dashboard {
@@ -100,11 +102,11 @@ body {
 .register-car {
   color: #ffffff;
   position: fixed;
-  top: 30%;
-  left: 58%;
+  top: 35%;
+  right: 50%;
   width: 284px;
   height: 44px;
-  transform: translate(-55%, -55%);
+  transform: translate(50%, 50%);
   z-index: 2000;
   visibility: visible;
 }
@@ -113,22 +115,26 @@ body {
   color: #ffffff;
   position: fixed;
   top: 55%;
-  left: 58%;
-  width: 283px;
+  right: 50%;
+  width: 300px;
   height: 44px;
-  transform: translate(-55%, -55%);
+  transform: translate(50%, 50%);
   z-index: 2000;
   visibility: visible;
 }
 
 .user-info {
+  background-color: #c4f283;
   color: #ffffff;
   position: fixed;
-  top: 10%;
-  left: 55%;
-  width: 258px;
-  height: 44px;
-  transform: translate(-55%, -55%);
+  top: 4%;
+  right: 50%;
+  width: 158px;
+  height: 34px;
+  padding-top: 4px;
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 60px;
+  transform: translate(50%, 0%);
   z-index: 2000;
   visibility: visible;
 }
@@ -150,12 +156,12 @@ body {
   color: #ffffff;
   position: fixed;
   top: 32%;
-  left: 57%;
-  width: 259px;
+  right: 50%;
+  width: 300px;
   height: 44px;
-  transform: translate(-55%, -55%);
+  transform: translate(50%, 50%);
   z-index: 2000;
-  visibility: visible;
+  visibility: hidden;
 }
 
 .div-notification-1 {
@@ -326,15 +332,13 @@ body {
   position: fixed;
   margin: -100px 0 0 -100px;
   bottom: 10%;
-  right: 11%;
-  width: 305px;
+  right: 7%;
+  width: 328px;
   height: 86px;
   border: 2px solid white;
   background-color: #16cead;
   z-index: 2000;
-  padding-top: 22px;
-  padding-left: 15px;
-  padding-right: 9px;
+  padding-top: 17px;
   text-align: center;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
@@ -367,9 +371,9 @@ body {
   color: #ffffff;
   position: fixed;
   bottom: 65px;
-  right: 20%;
+  right: 14%;
   width: 260px;
-  height: 150px;
+  height: 162px;
   border: 2px solid white;
   background-color: #7d8189;
   z-index: 2000;
@@ -533,7 +537,7 @@ div.rowPaddingSm {
 }
 
 .ui.grid > .row_xs {
-  padding-top: 0px;
+  padding-top: 1px;
   padding-bottom: 0px;
 }
 
@@ -677,8 +681,8 @@ input[type="file"] {
 }
 
 .image-icon img {
-  height: 40px !important;
-  width: 40px !important;
+  height: 25px !important;
+  width: 25px !important;
   border-radius: 50%;
   border: solid;
   border-width: 1px;
@@ -687,8 +691,8 @@ input[type="file"] {
 }
 
 .image-icon-driver img {
-  height: 40px !important;
-  width: 40px !important;
+  height: 25px !important;
+  width: 25px !important;
   border-radius: 50%;
   border: solid;
   border-width: 1px;
@@ -724,4 +728,33 @@ input[type="file"] {
 
 .div-fag-cancel {
   margin-top: 20px;
+}
+
+.search_1 {
+  color: #5f5b5b;
+  position: fixed;
+  top: 15%;
+  right: 50%;
+  width: 300px;
+  height: 48px;
+  transform: translate(50%, 0%);
+  z-index: 3000;
+}
+
+.search_result_pickup {
+  position: fixed;
+  z-index: 3011;
+}
+
+.search_result_dropoff {
+  position: fixed;
+  z-index: 3010;
+}
+
+.dropoff_search {
+  box-shadow: 10px 10px 10px gray;  
+}
+
+.pickup_search {
+  box-shadow: 10px 10px 10px gray;
 }
