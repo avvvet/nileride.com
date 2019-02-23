@@ -319,31 +319,31 @@ class PickUpMap extends Component {
 
         //my Lord is greate  - Jesus I call your name 
         map.on('click', (e) => {
-            var markerGroup = this.state.markerGroup;
-            this.setState({first_time_flag: false});
-            if(this.state.pickup_flag === 'off'){
-                L.marker(e.latlng, {icon: marker_a}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
-                this.setState({
-                    pickup_flag : 'on',
-                    pickup_latlng : e.latlng,
-                    first_time_flag : true
-                });
-                this.getNearestDrivers(e.latlng);
-            }
+            // var markerGroup = this.state.markerGroup;
+            // this.setState({first_time_flag: false});
+            // if(this.state.pickup_flag === 'off'){
+            //     L.marker(e.latlng, {icon: marker_a}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
+            //     this.setState({
+            //         pickup_flag : 'on',
+            //         pickup_latlng : e.latlng,
+            //         first_time_flag : true
+            //     });
+            //     this.getNearestDrivers(e.latlng);
+            // }
             
-            if(this.state.dropoff_flag === 'off' && this.state.pickup_flag === 'on' && this.state.first_time_flag === false){
-                L.marker(e.latlng, {icon: marker_b}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
-                this.setState({
-                    dropoff_flag: 'on',
-                    dropoff_latlng: e.latlng
-                });
-            }
+            // if(this.state.dropoff_flag === 'off' && this.state.pickup_flag === 'on' && this.state.first_time_flag === false){
+            //     L.marker(e.latlng, {icon: marker_b}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
+            //     this.setState({
+            //         dropoff_flag: 'on',
+            //         dropoff_latlng: e.latlng
+            //     });
+            // }
             
-            if(this.state.dropoff_flag === 'on' && this.state.pickup_flag ==='on' & this.state.isRouteFound === false) {
-                var latlng1 = this.state.pickup_latlng;
-                var latlng2 = this.state.dropoff_latlng;
-                this.findRoute(latlng1, latlng2);
-            }
+            // if(this.state.dropoff_flag === 'on' && this.state.pickup_flag ==='on' & this.state.isRouteFound === false) {
+            //     var latlng1 = this.state.pickup_latlng;
+            //     var latlng2 = this.state.dropoff_latlng;
+            //     this.findRoute(latlng1, latlng2);
+            // }
             
         }); 
         
@@ -421,14 +421,22 @@ class PickUpMap extends Component {
     }
     
     routeFound =(e) => {
-        console.log('route found', e.routes);
+        console.log('Jesus loves you', e.routes);
+        var markerGroup = this.state.markerGroup;
+        markerGroup.clearLayers();
+
         var routes = e.routes;
         var _distance = routes[0].summary.totalDistance;
         var _ride_time = routes[0].summary.totalTime;
         
         _distance = (_distance/1000).toFixed(2);
         var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-
+        //this holdes the new changes 
+        this.setState({
+            pickup_latlng : routes[0].waypoints[0].latLng,
+            dropoff_latlng : routes[0].waypoints[1].latLng
+        });
+        console.log('son of God',this.state.pickup_latlng, this.state.dropoff_latlng);
         function timeConvert(n) {
             var num = n;
             var hours = (num / 3600);
@@ -581,7 +589,8 @@ class PickUpMap extends Component {
 
     rideRequestAction = (ride) => {
         document.getElementById("ride-price-dashboard").style.visibility = "hidden";
-        document.getElementById("ride-request-dashboard").style.visibility = "visible";   
+        document.getElementById("ride-request-dashboard").style.visibility = "visible";  
+        document.getElementById("search_1").style.visibility = "hidden";  
         this.chkTimerRideStatus();
         console.log("ride request sucess res ", ride);
     }
@@ -914,6 +923,7 @@ class PickUpMap extends Component {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = "hidden";
         document.getElementById('div-eta').style.visibility = "hidden";
+        document.getElementById('search_1').style.visibility = "visible";
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1204,7 +1214,6 @@ class PickUpMap extends Component {
         event.target.select();
         this.setState({
             input_pickup_size : 'large',
-            input_dropoff_size : 'mini'
         })
     }
 
@@ -1212,7 +1221,6 @@ class PickUpMap extends Component {
         event.target.select();
         this.setState({
             input_pickup_size : 'mini',
-            input_dropoff_size : 'large'
         })
     }
 
@@ -1313,9 +1321,43 @@ class PickUpMap extends Component {
         $('.dropoff_search').focus();
     }
 
-    render(){ 
-         
+    _show_pickup_input = () => {
+        render(
+            <div>
+                <Grid columns={1} centered>
+                <Grid.Row>
+                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                    <Form>
+                    <Input  
+                        icon={<Icon name='search' 
+                        inverted circular link />} 
+                        placeholder='መነሻ ቦታ' 
+                        onClick={this.handlClickPickup} 
+                        onFocus={this.handleFocusPickup} 
+                        onChange={e => this._search_pickup_on_change(e)}  
+                        value={this.state.pickup_search} 
+                        name="pickup_search" 
+                        className="pickup_search"
+                        size={this.state.input_pickup_size}
+                        fluid
+                    />
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>   
+                </Grid>
+                <div className="search_result_pickup" id="search_result_pickup">
+                <Table celled selectable>
+                <Table.Body>
+                {this.pickup_nomi(this.state.pickup_search_results)}
+                </Table.Body>
+                </Table>
+                </div> 
+            </div>               
+         ,document.getElementById('div-pickup-input')
+        );
+    }
 
+    render(){ 
         if(this.state._signInFlag) {
             return <Redirect to='/user/login'  />
         }  
@@ -1323,39 +1365,11 @@ class PickUpMap extends Component {
             <div>
 
             <div className="search_1" id="search_1">
-                 <div>
-                    <Grid columns={1} centered>
-                        <Grid.Row>
-                            <Grid.Column mobile={16} tablet={16} computer={16}>
-                            <Form>
-                            <Input  
-                                 icon={<Icon name='search' 
-                                 inverted circular link />} 
-                                 placeholder='መነሻ ያሉበት current location' 
-                                 onClick={this.handlClickPickup} 
-                                 onFocus={this.handleFocusPickup} 
-                                 onChange={e => this._search_pickup_on_change(e)}  
-                                 value={this.state.pickup_search} 
-                                 name="pickup_search" 
-                                 className="pickup_search"
-                                 size={this.state.input_pickup_size}
-                                 fluid
-                            />
-                            </Form>
-                            </Grid.Column>
-
-                        </Grid.Row>   
-                    </Grid>
-                    <div className="search_result_pickup" id="search_result_pickup">
-                     <Table celled selectable>
-                      <Table.Body>
-                       {this.pickup_nomi(this.state.pickup_search_results)}
-                      </Table.Body>
-                     </Table>
-                    </div>                
-                </div>
+                 <div id="div-pickup-input" className="div-pickup-input">
+                 </div>
             
                 <div>
+                    <Label size="large" color="teal" pointing="below">የሚሄዱበትን ቦታ እዚህጋ ይፈልጉ</Label>
                     <Grid columns={1} centered>
                         <Grid.Row>
                             <Grid.Column mobile={16} tablet={16} computer={16}>
@@ -1363,7 +1377,7 @@ class PickUpMap extends Component {
                             <Input  
                                  icon={<Icon name='search' 
                                  inverted circular link />} 
-                                 placeholder='ወዴት ይሄዳሉ ? where to ?' 
+                                 placeholder='የሚሄዱት ወዴት ነው ?' 
                                  onClick={this.handleClickDropOff} 
                                  onFocus={this.handleFocusDropOff} 
                                  onChange={e => this._search_dropoff_on_change(e)}  
@@ -1395,18 +1409,18 @@ class PickUpMap extends Component {
                     <Grid.Row>
                         <Grid.Column mobile={8} tablet={8} computer={8}>
                             {this.state.user.hasProfile === true ?  
-                                <Image floated='right'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar/>
+                                <Image floated='left'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar/>
                                 : 
-                                <Image floated='right' height={30}  src={'/assets/awet-rider-m.png'} />
+                                <Image floated='left' height={30}  src={'/assets/awet-rider-m.png'} />
                             }                         
                         </Grid.Column>
-                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                        <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
                             {this.state.isLogedIn === true ?
                                 <Label size="mini" as={NavLink} to="/" basic pointing="left" color="green">
                                 LOGOUT
                                 </Label>  
                             :
-                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="blue">
+                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="blue" centered>
                                 LOGIN
                                 </Label>
                             }
@@ -1538,7 +1552,7 @@ class PickUpMap extends Component {
                     <Card.Content extra>
                      <div className='ui two buttons'>
                         <Button className="btn" color='green' onClick={(e) => this.rideRequest(e)}>
-                            REQUEST 
+                            CALL DRIVER 
                         </Button>
                         <Button basic color='red' onClick={(e) => this.cancelRide(e)}>
                             CANCEL
@@ -1551,8 +1565,7 @@ class PickUpMap extends Component {
               </div>
               
               <div className="ride-request-dashboard shake-ride-request" id="ride-request-dashboard"> 
-                    Connecting nearest drivers <br />
-                    wait !
+                    Calling nearest drivers wait !
               </div>
 
               <div className="ride-route-status" id="ride-route-status"> 

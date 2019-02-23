@@ -735,7 +735,7 @@ input[type="file"] {
   position: fixed;
   top: 15%;
   right: 50%;
-  width: 300px;
+  width: 255px;
   height: 48px;
   transform: translate(50%, 0%);
   z-index: 3000;
@@ -752,9 +752,14 @@ input[type="file"] {
 }
 
 .dropoff_search {
-  box-shadow: 10px 10px 10px gray;  
+  box-shadow: 10px 10px 10px gray; 
+  border-color: blue;
+  border-style: solid;
+  border-width: 2px; 
+  border-radius: 7px;
 }
 
 .pickup_search {
   box-shadow: 10px 10px 10px gray;
 }
+
