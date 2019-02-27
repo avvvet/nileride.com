@@ -214,7 +214,7 @@ app.get('/user/get', (req, res) => {
     var decoded;
     try {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
-        models.users.findOne({ where: {email: decoded} }).then(user => {
+        models.users.findOne({ where: {mobile: decoded} }).then(user => {
           console.log('userrrrrrrrrrrr', user);
         if(!user) {
             res.sendStatus(401).send();
@@ -278,7 +278,7 @@ app.post('/user/mobile_verification', (req, res) => {
                          var decoded = jwt.verify(token, 'JESUSMYHEALER');
                          return models.users.update(
                             { verified: true },
-                            { where : { email: decoded } } ,
+                            { where : { mobile: decoded } } ,
                             {transaction: t}
                          ).then((_user)=>{
                              if(_user){
