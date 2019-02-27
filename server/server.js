@@ -229,8 +229,9 @@ app.get('/user/get', (req, res) => {
 //user-apply
 app.post('/user/apply', (req, res) => {
     var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'gender', 'password', 'token']);
-    body.token = jwt.sign(body.email, 'JESUSMYHEALER');
-    
+    //body.token = jwt.sign(body.email, 'JESUSMYHEALER');
+    body.token = jwt.sign(body.mobile, 'JESUSMYHEALER');
+
     let PromiseHashedPassword = new Promise((res, rej) => {
       bcrypt.genSalt(10, (err, salt) => {
           bcrypt.hash(body.password, salt, (err, hash) => {
@@ -310,8 +311,10 @@ app.post('/user/mobile_verification', (req, res) => {
 
 
 app.post('/user/login', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
-    models.users.findOne({ where : {email: body.email}}).then( (user) => {
+   
+    var body = _.pick(req.body, ['mobile', 'password']);
+    console.log(body);
+    models.users.findOne({ where : {mobile: body.mobile}}).then( (user) => {
        if(!user) {
           res.status(401).send();
        }
@@ -915,13 +918,9 @@ app.post('/driver/getRidesInfo', (req, res) => {
 
 
 app.post('/driver/login', (req, res) => {
-  console.log('reqqqqq', req.body);
-
-  var body = _.pick(req.body, ['email', 'password']);
-  console.log('data', body);
-  //lets get the driver by email
-  models.drivers.findOne({ where : {email: body.email}}).then( (driver) => {
-    console.log('driveeeeerrr', driver);
+  var body = _.pick(req.body, ['mobile', 'password']);
+  console.log(body);
+  models.drivers.findOne({ where : {mobile: body.mobile}}).then( (driver) => {
      if(!driver) {
         res.status(401).send();
      }
@@ -1099,7 +1098,7 @@ app.get('/driver/get', (req, res) => {
 //driver-apply
 app.post('/driver/apply', (req, res) => {
     var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'gender', 'plateNo', 'password', 'token']);
-    body.token = jwt.sign(body.email, 'JESUSMYHEALER');
+    body.token = jwt.sign(body.mobile, 'JESUSMYHEALER');
     
     let PromiseHashedPassword = new Promise((res, rej) => {
       bcrypt.genSalt(10, (err, salt) => {

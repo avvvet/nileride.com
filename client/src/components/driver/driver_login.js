@@ -3,25 +3,41 @@ import { Grid, Message, Form, Button, Header, Label } from 'semantic-ui-react'
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
 import $ from 'jquery';
+var validator = require('validator');
 
 class DriverLoginForm extends Component {
   constructor(){
       super();
       this.state = {
-          loginEmail: '',
-          loginPassword: ''
+          mobile: '',
+          password: ''
       }
   }
 
     validateDriverLogin = () => {
         let errors = [];
         
-        if(this.state.loginEmail.length === 0) {
-            errors.push("Email field is empty.");
+        if(this.state.mobile.length === 0 ){
+            errors.push("ሞባይል ቁጥር ያስገቡ");
+        }
+        else if (validator.isNumeric(this.state.mobile, {no_symbols: true} ) === false) {
+            errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
+        }
+        else if(validator.isMobilePhone(this.state.mobile) === false) {
+             errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
+        } else if (this.state.mobile.length < 10){
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }else if (this.state.mobile.length > 10){
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
         }
 
-        if(this.state.loginPassword.length === 0) {
-            errors.push("Password field is empty.");
+        if(this.state.password.length === 0 ){
+            errors.push("የሚሲጢር ኮድ ያስገቡ !");
+        }
+        else if(validator.isLength(this.state.password, {min: 6}) === false){
+            errors.push("የሚስጢር ኮድ ክ 6 አሀዝ ማነስ አይችልም !");
+        }else if(validator.isLength(this.state.password, {max: 15}) === false){
+            errors.push("የሚስጢር ኮድ በጣም ረዘመ !");
         }
 
         return errors;
@@ -52,14 +68,14 @@ class DriverLoginForm extends Component {
         } else {
             $('.btn_login').removeClass("loading");
             var login = {
-                email: this.state.loginEmail,
-                password: this.state.loginPassword
+                mobile: this.state.mobile,
+                password: this.state.password
             }
             this.driverLogin(login)
             
             this.setState({
-                loginEmail: '',
-                loginPassword: '',
+                mobile: '',
+                password: '',
                 errors: []
             });
         }
@@ -104,9 +120,9 @@ class DriverLoginForm extends Component {
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
                         <input
-                        name="loginEmail"
+                        name="mobile"
                         type="text"
-                        value={this.state.loginEmail}
+                        value={this.state.mobile}
                         placeholder="ስልክ ቁጥር mobile"
                         onChange={e => this.change(e)}
                         size="huge"
@@ -119,9 +135,9 @@ class DriverLoginForm extends Component {
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
                         <input
-                        name="loginPassword"
+                        name="password"
                         type="password"
-                        value={this.state.loginPassword}
+                        value={this.state.password}
                         placeholder="የሚስጢር ኮድ password"
                         onChange={e => this.change(e)}
                         >

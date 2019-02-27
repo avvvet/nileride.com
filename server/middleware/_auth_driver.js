@@ -7,7 +7,7 @@ var authDriver = (req, res, next) => {
     
     try {
          decoded = jwt.verify(token, 'JESUSMYHEALER');
-         models.drivers.findOne({ where: {email: decoded} }).then(driver => {
+         models.drivers.findOne({ where: {mobile: decoded} }).then(driver => {
            if(!driver) {
              res.send(401).send();
            }

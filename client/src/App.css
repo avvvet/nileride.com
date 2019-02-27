@@ -132,6 +132,7 @@ body {
   width: 158px;
   height: 34px;
   padding-top: 4px;
+  padding-right: 7px;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
   transform: translate(50%, 0%);
@@ -161,7 +162,7 @@ body {
   height: 44px;
   transform: translate(50%, 50%);
   z-index: 2000;
-  visibility: hidden;
+  visibility: visible
 }
 
 .div-notification-1 {
@@ -196,11 +197,12 @@ body {
 .ride-price-dashboard {
   color: #ffffff;
   position: fixed;
-  top: 50%;
-  right: 12%;
+  bottom: 10%;
+  right: 50%;
+  transform: translate(50%, 0%);
   width: 269px;
   height: 151px;
-  z-index: 2000;
+  z-index: 3010;
   text-align: center;
   visibility: hidden;
 }

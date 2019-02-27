@@ -97,7 +97,7 @@ class PickUpMap extends Component {
                 mobile: '',
                 profile : '',
                 hasProfile : '',
-                 verified: '',
+                verified: '',
                 status: ''
             },
             profile_pic : '',
@@ -254,12 +254,12 @@ class PickUpMap extends Component {
     }
 
     componentDidMount(){
-        this.nameInput.focus();
         this.getUser(sessionStorage.getItem("_auth_user"));
+       // this.nameInput.focus();
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         //var map = L.map('mapid');
         map.locate({setView: true, maxZoom: 17});
-        
+        //Lord you are good - you are more than anything that is what I know
         this.setState({map : map});
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -923,7 +923,11 @@ class PickUpMap extends Component {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = "hidden";
         document.getElementById('div-eta').style.visibility = "hidden";
-        document.getElementById('search_1').style.visibility = "visible";
+
+        if(this.state.user.verified === true && this.state.user.hasProfile === true) {
+            document.getElementById('search_1').style.visibility = "visible" 
+        }
+
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1358,52 +1362,52 @@ class PickUpMap extends Component {
     }
 
     render(){ 
+        console.log('test test test ', this.state.user.verified,this.state.user.hasProfile)
         if(this.state._signInFlag) {
             return <Redirect to='/user/login'  />
         }  
         return(
             <div>
+               {this.state.user.verified === true && this.state.user.hasProfile === true ? 
+               <div className="search_1" id="search_1">
+                       <div id="div-pickup-input" className="div-pickup-input">
+                       </div>
+                        <div>
+                            <Label size="large" color="teal" pointing="below">የሚሄዱበትን ቦታ እዚህጋ ይፈልጉ</Label>
+                            <Grid columns={1} centered>
+                                <Grid.Row>
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                                    <Form>
+                                    <Input  
+                                        icon={<Icon name='search' 
+                                        inverted circular link />} 
+                                        placeholder='የሚሄዱት ወዴት ነው ?' 
+                                        onClick={this.handleClickDropOff} 
+                                        onFocus={this.handleFocusDropOff} 
+                                        onChange={e => this._search_dropoff_on_change(e)}  
+                                        value={this.state.dropoff_search} 
+                                        name="dropoff_search" 
+                                        className="dropoff_search"
+                                        size={this.state.input_dropoff_size}
+                                        fluid
+                                        ref={(input) => { this.nameInput = input; }} 
+                                    />
+                                    </Form>
+                                    </Grid.Column>
 
-            <div className="search_1" id="search_1">
-                 <div id="div-pickup-input" className="div-pickup-input">
-                 </div>
-            
-                <div>
-                    <Label size="large" color="teal" pointing="below">የሚሄዱበትን ቦታ እዚህጋ ይፈልጉ</Label>
-                    <Grid columns={1} centered>
-                        <Grid.Row>
-                            <Grid.Column mobile={16} tablet={16} computer={16}>
-                            <Form>
-                            <Input  
-                                 icon={<Icon name='search' 
-                                 inverted circular link />} 
-                                 placeholder='የሚሄዱት ወዴት ነው ?' 
-                                 onClick={this.handleClickDropOff} 
-                                 onFocus={this.handleFocusDropOff} 
-                                 onChange={e => this._search_dropoff_on_change(e)}  
-                                 value={this.state.dropoff_search} 
-                                 name="dropoff_search" 
-                                 className="dropoff_search"
-                                 size={this.state.input_dropoff_size}
-                                 fluid
-                                 ref={(input) => { this.nameInput = input; }} 
-                            />
-                            </Form>
-                            </Grid.Column>
-
-                        </Grid.Row>   
-                    </Grid>
-                    <div className="search_result_dropoff" id="search_result_dropoff">
-                     <Table celled selectable>
-                      <Table.Body>
-                       {this.dropoff_nomi(this.state.dropoff_search_results)}
-                      </Table.Body>
-                     </Table>
-                    </div>                                  
-                </div>
-                    
+                                </Grid.Row>   
+                            </Grid>
+                            <div className="search_result_dropoff" id="search_result_dropoff">
+                            <Table celled selectable>
+                            <Table.Body>
+                            {this.dropoff_nomi(this.state.dropoff_search_results)}
+                            </Table.Body>
+                            </Table>
+                            </div>                                  
+                        </div>
               </div>  
-
+              : ''
+              }
               <div className="user-info" id="user-info">
                 <Grid container columns={2} centered>
                     <Grid.Row>

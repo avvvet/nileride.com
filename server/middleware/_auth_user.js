@@ -7,7 +7,7 @@ var authUser = (req, res, next) => {
     
     try {
          decoded = jwt.verify(token, 'JESUSMYHEALER');
-         models.users.findOne({ where: {email: decoded} }).then(user => {
+         models.users.findOne({ where: {mobile: decoded} }).then(user => {
            if(!user) {
              res.send(401).send();
            }

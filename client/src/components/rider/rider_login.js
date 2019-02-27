@@ -3,12 +3,13 @@ import  { Redirect } from 'react-router-dom'
 import { render } from 'react-dom';
 import { Grid, Message, Form, Button, Header, Image, Label } from 'semantic-ui-react'
 import $ from 'jquery';
+var validator = require('validator');
 
 class RiderLoginForm extends Component {
   constructor(){
       super();
       this.state = {
-          loginEmail: '',
+          loginMobile: '',
           loginPassword: ''
       }
   }
@@ -16,8 +17,16 @@ class RiderLoginForm extends Component {
     validateRiderLogin = () => {
         let errors = [];
         
-        if(this.state.loginEmail.length === 0) {
-            errors.push("Email field is empty.");
+        if(this.state.loginMobile.length === 0 ){
+            errors.push("Mobile field is empty");
+        } else if (validator.isNumeric(this.state.loginMobile, {no_symbols: true} ) === false) {
+            errors.push("Mobile number is not valid");
+        } else if(validator.isMobilePhone(this.state.loginMobile) === false) {
+            errors.push("Mobile field is not correct");
+        } else if (this.state.loginMobile.length < 10) {
+            errors.push("Mobile number needs to be 10 digits");
+        }else if (this.state.loginMobile.length > 10){
+            errors.push("Mobile number needs to be 10 digits");
         }
 
         if(this.state.loginPassword.length === 0) {
@@ -52,13 +61,13 @@ class RiderLoginForm extends Component {
         } else {
             $('.btn_login').removeClass("loading");
             var login = {
-                email: this.state.loginEmail,
+                mobile: this.state.loginMobile,
                 password: this.state.loginPassword
             }
             this.riderLogin(login)
             
             this.setState({
-                loginEmail: '',
+                loginMobile: '',
                 loginPassword: '',
                 errors: []
             });
@@ -106,9 +115,9 @@ class RiderLoginForm extends Component {
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <input
-                    name="loginEmail"
+                    name="loginMobile"
                     type="text"
-                    value={this.state.loginEmail}
+                    value={this.state.loginMobile}
                     placeholder="ስልክ ቁጥር mobile"
                     onChange={e => this.change(e)}
                     >
