@@ -1084,7 +1084,7 @@ app.get('/driver/get', (req, res) => {
     var decoded;
     try {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
-        models.drivers.findOne({ where: {email: decoded} }).then(driver => {
+        models.drivers.findOne({ where: {mobile: decoded} }).then(driver => {
           if(!driver) {
             res.sendStatus(401).send();
           }
@@ -1148,7 +1148,7 @@ app.post('/driver/mobile_verification', (req, res) => {
                          var decoded = jwt.verify(token, 'JESUSMYHEALER');
                          return models.drivers.update(
                             { verified: true },
-                            { where : { email: decoded } } ,
+                            { where : { mobile: decoded } } ,
                             {transaction: t}
                          ).then((_driver)=>{
                              if(_driver){
