@@ -297,6 +297,7 @@ class DriverLocation extends Component {
             var current_latlng = {
                 _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
             }; 
+            console.log('token', token);
             $.ajax({ 
                 type:"POST",
                 url:"/driver/updateLocation",

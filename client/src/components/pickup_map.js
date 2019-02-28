@@ -514,21 +514,6 @@ class PickUpMap extends Component {
                 this._neearest_driver_routeControl = null;
             }
             
-               document.getElementById('div-eta').style.visibility='visible';
-                render(
-                    <div>
-                      <Card>
-                      <Card.Content>
-                        <Card.Header>Driver</Card.Header>
-                        <Card.Meta><h5>{_ride_time_string}</h5></Card.Meta>
-                        <Card.Meta>away</Card.Meta>
-                      </Card.Content>
-                      </Card>                   
-                    </div>
-                  ,document.getElementById('div-eta')
-                  );
-           
-            
         })
         .on('routingerror', (err) => {
             console.log(err.error.status);
@@ -856,19 +841,6 @@ class PickUpMap extends Component {
                     var mDisplay = rminutes > 0 ? rminutes + " min" : "";
                     return hDisplay + mDisplay; 
                  } 
-                 document.getElementById('div-eta').style.visibility='visible';
-                 render(
-                     <div>
-                       <Card className="card-style-1">
-                       <Card.Content>
-                         <Card.Header>Driver</Card.Header>
-                         <Card.Meta><Label size="large" color="orange" circular>{_ride_time_string}</Label></Card.Meta>
-                         <Card.Meta>away</Card.Meta>
-                       </Card.Content>
-                       </Card>                   
-                     </div>
-                   ,document.getElementById('div-eta')
-                   );
             }
            
         });
@@ -901,19 +873,6 @@ class PickUpMap extends Component {
                     var mDisplay = rminutes > 0 ? rminutes + " min" : "";
                     return hDisplay + mDisplay; 
                  } 
-                 document.getElementById('div-eta').style.visibility='visible';
-                 render(
-                     <div>
-                       <Card>
-                       <Card.Content>
-                         <Card.Header>dropoff</Card.Header>
-                         <Card.Meta><Label size="large" color="green" circular>{_ride_time_string}</Label></Card.Meta>
-                         <Card.Meta>away</Card.Meta>
-                       </Card.Content>
-                       </Card>                   
-                     </div>
-                   ,document.getElementById('div-eta')
-                   );
             }
            
         });
@@ -922,7 +881,6 @@ class PickUpMap extends Component {
     resetRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = "hidden";
-        document.getElementById('div-eta').style.visibility = "hidden";
 
         if(this.state.user.verified === true && this.state.user.hasProfile === true) {
             document.getElementById('search_1').style.visibility = "visible" 
@@ -953,7 +911,6 @@ class PickUpMap extends Component {
 
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
-        document.getElementById('div-eta').style.visibility='hidden';
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1477,8 +1434,6 @@ class PickUpMap extends Component {
                         </form>
               </div>
               : ''}
-
-              <div className="div-eta" id="div-eta"></div>
               
               {this.state.user.verified === true && this.state.user.hasProfile === false ? 
                <div className="div-profile" id="div-profile">

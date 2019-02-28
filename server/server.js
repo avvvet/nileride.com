@@ -197,7 +197,7 @@ app.post('/user/updateLocation', (req, res) => {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
         models.users.update(
             { currentLocation: _latlng },
-            { where: { email: decoded } }
+            { where: { mobile : decoded } }
           ).then(result => {
              console.log('user location updated', result);
           }).catch(err => {
@@ -1016,6 +1016,7 @@ app.post('/driver', (req, res) => {
 
 //driver location updatet
 app.post('/driver/updateLocation', (req, res) => {
+    //I praise you lord - you are means of all good things
     var token = req.header('x-auth');
     var _latlng = Sequelize.fn('ST_GeomFromText', req.body._latlng);
     var decoded;
@@ -1023,7 +1024,7 @@ app.post('/driver/updateLocation', (req, res) => {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
         models.drivers.update(
             { currentLocation: _latlng },
-            { where: { email: decoded } }
+            { where: { mobile : decoded } }
           ).then(result => {
             res.send(result);
              console.log('driver location updated', result);

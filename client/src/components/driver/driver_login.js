@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Message, Form, Button, Header, Label } from 'semantic-ui-react'
+import { Grid, Message, Form, Button, Header, Label , Input} from 'semantic-ui-react'
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
 import $ from 'jquery';
@@ -119,29 +119,36 @@ class DriverLoginForm extends Component {
                 <Grid.Row columns={1}>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
-                        <input
+                        <Input
                         name="mobile"
                         type="text"
+                        label={{ icon: 'phone volume' }} 
+                        labelPosition="left corner"
                         value={this.state.mobile}
                         placeholder="ስልክ ቁጥር mobile"
                         onChange={e => this.change(e)}
                         size="huge"
-                        >
-                        </input>
+                        fluid
+                        />
+                        
                         </Form>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                         <Form>
-                        <input
+                        <Input
                         name="password"
                         type="password"
+                        label={{ icon: 'asterisk' }} 
+                        labelPosition="left corner"
                         value={this.state.password}
                         placeholder="የሚስጢር ኮድ password"
                         onChange={e => this.change(e)}
-                        >
-                        </input>
+                        size="huge"
+                        fluid
+                        />
+                        
                         </Form>
                     </Grid.Column>
                 </Grid.Row>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import  { Redirect } from 'react-router-dom'
 import { render } from 'react-dom';
-import { Grid, Message, Form, Button, Header, Image, Label } from 'semantic-ui-react'
+import { Grid, Message, Form, Button, Header, Image, Label, Input } from 'semantic-ui-react'
 import $ from 'jquery';
 var validator = require('validator');
 
@@ -114,28 +114,34 @@ class RiderLoginForm extends Component {
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
-                    <input
+                    <Input
                     name="loginMobile"
                     type="text"
+                    label={{ icon: 'phone volume' }} 
+                    labelPosition="left corner"
                     value={this.state.loginMobile}
                     placeholder="ስልክ ቁጥር mobile"
                     onChange={e => this.change(e)}
-                    >
-                    </input>
+                    size="huge"
+                    fluid
+                    />
                     </Form>
                     </Grid.Column>
                 </Grid.Row>   
                 <Grid.Row> 
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
-                    <input
+                    <Input
                     name="loginPassword"
                     type="password"
+                    label={{ icon: 'asterisk' }} 
+                    labelPosition="left corner"
                     value={this.state.loginPassword}
                     placeholder="የሚስጢር ኮድ password"
                     onChange={e => this.change(e)}
-                    >
-                    </input>
+                    size="huge"
+                    fluid
+                    />
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
