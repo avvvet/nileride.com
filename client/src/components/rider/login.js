@@ -18,6 +18,7 @@ class RiderLogin extends Component {
     return(
      <div>
          <div>
+           <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image>
            <Grid container columns={1} centered>
            <Grid.Row>
               <Grid.Column mobile={18} tablet={18} computer={18}>

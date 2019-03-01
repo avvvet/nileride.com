@@ -57,16 +57,40 @@ class Faq extends Component {
                 ሹፊሩ ተሳፈሪውን ወደ ጠየቀበት ቦታ ያደርሰዋል ፡ ተሳፍሪም አስቀድሞ ያወቀውን ዋጋ  ብቻ ይከፍላል። 
               </p>
             </Accordion.Content>
+
+            <Accordion.Title active={activeIndex === 7} index={7} onClick={this.handleClick}>
+              <Icon name='dropdown' />
+              <Label color="green">በተሳፋሪነት የምጠቀመው እንዴት ነው ?</Label>
+            </Accordion.Title>
+            <Accordion.Content active={activeIndex === 7}>
+              <p>
+              ተሳፋሪ የሚለውን ይምረጡ ፡ በመቀጠልም አዲስ ተሳፋሪ የሚለውን በመጫን ለመጀመርያ ጊዜ አንዴ ብቻ ይመዝገቡ ። 
+              ካዛም ለመጠቀም ሲፈልጉ ፡  ሲመዘገቡ ያስገቡትን የምባይል ቁጥር እና የመረጡትን የሚስጢር ቁጥር በማስገባት ወደ ሲስተሙ ይግቡ። 
+              "ወዴት መሄድ ይፈልጋሉ ?” የሚለው የቦታ መፈለግያ ሳጥን ውስጥ መሄድ የፈልጉበትን ቦታ ስም ይጻፉ። 
+              የቦታውን ስም የያዘ ዝርዝር ይመጣል ፡ ከዝርዝሩ ውስጥ ይምረጡ ።
+              </p>
+
+              <p> 
+              እንደመረጡ ሲስተሙም በካርታው ላይ የመረጡት ቦታ የት እንዳለ ፤ የሚኬድበትን አጭር መንገድ እና የክፍያውን መጠን ይሳዮታል። 
+              ካርታው ላይ የተቀመጥውን ምልክት በመግፋት የሚውርዱበትን ቦታ ማስተካከል ይችላሉ። በመጨረሻም "ሹፌር ጥራ" የሚለውን ይጫኑ።  
+              አጠገቦ ያለ ሹፌር ወዳሉበት ቦታ ይመጣል ፡ ወደ መረጡትም ቦታ አስቀድመው ባወቁት ዋጋ ብቻ ያድርሶታል። 
+              </p>
+
+            </Accordion.Content>
     
             <Accordion.Title active={activeIndex === 2} index={2} onClick={this.handleClick}>
               <Icon name='dropdown' />
-              <Label>በሹፌርነት ለመስራት የት እመዘገባለሁ ?</Label>
+              <Label color="teal">በሹፌርነት እንዴት እሰራለሁ ?</Label>
             </Accordion.Title>
             <Accordion.Content active={activeIndex === 2}>
               <p>            
                 ባሉበት ቦታ ሆነው nileride.com ድረገጽን በስልኮ በቀላሉ በመክፈት > ሹፌር የሚለውን መምረጥ > 
-                በመቀጠልም አዲስ ሹፌር ምዝገባ የሚለውን መምረጥ > የሚመጣውን ፎርም መሙላት።
+                በመቀጠልም አዲስ ሹፌር ምዝገባ የሚለውን መምረጥ > የሚመጣውን ፎርም ለመጀመርያ ጊዜ አንዴ ብቻ በትክክል ይመዝገቡ።
               </p>
+              <p> 
+                በምዝገባ ወቅት ያሰገቡትን የሞባይል ቁጥር እና የሚስጢር ኮድ ያስታውሱ። ወደ ሲስተሙ ስራ ለመስራት የሚገቡት ባስመዘገቡት 
+                የሞባይል ቁጥር ነው።
+               </p>  
             </Accordion.Content>
 
             <Accordion.Title active={activeIndex === 3} index={3} onClick={this.handleClick}>
@@ -83,11 +107,11 @@ class Faq extends Component {
 
             <Accordion.Title active={activeIndex === 4} index={4} onClick={this.handleClick}>
               <Icon name='dropdown' />
-              <Label>ለመመዝገብ ክፍያው ምን ያህል ነው ?</Label>
+              <Label>ለመመዝገብ ክፍያው አለው ?</Label>
             </Accordion.Title>
             <Accordion.Content active={activeIndex === 4}>
               <p>            
-              በሹፊርነት ተመዝግቦ ለመስራት በቅድምያ የሚከፈል ክፍያ የለም። 
+              በሹፊርነት ወይም በተሳፋሪነት ተመዝግቦ ለመስራት ወይም ለመጠቀም በቅድምያ የሚከፈል ክፍያ የለም። 
               </p>
             </Accordion.Content>   
 

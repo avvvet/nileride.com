@@ -22,6 +22,7 @@ class DriverLogin extends Component {
          <div> Driver dashboard </div>
        ) : (
          <div>
+           <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image>
            <Grid container columns={1} centered>
             <Grid.Row columns={1}>
               <Grid.Column mobile={18} tablet={18} computer={18}>

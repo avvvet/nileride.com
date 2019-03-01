@@ -171,7 +171,7 @@ class ApplyToRide extends Component {
                <Grid  columns={1} centered  stackable>
                  <Grid.Row>
                      <Grid.Column mobile={18} tablet={18} computer={18}>
-                         <Button color="teal" size="huge" onClick={(e) => this._yes(e)} fluid>NEW PASSENGER</Button>
+                         <Button color="teal" size="huge" onClick={(e) => this._yes(e)} fluid>አዲስ ተሳፋሪ ምዝገባ NEW PASSENGER</Button>
                      </Grid.Column>
                  </Grid.Row>
                </Grid>
@@ -180,7 +180,7 @@ class ApplyToRide extends Component {
              
              :
                 <div className="driverLoginBox">
-                <Header as='h3' textAlign='center' color='grey'>NEW PASSENGER</Header> 
+                <Header as='h3' textAlign='center' color='grey'>አዲስ ተሳፋሪ ምዝገባ NEW PASSENGER</Header> 
                 <Grid columns={1}>
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
@@ -278,7 +278,7 @@ class ApplyToRide extends Component {
                 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                    <Button className="btn_apply" color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >NEW PASSENGER</Button>
+                    <Button className="btn_apply" color='teal' size='huge' onClick={e => this.onRiderApply(e)}  fluid >መዝገበኝ REGISTER</Button>
                     </Grid.Column> 
                 </Grid.Row>
 

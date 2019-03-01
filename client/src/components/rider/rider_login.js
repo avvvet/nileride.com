@@ -106,7 +106,7 @@ class RiderLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='grey'>PASSENGER LOGIN</Header>
+           <Header as='h3' textAlign='center' color='grey'>የተሳፋሪ መግብያ PASSENGER LOGIN</Header>
            <Label textAlign='center' color="green" pointing="below">የስልክ ቁጥሮን እና የሚስጢር ኮዶን ያስገቡ !</Label>
            <div className="driverLoginBox">
            <Grid columns={1}>
@@ -148,7 +148,7 @@ class RiderLoginForm extends Component {
                 
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                    <Button className="btn_login" color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >LOGIN</Button>
+                    <Button className="btn_login" color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >አስገባኝ LOGIN</Button>
                     </Grid.Column> 
                 </Grid.Row>
                 </Grid>
