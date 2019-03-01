@@ -66,7 +66,6 @@ class Branch extends Component {
             <div>
                 
                 <div className="div-branch" id="div-branch">
-                <Image src='/assets/nile_ride_logo_blue.png' height={100} centered></Image>
                 <Grid container columns={1} centered  stackable>
 
                   <Grid.Row columns={1}>
@@ -100,8 +99,10 @@ class Branch extends Component {
 
                 <div id="div-faq-txt" className="div-faq-txt"></div>
 
-                <div id="div-faq" className="div-faq">
-                   <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
+
+                <div id="div-logo" className="div-logo">
+                 <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
+                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
                       በተደጋጋሚ የሚጠየቁ ጥያቄዎች
                    </Label>
                 </div>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Header, Image } from 'semantic-ui-react'
+import { Grid, Label, Image } from 'semantic-ui-react'
 import ApplyToDrive from './apply_to_drive';
 import DriverLoginForm from './driver_login';
 
@@ -22,7 +22,6 @@ class DriverLogin extends Component {
          <div> Driver dashboard </div>
        ) : (
          <div>
-           <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image>
            <Grid container columns={1} centered>
             <Grid.Row columns={1}>
               <Grid.Column mobile={18} tablet={18} computer={18}>
@@ -44,6 +43,12 @@ class DriverLogin extends Component {
           </Grid>
          </div>
        )} 
+       <div id="div-logo" className="div-logo">
+                 <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
+                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
+                      በተደጋጋሚ የሚጠየቁ ጥያቄዎች
+                   </Label>
+        </div>
      </div>
     );
 

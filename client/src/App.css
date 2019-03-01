@@ -722,7 +722,7 @@ input[type="file"] {
 .div-logo {
   color: #000000;
   position: fixed;
-  bottom: 12%;
+  bottom: 14%;
   right: 50%;
   z-index: 2000;
   transform: translate(50%, 50%);

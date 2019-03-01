@@ -106,7 +106,7 @@ class RiderLoginForm extends Component {
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='grey'>የተሳፋሪ መግብያ PASSENGER LOGIN</Header>
+           <Header as='h3' textAlign='center' color='grey'>የተሳፋሪ መግብያ</Header>
            <Label textAlign='center' color="green" pointing="below">የስልክ ቁጥሮን እና የሚስጢር ኮዶን ያስገቡ !</Label>
            <div className="driverLoginBox">
            <Grid columns={1}>

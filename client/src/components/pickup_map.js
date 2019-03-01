@@ -1336,8 +1336,9 @@ class PickUpMap extends Component {
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
                                     <Form>
                                     <Input  
-                                        icon={<Icon name='search' 
-                                        inverted circular link />} 
+                                        icon={<Icon name='search' inverted circular link />} 
+                                        label={{ icon: 'map marker alternate' }} 
+                                        labelPosition="left corner"
                                         placeholder='የሚሄዱት ወዴት ነው ?' 
                                         onClick={this.handleClickDropOff} 
                                         onFocus={this.handleFocusDropOff} 
