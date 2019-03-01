@@ -40,15 +40,20 @@ class DriverLogin extends Component {
                   <ApplyToDrive></ApplyToDrive>
               </Grid.Column>
             </Grid.Row>
+
+            <Grid.Row>
+              <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center">
+                 <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
+                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing="above">
+                      በተደጋጋሚ የሚጠየቁ ጥያቄዎች
+                   </Label>
+              </Grid.Column>
+            </Grid.Row>
+
           </Grid>
          </div>
        )} 
-       <div id="div-logo" className="div-logo">
-                 <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
-                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
-                      በተደጋጋሚ የሚጠየቁ ጥያቄዎች
-                   </Label>
-        </div>
+       
      </div>
     );
 
