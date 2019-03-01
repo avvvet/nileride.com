@@ -724,7 +724,7 @@ input[type="file"] {
   position: fixed;
   bottom: 14%;
   right: 50%;
-  z-index: 100;
+  z-index: 1900;
   transform: translate(50%, 50%);
   width: 213px;
   text-align: center;
