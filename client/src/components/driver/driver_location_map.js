@@ -1259,7 +1259,11 @@ class DriverLocation extends Component {
 
                 <div className="div-notification-1" id="div-notification-1"></div>
 
-
+                <div id="div-logo" className="div-logo">
+                 <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
+                 <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
+                </div>
+                
                 <div className="mapid" id="mapid"></div>
                 
             </div>
