@@ -70,7 +70,7 @@ body {
   top: 4%;
   right: 50%;
   width: 264px;
-  height: 120px;
+  height: 127px;
   transform: translate(50%, 0%);
   z-index: 2000;
   padding-top: 15px;
@@ -114,7 +114,7 @@ body {
 .account-verify {
   color: #ffffff;
   position: fixed;
-  top: 55%;
+  top: 49%;
   right: 50%;
   width: 300px;
   height: 44px;
