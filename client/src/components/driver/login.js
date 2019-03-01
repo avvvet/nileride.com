@@ -44,9 +44,7 @@ class DriverLogin extends Component {
             <Grid.Row>
               <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center">
                  <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
-                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing="above">
-                      በተደጋጋሚ የሚጠየቁ ጥያቄዎች
-                   </Label>
+                 <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
               </Grid.Column>
             </Grid.Row>
 
