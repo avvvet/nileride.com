@@ -7,6 +7,7 @@ import Drivers from './drivers';
 import DriverPayments from './driver_payments';
 import Rides from './rides';
 import Home from './home';
+import Trafics from './trafics';
 
 class ControlPanel extends Component {
     constructor() {
@@ -52,8 +53,8 @@ class ControlPanel extends Component {
               onClick={this.handleItemClick}
             />
             <Menu.Item
-              name='vistors'
-              active={activeItem === 'vistors'}
+              name='trafics'
+              active={activeItem === 'trafics'}
               onClick={this.handleItemClick}
             />
             <Menu.Menu position='right'>
@@ -69,6 +70,7 @@ class ControlPanel extends Component {
             {this.state.activeItem === 'drivers' ? <Drivers></Drivers> : ''}
             {this.state.activeItem === 'payments' ? <DriverPayments></DriverPayments> : ''}
             {this.state.activeItem === 'rides' ? <Rides></Rides> : ''}
+            {this.state.activeItem === 'trafics' ? <Trafics></Trafics> : ''}
           </Segment>
         </div>
       )

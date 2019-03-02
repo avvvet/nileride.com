@@ -160,7 +160,7 @@ const ride_auto_cancel = () => {
             return models.riderequests.update(
                 { status: 2 },
                 { 
-                    where: [sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('SECOND'), sequelize.Grid.Column('createdAt'), sequelize.fn("now")), {
+                    where: [sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('SECOND'), sequelize.col('createdAt'), sequelize.fn("now")), {
                         [Op.gt] : 10
                     }), {status : 1}], transaction: t
                 }

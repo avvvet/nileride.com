@@ -24,6 +24,7 @@ var {authUser} = require('./middleware/_auth_user');
 var {send_mail, send_mail_driver} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 const {ride_control_auto, ride_request} = require('./utils/ride_control');
+const {add_trafic, get_trafic} = require('./utils/trafics');
 
 var jump_this_driver = [];
 
@@ -1414,6 +1415,29 @@ app.post('/admin/rides', (req, res) => {
     })
 });
 
+app.post('/admin/add_trafic', (req, res) => {
+    var data = _.pick(req.body, ['trafic_type']);
+    console.log(data);
+    add_trafic(data);
+})
+
+app.get('/admin/get_trafic', (req, res) => {
+    models.trafics.findAll({
+        attributes: ['trafic_type',
+                    [Sequelize.fn('DATE', Sequelize.col('createdAt')),'date'],
+                    [Sequelize.fn('count', Sequelize.col('id')), 'trafic_count']
+        ],
+        order : [
+            [Sequelize.col('date'), 'DESC']
+        ],
+        raw: true,
+        group: ['date', 'trafic_type']
+    }).then(trafic => {
+        console.log('Jesus', trafic);
+        res.send(trafic);
+    });
+  
+});
 
 io.on('connect', (socket)=> {
    console.log('Client connected', socket.id);

@@ -12,8 +12,30 @@ class RiderLoginForm extends Component {
           loginMobile: '',
           loginPassword: ''
       }
-  }
+   }
 
+   componentDidMount() {
+     this.add_trafic('passenger');
+   }
+   
+   add_trafic = (trafic_type) => {
+    var data = {
+        trafic_type : trafic_type, 
+    };
+
+    $.ajax({ 
+        type:"POST",
+        url:"/admin/add_trafic",
+        data: JSON.stringify(data), 
+        contentType: "application/json",
+        success: function(data, textStatus, jqXHR) {
+            console.log('trafic', data);
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error("erroorror", err.toString());
+        }.bind(this)
+    });  
+   }
     validateRiderLogin = () => {
         let errors = [];
         

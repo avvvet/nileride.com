@@ -6,13 +6,17 @@ import $ from 'jquery';
 var validator = require('validator');
 
 class DriverLoginForm extends Component {
-  constructor(){
+    constructor(){
       super();
       this.state = {
           mobile: '',
           password: ''
       }
-  }
+    }
+
+    componentDidMount() {
+        this.add_trafic('driver')
+    }
 
     validateDriverLogin = () => {
         let errors = [];
@@ -81,7 +85,7 @@ class DriverLoginForm extends Component {
         }
     }
 
-  driverLogin = (login) => {
+    driverLogin = (login) => {
        $('.btn_login').addClass("loading");
         $.ajax({ 
             type:"POST",
@@ -104,7 +108,27 @@ class DriverLoginForm extends Component {
                 }  
             }.bind(this)
         });  
-  } 
+   } 
+
+   add_trafic = (trafic_type) => {
+    var data = {
+        trafic_type : trafic_type, 
+    };
+
+    $.ajax({ 
+        type:"POST",
+        url:"/admin/add_trafic",
+        data: JSON.stringify(data), 
+        contentType: "application/json",
+        success: function(data, textStatus, jqXHR) {
+            console.log('trafic', data);
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error("erroorror", err.toString());
+        }.bind(this)
+    });  
+   }
+
 
   render(){
       if(this.state.auth) {

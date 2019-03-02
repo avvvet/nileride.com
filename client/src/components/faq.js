@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import {Grid, Button, Accordion, Icon, Label} from 'semantic-ui-react';
+import $ from 'jquery';
 
 class Faq extends Component {
     constructor() {
@@ -8,6 +9,29 @@ class Faq extends Component {
        this.state = {
            activeIndex: null
        }
+    }
+
+    componentDidMount() {
+      this.add_trafic('faq');
+    }
+
+    add_trafic = (trafic_type) => {
+      var data = {
+          trafic_type : trafic_type, 
+      };
+  
+      $.ajax({ 
+          type:"POST",
+          url:"/admin/add_trafic",
+          data: JSON.stringify(data), 
+          contentType: "application/json",
+          success: function(data, textStatus, jqXHR) {
+              console.log('trafic', data);
+          }.bind(this),
+          error: function(xhr, status, err) {
+              console.error("erroorror", err.toString());
+          }.bind(this)
+      });  
     }
 
     handleClick = (e, titleProps) => {
@@ -22,7 +46,7 @@ class Faq extends Component {
         document.getElementById('div-branch').style.visibility = 'visible';
         render('',document.getElementById('div-faq-txt'));
     }
-
+    
     render() {
         const { activeIndex } = this.state
     
