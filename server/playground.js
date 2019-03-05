@@ -4,11 +4,11 @@ const bcrypt = require('bcryptjs');
 
 createAdmin = () => {
     var body = {
-        firstName : 'Awet',
-        middleName : 'Tsegazeab',
-        email : 'awet@gmail.com',
+        firstName : 'NILE',
+        middleName : 'RIDE',
+        email : 'admin@nileride.com',
         mobile : '0911003994',
-        password : 'awetawet',
+        password : 'awetawet_awet',
         token : ''
     }
     body.token = jwt.sign(body.email, 'JESUSMYHEALER');

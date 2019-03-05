@@ -101,8 +101,9 @@ class Branch extends Component {
 
 
                 <div id="div-logo" className="div-logo">
+                 <Label color="red" pointing="below">በቅርቡ ሥራ ይጀምራል ፡ በሹፌርነት ወይም በተሳፋሪነት ይመዝገቡ። </Label>
                  <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
-                 <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
+                   <Label size="large" as="a" color="orange" onClick={(e) => this._show_faq(e)} pointing>
                       በተደጋጋሚ የሚጠየቁ ጥያቄዎች
                    </Label>
                 </div>

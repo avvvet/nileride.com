@@ -149,7 +149,17 @@ class Faq extends Component {
               እንደሚኙ አስቀድሞ ያረጋግጣል። በጉዞ ወቅት ለሚደርስ ያለመከባበር ጥፍት ካለማስጥንቀቅያ nileride.com በፍጥነት ከሲተሙ ላይ ሹፊሩም ተሳፋሪውም
               በቀጣይነት እንዳይጥቀሙ ይሰርዛል።  
               </p>
-            </Accordion.Content>          
+            </Accordion.Content>   
+
+            <Accordion.Title active={activeIndex === 8} index={8} onClick={this.handleClick}>
+              <Icon name='dropdown' />
+              <Label>ለተጨማሪ ጥያቄ</Label>
+            </Accordion.Title>
+            <Accordion.Content active={activeIndex === 8}>
+              <p>    
+              በዚህ <Label color="purple">የቫይበር</Label> ቁጥር ላይ ያገኙናል ።   <Icon name="chat" color="purple"></Icon>+1 202 424 8308     
+              </p>
+            </Accordion.Content>            
 
           </Accordion>
          
