@@ -132,10 +132,21 @@ const upload_driver = multer({
 }).single("myImage");
 
 const upload_user = multer({
-    dest: storage_user
+    storage: storage_user
 }).single("myImage");
 
-app.post('/user/profile', upload_user, async (req, res) => {
+
+// SET STORAGE
+var storage = multer.diskStorage({
+    destination: publicPathProfileUser,
+    filename: function (req, file, cb) {
+        cb(null,"user-" + Date.now() + path.extname(file.originalname));
+    }
+  })
+   
+  var upload = multer({ storage: storage })
+
+app.post('/user/profile', upload.single('myImage'), async (req, res) => {
     try {
         var token = req.header('x-auth');
         let img = _.pick(req.file, ['filename']);
@@ -144,7 +155,7 @@ app.post('/user/profile', upload_user, async (req, res) => {
                 { profile : img.filename, hasProfile : true},
                 { where: { token: token } }
              ).then(user => {
-                  console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy', user);
+                  console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy', user)
                   res.send(user);
              }).catch(err => {
                 res.sendStatus(400).send();
