@@ -957,7 +957,7 @@ class PickUpMap extends Component {
             errors.push("Picture is empty. Browse first.");
         } 
 
-        if(this.state.file.size > 1024000) {
+        if(this.state.file.size > 4024000) {
             errors.push("Selected Picture is very large");
         }
        

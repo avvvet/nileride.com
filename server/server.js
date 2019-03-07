@@ -129,7 +129,7 @@ const storage_user = multer.diskStorage({
 
 const upload_driver = multer({
     storage: storage_driver,
-    limits:{fileSize: 1000000},
+    limits:{fileSize: 9000000},
 }).single("myImage");
 
 const upload_user = multer({

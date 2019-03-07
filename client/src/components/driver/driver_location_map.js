@@ -863,7 +863,7 @@ class DriverLocation extends Component {
             errors.push("ፎቶ አልመረጡም ! Browse የሚለውን ይጫኑ።");
         } 
 
-        if(this.state.file.size > 1024000) {
+        if(this.state.file.size > 9024000) {
             errors.push("የመረጡት ፎቶ መጠን ትልቅ ነው ! አነስተኛ ፎቶ ይምረጡ።");
         }
        
