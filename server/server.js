@@ -152,8 +152,9 @@ app.post('/user/profile', function (req, res) {
                 { profile : f, hasProfile : true},
                 { where: { token: token } }
              ).then(user => {
-                  console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy', user)
-                  res.send(user);
+                res.writeHead(200, { 'Connection': 'close' });
+                res.end("That's all folks!");
+                 // res.send(user);
              }).catch(err => {
                 res.sendStatus(400).send();
              });
@@ -161,8 +162,7 @@ app.post('/user/profile', function (req, res) {
                res.sendStatus(400).send();
            } 
       console.log('Upload complete');
-      //res.writeHead(200, { 'Connection': 'close' });
-      //res.end("That's all folks!");
+      
     });
     return req.pipe(busboy);
 
