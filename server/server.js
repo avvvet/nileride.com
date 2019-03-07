@@ -132,7 +132,7 @@ const upload_driver = multer({
 }).single("myImage");
 
 const upload_user = multer({
-    storage: storage_user
+    dest: storage_user
 }).single("myImage");
 
 app.post('/user/profile', upload_user, async (req, res) => {
