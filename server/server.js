@@ -135,7 +135,29 @@ const upload_user = multer({
     storage: storage_user
 }).single("myImage");
 
-app.post('/user/profile', (req, res) => {
+app.post('/user/profile', upload_user, async (req, res) => {
+    try {
+        var token = req.header('x-auth');
+        let img = _.pick(req.file, ['filename']);
+        if(!_.isEmpty(img.filename)) {
+            await models.users.update(
+                { profile : img.filename, hasProfile : true},
+                { where: { token: token } }
+             ).then(user => {
+                  console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy', user);
+                  res.send(user);
+             }).catch(err => {
+                res.sendStatus(400).send();
+             });
+           } else {
+               res.sendStatus(400).send();
+           } 
+    } catch (err) {
+        res.sendStatus(400);
+    }
+})
+
+app.post('/user/profile_old', (req, res) => {
     var token = req.header('x-auth');
     upload_user(req, res, (err) => {
        console.log("Request ---", req.body);
