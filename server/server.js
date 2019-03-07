@@ -134,7 +134,7 @@ const upload_driver = multer({
 
 const upload_user = multer({
     storage: storage_user,
-    limits:{fileSize: 1000000},
+    limits:{fileSize: 9000000},
 }).single("myImage");
 
 app.post('/user/profile', (req, res) => {
