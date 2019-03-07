@@ -101,6 +101,11 @@ app.get('/playground', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/assets/pdf/*', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
+
 console.log('client path', clientPath);
 app.use(bodyParser.json());
 //app.use(express.static('static'));s

@@ -11,7 +11,6 @@ import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
 import MissedRide from './missed_ride';
 import DriverDashBoard from './driver_dashboard'
-import { resolve } from 'path';
 
 var validator = require('validator');
 
@@ -1260,6 +1259,8 @@ class DriverLocation extends Component {
                 <div className="div-notification-1" id="div-notification-1"></div>
 
                 <div id="div-logo" className="div-logo">
+
+                 <Label color="purple" as="a" href='/assets/pdf/nileride_driver_manual.pdf' target="_blank" pointing="below">የአጠቃቀም መመርያ</Label>
                  <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
                  <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
                 </div>
