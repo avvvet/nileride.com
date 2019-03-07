@@ -135,18 +135,40 @@ const upload_user = multer({
     storage: storage_user
 }).single("myImage");
 
+var Busboy = require('busboy');
+app.post('/user/profile', function (req, res) {
+    var token = req.header('x-auth');
+    var busboy = new Busboy({ headers: req.headers });
+    var f = null;
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+      f =  "user-" + Date.now() + filename;
+      var saveTo = path.join(publicPathProfileUser, f);
+      console.log('Uploading: ' + saveTo);
+      file.pipe(fs.createWriteStream(saveTo));
+    });
+    busboy.on('finish', function() {
+        if(!_.isNull(f)) {
+            models.users.update(
+                { profile : f, hasProfile : true},
+                { where: { token: token } }
+             ).then(user => {
+                  console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyy', user)
+                  res.send(user);
+             }).catch(err => {
+                res.sendStatus(400).send();
+             });
+           } else {
+               res.sendStatus(400).send();
+           } 
+      console.log('Upload complete');
+      //res.writeHead(200, { 'Connection': 'close' });
+      //res.end("That's all folks!");
+    });
+    return req.pipe(busboy);
 
-// SET STORAGE
-var storage = multer.diskStorage({
-    destination: publicPathProfileUser,
-    filename: function (req, file, cb) {
-        cb(null,"user-" + Date.now() + path.extname(file.originalname));
-    }
-  })
-   
-  var upload = multer({ storage: storage })
+});
 
-app.post('/user/profile', upload.single('myImage'), async (req, res) => {
+app.post('/user/profile7', upload_user, async (req, res) => {
     try {
         var token = req.header('x-auth');
         let img = _.pick(req.file, ['filename']);
