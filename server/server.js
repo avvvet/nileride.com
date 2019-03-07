@@ -129,12 +129,12 @@ const storage_user = multer.diskStorage({
 
 const upload_driver = multer({
     storage: storage_driver,
-    limits:{fileSize: 4000000},
+    limits:{fileSize: 3024000},
 }).single("myImage");
 
 const upload_user = multer({
     storage: storage_user,
-    limits:{fileSize: 4000000},
+    limits:{fileSize: 3024000},
 }).single("myImage");
 
 app.post('/user/profile', (req, res) => {
