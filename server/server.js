@@ -18,7 +18,7 @@ const publicPathProfileUser = path.join(__dirname, '../client/public/assets/prof
 const publicPathProfileDriver = path.join(__dirname, '../client/public/assets/profile/driver');
 var _ = require('lodash');
 var validator = require('validator');
-
+var Busboy = require('busboy');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
 var {send_mail, send_mail_driver} = require('./utils/email');
@@ -135,7 +135,32 @@ const upload_user = multer({
     storage: storage_user
 }).single("myImage");
 
-var Busboy = require('busboy');
+app.post('/user/profile', function (req, res){
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+      res.writeHead(200, {'content-type': 'text/plain'});
+      res.write('received upload:\n\n');
+      res.end(util.inspect({fields: fields, files: files}));
+    });
+  
+    form.on('end', function(fields, files) {
+      /* Temporary location of our uploaded file */
+      var temp_path = this.openedFiles[0].path;
+      /* The file name of the uploaded file */
+      var file_name = this.openedFiles[0].name;
+      /* Location where we want to copy the uploaded file */
+      var new_location = 'uploads/';
+  
+      fs.copy(temp_path, new_location + file_name, function(err) {  
+        if (err) {
+          console.error(err);
+        } else {
+          console.log("success!")
+        }
+      });
+    });
+});
+  
 app.post('/user/profile', function (req, res) {
     var token = req.header('x-auth');
     var busboy = new Busboy({ headers: req.headers });
@@ -152,9 +177,8 @@ app.post('/user/profile', function (req, res) {
                 { profile : f, hasProfile : true},
                 { where: { token: token } }
              ).then(user => {
-                res.writeHead(200, { 'Connection': 'close' });
-                res.end("That's all folks!");
-                 // res.send(user);
+                res.writeHead(200, user);
+                res.end("Jesus is my light");
              }).catch(err => {
                 res.sendStatus(400).send();
              });
@@ -162,11 +186,11 @@ app.post('/user/profile', function (req, res) {
                res.sendStatus(400).send();
            } 
       console.log('Upload complete');
-      
+
     });
     return req.pipe(busboy);
-
 });
+
 
 app.post('/user/profile7', upload_user, async (req, res) => {
     try {
