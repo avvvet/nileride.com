@@ -151,7 +151,8 @@ app.post('/user/profile', function (req, res) {
                 { profile : f, hasProfile : true},
                 { where: { token: token } }
              ).then(user => {
-                res.writeHead(200, user);
+                //res.writeHead(200, user);
+                res.send(user);
                 res.end("Jesus is my light");
              }).catch(err => {
                 res.sendStatus(400).send();
