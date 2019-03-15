@@ -1373,7 +1373,7 @@ class PickUpMap extends Component {
                        </div>
                         <div>
                             
-                            <Label size="large" color="green" pointing="below"><Label color="grey" circular>1</Label> ያሉበትን አከባቢ ይፈልጉ</Label>
+                            <Label size="medium" color="green" pointing="below"><Label color="grey" circular>1</Label> ያሉበትን አከባቢ ይፈልጉ</Label>
                             <Grid columns={1} centered>
                                 <Grid.Row>
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
@@ -1411,7 +1411,7 @@ class PickUpMap extends Component {
                        <div id="div-pickup-input" className="div-pickup-input">
                        </div>
                         <div>
-                            <Label size="large" color="orange" pointing="below"><Label color="grey" circular>2</Label>የሚሄዱበትን አከባቢ እዚህጋ ይፈልጉ</Label>
+                            <Label size="medium" color="orange" pointing="below"><Label color="grey" circular>2</Label>የሚሄዱበትን አከባቢ ይፈልጉ</Label>
                             <Grid columns={1} centered>
                                 <Grid.Row>
                                     <Grid.Column mobile={16} tablet={16} computer={16}>

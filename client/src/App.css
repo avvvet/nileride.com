@@ -141,10 +141,10 @@ body {
 
 .div-diff {
   position: fixed;
-  top: 9%;
+  top: 10%;
   right: 50%;
   transform: translate(50%, 0%);
-  z-index: 3000;
+  z-index: 1800;
 }
 
 .div-eta {
@@ -775,7 +775,7 @@ input[type="file"] {
 
 .driver-page {
   position: fixed;
-  bottom: 27%;
+  bottom: 28%;
   right: 50%;
   z-index: 1900;
   transform: translate(50%, 50%);
@@ -783,7 +783,7 @@ input[type="file"] {
 
 .faq-page {
   position: fixed;
-  bottom: 22%;
+  bottom: 23%;
   right: 50%;
   z-index: 1900;
   transform: translate(50%, 50%);
