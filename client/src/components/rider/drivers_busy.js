@@ -53,18 +53,17 @@ class DriverBusy extends Component {
         return(
             <div>
                 <Message negative>
-                    <Message.Header>Sorry, all drivers are busy !</Message.Header>
+                    <Message.Header>ይቅርታ ! ሹፌር አልተገኘም</Message.Header>
                     <p>
-                        we have tried to assign your ride to nearest drivers.
-                        At this moment all drivers are busy. Please try to request
-                        again.
+                        አጠገቦ ላሉ ሹፌሮች ሥራውን ለመመደብ ሞክረን ነበር ። ሹፌር አሁን ማግኘት አልተቻለም ፡
+                        እባኮትን ትንሽ ቆይተው ይሞክሩ ። 
                     </p>
 
                     <p>
                         <Grid container columns={1}>
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button className="btn_busy_ok" color="green" onClick={(e) => this._driver_busy_ok(e)} fluid >OK</Button>
+                                    <Button className="btn_busy_ok" color="green" onClick={(e) => this._driver_busy_ok(e)} fluid >ቀጥል</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

@@ -273,7 +273,7 @@ app.get('/user/get', (req, res) => {
 
 //user-apply
 app.post('/user/apply', (req, res) => {
-    var body = _.pick(req.body, ['firstName', 'middleName', 'email', 'mobile', 'gender', 'password', 'token']);
+    var body = _.pick(req.body, ['firstName', 'middleName', 'mobile', 'gender', 'password', 'token', 'profile']);
     //body.token = jwt.sign(body.email, 'JESUSMYHEALER');
     body.token = jwt.sign(body.mobile, 'JESUSMYHEALER');
 
@@ -752,7 +752,7 @@ app.post('/ride/completed', (req, res) => {
                          'ride_id': ride.id,
                          'amount': ride.route_price,
                          'charge_dr': 0.00,
-                         'charge_cr': ride.route_price * 0.2,
+                         'charge_cr': ride.route_price * 0.1,
                          'status': 0
                      }
                      var body = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
@@ -1343,7 +1343,7 @@ app.post('/admin/users', (req, res) => {
 
 app.post('/admin/drivers', (req, res) => {
     models.drivers.findAll({
-        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 
+        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 'currentLocation',
                     [Sequelize.fn('count', Sequelize.col('ratings.id')), 'rating'],
                     [Sequelize.literal('SUM(ratings.rating) / COUNT(ratings.id)'), 'avg_rating'],
                     [Sequelize.literal('COUNT(ratings.id)'), 'count_rating']

@@ -35,7 +35,7 @@ class App extends React.Component {
         <BrowserRouter>
           <div>
             <Switch>
-                <Route path="/" component={Branch} exact />
+                <Route path="/" component={PickUp} exact />
                 
                 <Route path="/user/login" component={RiderLogin} exact/>
                 <Route path="/user" component={PickUp} exact/>

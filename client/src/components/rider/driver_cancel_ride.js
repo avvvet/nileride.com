@@ -55,16 +55,17 @@ class DriverCancelRide extends Component {
         return(
             <div>
                 <Message negative>
-                    <Message.Header><strong>Oh ! Driver Cancelled your ride !</strong></Message.Header>
+                    <Message.Header><strong>አኦ ! ሹፌሩ ሥራውን ሰረዘው !</strong></Message.Header>
                     <p>
-                        We are very sorry, we will check why the driver cancelled the ride. 
+                        በጣም ይቅርታ ፡ ሹፌሩ ለምን ሥራውን አንደሰረዘው አሁን እናጣራለን ። 
+                        እባኮትን በድጋሚ ይሞክሩ።
                     </p>
 
                     <p>
                         <Grid container columns={1}>
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button color="green" onClick={(e) => this._driver_cancel_ride_ok(e)} fluid>OK</Button>
+                                    <Button color="green" onClick={(e) => this._driver_cancel_ride_ok(e)} fluid>ቀጥል</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

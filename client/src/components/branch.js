@@ -28,9 +28,7 @@ class Branch extends Component {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        
-
-
+    
         this.setState({
             locationGroup : new L.LayerGroup().addTo(map)
         });

@@ -40,7 +40,7 @@ class Rate extends Component {
    
     _on_rating = (e) => {
        if(this.state.rating === 0) {
-        render(<Message negative> ኮከብ ይምረጡ ! select stars !</Message>,document.getElementById('div-rateing-error'));
+        render(<Message negative> ኮከብ ይምረጡ ! </Message>,document.getElementById('div-rateing-error'));
        } else {
            this._rating(e);
        }
@@ -78,7 +78,7 @@ class Rate extends Component {
         return(
             <div>
                 <Message>
-                    <Message.Header>እንዴት ነበር ? How was the ride ?</Message.Header>
+                    <Message.Header>እንዴት ነበር ? አስተያየት ይስጡ !</Message.Header>
                     <p>
                         እባኮትን ሹፊሩን ከ 1 - 5 ኮከብ በመስጠት ይገምግሙ !
                     </p>
@@ -103,7 +103,7 @@ class Rate extends Component {
                             </Grid.Row>
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button className="btn_rating" color="green" onClick={(e) => this._on_rating(e)} fluid>COMMENT</Button>
+                                    <Button className="btn_rating" color="green" onClick={(e) => this._on_rating(e)} fluid>አስተያየት ላክ</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

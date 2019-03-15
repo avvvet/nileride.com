@@ -124,20 +124,27 @@ body {
 }
 
 .user-info {
-  background-color: #c4f283;
+  background-color: teal;
   color: #ffffff;
   position: fixed;
-  top: 4%;
+  top: 3%;
   right: 50%;
-  width: 158px;
-  height: 34px;
+  width: 91px;
+  height: 38px;
   padding-top: 4px;
-  padding-right: 7px;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
   transform: translate(50%, 0%);
-  z-index: 2000;
+  z-index: 3000;
   visibility: visible;
+}
+
+.div-diff {
+  position: fixed;
+  top: 9%;
+  right: 50%;
+  transform: translate(50%, 0%);
+  z-index: 3000;
 }
 
 .div-eta {
@@ -180,6 +187,20 @@ body {
   visibility: visible;
 }
 
+.div-notification-2 {
+  color: #ffffff;
+  position: fixed;
+  top: 4%;
+  right: 50%;
+  width: 300px;
+  height: 44px;
+  transform: translate(50%, 0);
+  z-index: 2000;
+  padding-top: 3px;
+  padding-left: 4px;
+  padding-right: 9px;
+  visibility: visible;
+}
 
 .missed-ride {
   color: #ffffff;
@@ -538,6 +559,12 @@ div.rowPaddingSm {
   padding-bottom: 0px;
 }
 
+.ui.grid > .row_sr {
+  padding-top: 0px;
+  padding-bottom: 5px;
+  line-height: 0.429em;
+}
+
 .ui.grid > .row_xs {
   padding-top: 1px;
   padding-bottom: 0px;
@@ -638,6 +665,11 @@ div.rowPaddingSm {
   animation-iteration-count: infinite;
 }
 
+.shake-slow {
+  animation: shake 3.5s;
+  animation-iteration-count: infinite;
+}
+
 .notify-rider {
   position: absolute;
   top: -33px;
@@ -719,6 +751,17 @@ input[type="file"] {
   text-align: center;
 }
 
+.div-logo-user {
+  color: #000000;
+  position: fixed;
+  bottom: 12%;
+  right: 50%;
+  z-index: 1900;
+  transform: translate(50%, 50%);
+  width: 213px;
+  text-align: center;
+}
+
 .div-logo {
   color: #000000;
   position: fixed;
@@ -730,17 +773,57 @@ input[type="file"] {
   text-align: center;
 }
 
+.driver-page {
+  position: fixed;
+  bottom: 27%;
+  right: 50%;
+  z-index: 1900;
+  transform: translate(50%, 50%);
+}
+
+.faq-page {
+  position: fixed;
+  bottom: 22%;
+  right: 50%;
+  z-index: 1900;
+  transform: translate(50%, 50%);
+}
+
 .div-faq-txt {
   position: fixed;
-  top: 12%;
+  top: 7%;
   right: 50%;
-  z-index: 2010;
+  z-index: 3002;
   transform: translate(50%, 0%);
   width: 355px;
 }
 
 .div-fag-cancel {
   margin-top: 20px;
+}
+
+.search_help {
+  color: #5f5b5b;
+  position: fixed;
+  top: 15%;
+  right: 17%;
+  width: 255px;
+  height: 48px;
+  transform: translate(50%, 0%);
+  z-index: 3000;
+  visibility: hidden
+}
+
+.search_0 {
+  color: #5f5b5b;
+  position: fixed;
+  top: 15%;
+  right: 50%;
+  width: 255px;
+  height: 48px;
+  transform: translate(50%, 0%);
+  z-index: 3000;
+  visibility: visible
 }
 
 .search_1 {
@@ -752,6 +835,7 @@ input[type="file"] {
   height: 48px;
   transform: translate(50%, 0%);
   z-index: 3000;
+  visibility: hidden;
 }
 
 .search_result_pickup {
@@ -765,11 +849,7 @@ input[type="file"] {
 }
 
 .dropoff_search {
-  box-shadow: 10px 10px 10px gray; 
-  border-color: #21ba45;
-  border-style: solid;
-  border-width: 2px; 
-  border-radius: 7px;
+  box-shadow: 10px 10px 10px gray;
 }
 
 .pickup_search {

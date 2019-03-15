@@ -3,6 +3,8 @@ import  { Redirect } from 'react-router-dom'
 import { render } from 'react-dom';
 import { Grid, Message, Form, Button, Header, Image, Label, Input } from 'semantic-ui-react'
 import $ from 'jquery';
+import ApplyToRide from './apply_to_ride_2';
+
 var validator = require('validator');
 
 class RiderLoginForm extends Component {
@@ -36,24 +38,23 @@ class RiderLoginForm extends Component {
         }.bind(this)
     });  
    }
-   
     validateRiderLogin = () => {
         let errors = [];
         
         if(this.state.loginMobile.length === 0 ){
-            errors.push("Mobile field is empty");
+            errors.push("ሞባይል ቁጥር ያስገቡ");
         } else if (validator.isNumeric(this.state.loginMobile, {no_symbols: true} ) === false) {
-            errors.push("Mobile number is not valid");
+            errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
         } else if(validator.isMobilePhone(this.state.loginMobile) === false) {
-            errors.push("Mobile field is not correct");
+            errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
         } else if (this.state.loginMobile.length < 10) {
-            errors.push("Mobile number needs to be 10 digits");
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
         }else if (this.state.loginMobile.length > 10){
-            errors.push("Mobile number needs to be 10 digits");
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
         }
 
         if(this.state.loginPassword.length === 0) {
-            errors.push("Password field is empty.");
+            errors.push("የሚሲጢር ኮድ ያስገቡ !");
         }
 
         return errors;
@@ -106,8 +107,8 @@ class RiderLoginForm extends Component {
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
              $('.btn_login').removeClass("loading");
-             
              sessionStorage.setItem("_auth_user", user.token);
+             this.props.callBackFromLogin(user);
              this.setState({
                 auth: user.token
              });   
@@ -115,27 +116,35 @@ class RiderLoginForm extends Component {
             error: function(xhr, status, err) {
                 $('.btn_login').removeClass("loading");
                 if(err.toString() === 'Unauthorized'){
-                  render(<Message negative> Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
+                  render(<Message negative> ያስገቡት ስልክ ውይም የሚሲጢር ኮድ ትክክለኛ አይደለም ! አስተካክለው ይሞክሩ።</Message>,document.getElementById('FormError'));
                 } else {
-                    render(<Message negative> Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
+                    render(<Message negative> የኢንተርኔት ግንኙነት የለም ፡ እባኮትን እንደገና ይሞክሩ።</Message>,document.getElementById('FormError'));  
                 }  
             }.bind(this)
         });  
   } 
 
+  show_apply_passenger = (e) => {
+    document.getElementById('div-notification-2').style.visibility = 'visible';
+    render(<ApplyToRide callBackFromLogin={this.props.callBackFromLogin}></ApplyToRide>, document.getElementById('div-notification-2'));
+  }
+
   render(){
       if(this.state.auth) {
-        return <Redirect to='/user'  />
+        document.getElementById('ride-price-dashboard').style.visibility = 'visible';
+        document.getElementById('user-info').style.visibility = 'visible';
+        document.getElementById('div-notification-2').style.visibility = 'hidden';
+        render('', document.getElementById('div-notification-2'));
       }
       return(
         <div>
-           <Header as='h3' textAlign='center' color='grey'>የተሳፋሪ መግብያ</Header>
-           <Label textAlign='center' color="green" pointing="below">የስልክ ቁጥሮን እና የሚስጢር ኮዶን ያስገቡ !</Label>
            <div className="driverLoginBox">
            <Grid columns={1}>
-                
-                <Grid.Row>
+                <Grid.Row centered>
+                    
                     <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Label color="green" pointing="below" size="large">
+                    እባኮትን ከዚህ በፊት ተመዝግበው ከሆነ የሞባይል ቁጥር እና ኮዶን ያስገቡ !</Label>
                     <Form>
                     <Input
                     name="loginMobile"
@@ -145,13 +154,13 @@ class RiderLoginForm extends Component {
                     value={this.state.loginMobile}
                     placeholder="ስልክ ቁጥር mobile"
                     onChange={e => this.change(e)}
-                    size="huge"
+                    size="large"
                     fluid
                     />
                     </Form>
                     </Grid.Column>
                 </Grid.Row>   
-                <Grid.Row> 
+                <Grid.Row className="row_sm"> 
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Form>
                     <Input
@@ -162,18 +171,31 @@ class RiderLoginForm extends Component {
                     value={this.state.loginPassword}
                     placeholder="የሚስጢር ኮድ password"
                     onChange={e => this.change(e)}
-                    size="huge"
+                    size="large"
                     fluid
                     />
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
                 
-                <Grid.Row>
+                <Grid.Row className="row_sm">
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                    <Button className="btn_login" color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid >አስገባኝ LOGIN</Button>
+                    <Button className="btn_login"  content='ቀጥል' icon='right arrow' labelPosition='right' color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid ></Button>
                     </Grid.Column> 
                 </Grid.Row>
+
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                      <Button color="teal" content='አዲስ ተሳፋሪ' icon='right arrow' labelPosition='right' size="huge" onClick={(e) => this.show_apply_passenger(e)} fluid></Button>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                     <div id='FormError' className='FormError'></div>
+                    </Grid.Column>
+                </Grid.Row>
+
                 </Grid>
                 </div>
         </div>

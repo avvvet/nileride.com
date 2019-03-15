@@ -258,15 +258,17 @@ class DriverLocation extends Component {
     map.on('locationfound', (e) => {
         var radius = e.accuracy / 1024;
         radius = radius.toFixed(2);
+        var locationGroup = this.state.locationGroup;
+        locationGroup.clearLayers();
+        
+        L.marker(e.latlng, {icon: driver_icon}).addTo(locationGroup)
+        .bindPopup("You are here");
+        
+        L.circle(e.latlng, radius).addTo(locationGroup);
+        //map.setView(e.latlng,17);
+        map.setZoom(15); 
         if(radius < env.LOCATION_ACCURACY){
-            var locationGroup = this.state.locationGroup;
-            locationGroup.clearLayers();
             this.setState({current_latlng : e.latlng});
-            L.marker(e.latlng, {icon: driver_icon}).addTo(locationGroup)
-            .bindPopup("You are here");
-            
-            L.circle(e.latlng, radius).addTo(locationGroup);
-            //map.setView(e.latlng,17);
         } 
     });
     

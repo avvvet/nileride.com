@@ -13,6 +13,9 @@ import DriverCancelRide from './rider/driver_cancel_ride';
 import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
+import RiderLoginForm from './rider/rider_login_2';
+import Faq from './faq';
+
 const env = require('../env');
 var validator = require('validator');
 var yourLocation = L.icon({
@@ -152,6 +155,8 @@ class PickUpMap extends Component {
                 lat: 0,
                 lng: 0
             },
+            pickup_searchbox_selected : false,
+            dropoff_searchbox_selected : false
         }
     }
 
@@ -184,7 +189,6 @@ class PickUpMap extends Component {
                     }.bind(this)
                 });
             }
-            
         }); 
     }
 
@@ -255,15 +259,14 @@ class PickUpMap extends Component {
 
     componentDidMount(){
         this.getUser(sessionStorage.getItem("_auth_user"));
-       // this.nameInput.focus();
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         //var map = L.map('mapid');
-        map.locate({setView: true, maxZoom: 17});
+        map.locate({setView: true, maxZoom: 15});
         //Lord you are good - you are more than anything that is what I know
         this.setState({map : map});
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">ናይል ራይድ OpenStreetMap</a> contributors'
         }).addTo(map);
 
         this.setState({
@@ -277,8 +280,7 @@ class PickUpMap extends Component {
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
             radius = radius.toFixed(2);
-            if(radius < env.LOCATION_ACCURACY){
-                var locationGroup = this.state.locationGroup;
+            var locationGroup = this.state.locationGroup;
                 locationGroup.clearLayers();
                 this.setState({current_latlng : e.latlng});
                 var img;
@@ -298,17 +300,25 @@ class PickUpMap extends Component {
                     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
                 });
 
-                L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup)
-                .bindPopup("You are here.");
+                L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup);
                 L.circle(e.latlng, radius).addTo(locationGroup);
-                // map.setView(e.latlng,15);
+                //map.setView(e.latlng,15);
+                map.setZoom(15);  // ጌታ እየሱስ ይባረክ አባቴ ይህንን ሥራ አሳልፈህ ስለምትሰጠኝ አመሰግናለሁኝ አቅምን ጨምርልኝ 
                 this.setState({
                     currentLatLng : e.latlng,
                     pickup_flag : 'on',
                     pickup_latlng : e.latlng,   //current location become as pickup 
                     first_time_flag : true
-                });
-                    
+                });   
+            if(radius < env.LOCATION_ACCURACY) {
+                if(this.state.dropoff_searchbox_selected === false && _.isNull(document.getElementById('search_1')) === false) {
+                    document.getElementById('search_1').style.visibility = 'visible';
+                    document.getElementById('search_0').style.visibility = 'hidden';
+                }
+            } else {
+                if(this.state.pickup_searchbox_selected === false && _.isNull(document.getElementById('search_0')) === false) {
+                    document.getElementById('search_0').style.visibility = 'visible';
+                }
             }     
         });
         
@@ -348,7 +358,7 @@ class PickUpMap extends Component {
         }); 
         
         this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
-        this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
+        this.timerUserLocation = setInterval(this.userCurrentLocation, 15000);
     };
 
     componentDidUpdate(){
@@ -363,7 +373,6 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
               if(user){
-                console.log('user is ', user);
                 this.setState({
                     user: user,
                     isLogedIn : true,
@@ -372,7 +381,6 @@ class PickUpMap extends Component {
               }
             }.bind(this),
             error: function(xhr, status, err) {
-                console.log('getdriver', err.toString());
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -402,7 +410,7 @@ class PickUpMap extends Component {
             showAlternatives: false,
             
             lineOptions: {
-                styles: [{color: 'red', opacity: 1, weight: 3}]
+                styles: [{color: 'red', opacity: 1, weight: 5}]
             },
             router: L.Routing.osrmv1({
                 serviceUrl: env.ROUTING_SERVICE
@@ -410,7 +418,7 @@ class PickUpMap extends Component {
         })
         .on('routesfound', this.routeFound)
         .on('routingerror', (err) => {
-            console.log(err.error.status);
+            
             if(err.error.status === -1){
                 document.getElementById('ride-price-dashboard').style.visibility = "hidden";
                 document.getElementById('ride-route-status').style.visibility = 'hidden';
@@ -421,7 +429,7 @@ class PickUpMap extends Component {
     }
     
     routeFound =(e) => {
-        console.log('Jesus loves you', e.routes);
+        
         var markerGroup = this.state.markerGroup;
         markerGroup.clearLayers();
 
@@ -436,7 +444,7 @@ class PickUpMap extends Component {
             pickup_latlng : routes[0].waypoints[0].latLng,
             dropoff_latlng : routes[0].waypoints[1].latLng
         });
-        console.log('son of God',this.state.pickup_latlng, this.state.dropoff_latlng);
+        
         function timeConvert(n) {
             var num = n;
             var hours = (num / 3600);
@@ -466,7 +474,6 @@ class PickUpMap extends Component {
     }
 
     nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
-        console.log('neareest data ', nearest_driver_latlng, user_pickup_latlng);
         var map = this.state.map;
         if(this._neearest_driver_routeControl){
             map.removeControl(this._neearest_driver_routeControl);
@@ -489,14 +496,14 @@ class PickUpMap extends Component {
             })
         })
         .on('routesfound', (e)=> {
-            console.log('route', e);
+            
             var routes = e.routes;
             var _distance = routes[0].summary.totalDistance;
             var _ride_time = routes[0].summary.totalTime;
             
             _distance = (_distance/1000).toFixed(2);
             var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
-           console.log('time', _ride_time_string);
+           
             function timeConvert(n) {
                 var num = n;
                 var hours = (num / 3600);
@@ -522,6 +529,28 @@ class PickUpMap extends Component {
             }
         })
         .addTo(map);  
+    }
+
+    checkLogin = (e) => {
+       document.getElementById('search_help').style.visibility = 'hidden';
+       if(this.state.isLogedIn === true) {
+           this.rideRequest(e);
+           this.add_trafic('call-driver');
+       } else {
+           document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+           document.getElementById('search_0').style.visibility = 'hidden';
+           document.getElementById('search_1').style.visibility = 'hidden';
+           document.getElementById('user-info').style.visibility = 'hidden';
+           render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} ></RiderLoginForm>, document.getElementById('div-notification-2'));
+       }
+    }
+
+    callBackFromLogin = (user) => {
+        this.setState({
+            user: user,
+            isLogedIn : true,
+            _signInFlag : false
+        }); 
     }
 
     rideRequest = (e) => {
@@ -577,7 +606,6 @@ class PickUpMap extends Component {
         document.getElementById("ride-request-dashboard").style.visibility = "visible";  
         document.getElementById("search_1").style.visibility = "hidden";  
         this.chkTimerRideStatus();
-        console.log("ride request sucess res ", ride);
     }
     
     checkRideStatus = () => {
@@ -591,7 +619,7 @@ class PickUpMap extends Component {
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
-              if(!_.isNull(ride.status)){
+              if(_.isNull(ride.status) === false && _.isNull(document.getElementById('ride-request-dashboard')) === false){
                 let _model;
                 let _plate;
                 if(ride.driver.cars.length>0){
@@ -699,19 +727,19 @@ class PickUpMap extends Component {
                     clearInterval(this.timerRideStatus);
                     
                 }
-
-                
               } else {
-                document.getElementById('ride-request-dashboard').style.visibility="hidden";
-                document.getElementById('u-driver-dashboard').style.visibility="hidden";
-                document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
-                clearInterval(this.timer_pickup_eta);
-                clearInterval(this.timer_dropoff_eta);
-                clearInterval(this.timerRideStatus);
-                this.timerRideStatus = null;
-                this.timer_pickup_eta = null;
-                this.timer_dropoff_eta = null;
-                this.resetRide();
+                if(!_.isNull(document.getElementById('ride-request-dashboard'))){
+                    document.getElementById('ride-request-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard').style.visibility="hidden";
+                    document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
+                    clearInterval(this.timer_pickup_eta);
+                    clearInterval(this.timer_dropoff_eta);
+                    clearInterval(this.timerRideStatus);
+                    this.timerRideStatus = null;
+                    this.timer_pickup_eta = null;
+                    this.timer_dropoff_eta = null;
+                    this.resetRide();
+                }
               }
             }.bind(this),
             error: function(xhr, status, err) {
@@ -902,7 +930,9 @@ class PickUpMap extends Component {
             pickup_eta_flag : false,
             dropoff_eta_flag: false,
             dropoff_search : '',
-            pickup_search : ''
+            pickup_search : '',
+            dropoff_searchbox_selected : false,
+            pickup_searchbox_selected : false,
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
@@ -911,6 +941,8 @@ class PickUpMap extends Component {
 
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+        document.getElementById('search_help').style.visibility = 'hidden';
+
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -927,10 +959,13 @@ class PickUpMap extends Component {
             pickup_eta_flag : false,
             dropoff_eta_flag: false,
             dropoff_search : '',
-            pickup_search : ''
+            pickup_search : '',
+            dropoff_searchbox_selected : false,
+            pickup_searchbox_selected : false,
         });
         map.locate({setView: true, maxZoom: 15});
         //this.timerUserLocation = setInterval(this.userCurrentLocation, 10000);
+        this.add_trafic('call-driver-cancel');
     }
 
     validateVarification = () => {
@@ -1128,7 +1163,7 @@ class PickUpMap extends Component {
     }
     
     handleRowClick_pickup = (result) => {
-         //my lord thank you thank you 
+         //my lord thank you thank you thank you father thank you thank you hallelujia
         if(result) {
           document.getElementById('search_result_pickup').style.visibility = 'hidden';
           var latlng = {
@@ -1140,7 +1175,8 @@ class PickUpMap extends Component {
               pickup_flag : 'on',
               user_searched_pickup_flag : true,
               user_searched_pickup_latlng : latlng,
-              first_time_flag : true
+              first_time_flag : true,
+              pickup_searchbox_selected : true
           });
         
           var markerGroup = this.state.markerGroup;
@@ -1153,7 +1189,11 @@ class PickUpMap extends Component {
             var latlng2 = this.state.dropoff_latlng;
             this.findRoute(latlng1, latlng2);
           }
+          document.getElementById('search_0').style.visibility = 'hidden';
+          document.getElementById('driver-page').style.visibility = 'hidden';
+          document.getElementById('search_1').style.visibility = 'visible';
 
+          this.add_trafic('search-pickup');
         }
     }
 
@@ -1167,6 +1207,7 @@ class PickUpMap extends Component {
         clearTimeout(this.timeout_pickup);
 
         this.timeout_pickup = setTimeout(this._search_pickup, 1000, e.target.value);
+        console.log('typing', e.target.value);
     }
 
     handleFocusPickup = (event) => event.target.select();
@@ -1219,7 +1260,6 @@ class PickUpMap extends Component {
     }
 
     dropoff_nomi = (results) => {
-
         if(results) {
             var i = 0;
             const data = results.map((result) =>
@@ -1242,7 +1282,8 @@ class PickUpMap extends Component {
           this.setState({
               dropoff_search : result.label,
               dropoff_flag: 'on',
-              dropoff_latlng: latlng
+              dropoff_latlng: latlng,
+              dropoff_searchbox_selected : true
           });
           var markerGroup = this.state.markerGroup;
           var map = this.state.map;
@@ -1260,7 +1301,12 @@ class PickUpMap extends Component {
             var latlng2 = latlng;
             this.findRoute(latlng1, latlng2);
           }
+          document.getElementById('search_0').style.visibility = 'hidden';
+          document.getElementById('search_1').style.visibility = 'hidden';
+          document.getElementById('driver-page').style.visibility = 'hidden';
+          document.getElementById('search_help').style.visibility = 'visible';
 
+          this.add_trafic('search-dropoff');
         }
     }
 
@@ -1282,62 +1328,97 @@ class PickUpMap extends Component {
         $('.dropoff_search').focus();
     }
 
-    _show_pickup_input = () => {
-        render(
-            <div>
-                <Grid columns={1} centered>
-                <Grid.Row>
-                    <Grid.Column mobile={16} tablet={16} computer={16}>
-                    <Form>
-                    <Input  
-                        icon={<Icon name='search' 
-                        inverted circular link />} 
-                        placeholder='መነሻ ቦታ' 
-                        onClick={this.handlClickPickup} 
-                        onFocus={this.handleFocusPickup} 
-                        onChange={e => this._search_pickup_on_change(e)}  
-                        value={this.state.pickup_search} 
-                        name="pickup_search" 
-                        className="pickup_search"
-                        size={this.state.input_pickup_size}
-                        fluid
-                    />
-                    </Form>
-                    </Grid.Column>
-                </Grid.Row>   
-                </Grid>
-                <div className="search_result_pickup" id="search_result_pickup">
-                <Table celled selectable>
-                <Table.Body>
-                {this.pickup_nomi(this.state.pickup_search_results)}
-                </Table.Body>
-                </Table>
-                </div> 
-            </div>               
-         ,document.getElementById('div-pickup-input')
-        );
+    clearThisPage = (e) => {
+        console.log('do somthing bright');
+        clearInterval(this.checkRideStatus);
+        clearInterval(this.userCurrentLocation);
+    }
+
+    add_trafic = (trafic_type) => {
+        var data = {
+            trafic_type : trafic_type, 
+        };
+    
+        $.ajax({ 
+            type:"POST",
+            url:"/admin/add_trafic",
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+                console.log('trafic', data);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error("erroorror", err.toString());
+            }.bind(this)
+        });  
+    }
+
+    _show_faq = (e) => {
+        document.getElementById('user-info').style.visibility = 'hidden';
+        document.getElementById('driver-page').style.visibility = 'hidden';
+        document.getElementById('div-logo-user').style.visibility = 'hidden';
+        document.getElementById('faq-page').style.visibility = 'hidden';
+        render(<Faq></Faq>,document.getElementById('div-faq-txt'));
     }
 
     render(){ 
-        console.log('test test test ', this.state.user.verified,this.state.user.hasProfile)
-        if(this.state._signInFlag) {
-            return <Redirect to='/user/login'  />
-        }  
         return(
             <div>
-               {this.state.user.verified === true && this.state.user.hasProfile === true ? 
-               <div className="search_1" id="search_1">
+                <div className="search_help shake-slow" id="search_help">
+                  <Label size="large" color="blue" pointing="below">ሰማያዊ ምልክቶቹን በመግፋት ቦት ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። </Label> 
+                </div>
+
+               <div className="search_0" id="search_0">
                        <div id="div-pickup-input" className="div-pickup-input">
                        </div>
                         <div>
-                            <Label size="large" color="teal" pointing="below">የሚሄዱበትን ቦታ እዚህጋ ይፈልጉ</Label>
+                            
+                            <Label size="large" color="green" pointing="below"><Label color="grey" circular>1</Label> ያሉበትን አከባቢ ይፈልጉ</Label>
                             <Grid columns={1} centered>
                                 <Grid.Row>
                                     <Grid.Column mobile={16} tablet={16} computer={16}>
                                     <Form>
                                     <Input  
-                                        icon={<Icon name='search' inverted circular link />} 
-                                        label={{ icon: 'map marker alternate' }} 
+                                        label={{ icon: 'map marker alternate', color : 'green' }} 
+                                        labelPosition="left corner"
+                                        icon={<Icon name='search' inverted circular link color='green' />} 
+                                        placeholder='መነሻ ቦታ' 
+                                        onClick={this.handlClickPickup} 
+                                        onFocus={this.handleFocusPickup} 
+                                        onChange={e => this._search_pickup_on_change(e)}  
+                                        value={this.state.pickup_search} 
+                                        name="pickup_search" 
+                                        className="pickup_search"
+                                        size= "huge"
+                                        fluid
+                                        ref={(input) => { this.nameInput = input; }} 
+                                    />
+                                    </Form>
+                                    </Grid.Column>
+
+                                </Grid.Row>   
+                            </Grid>
+                            <div className="search_result_pickup" id="search_result_pickup">
+                            <Table celled selectable>
+                            <Table.Body>
+                            {this.pickup_nomi(this.state.pickup_search_results)}
+                            </Table.Body>
+                            </Table>
+                            </div>                                  
+                        </div>
+              </div>  
+               <div className="search_1" id="search_1">
+                       <div id="div-pickup-input" className="div-pickup-input">
+                       </div>
+                        <div>
+                            <Label size="large" color="orange" pointing="below"><Label color="grey" circular>2</Label>የሚሄዱበትን አከባቢ እዚህጋ ይፈልጉ</Label>
+                            <Grid columns={1} centered>
+                                <Grid.Row>
+                                    <Grid.Column mobile={16} tablet={16} computer={16}>
+                                    <Form>
+                                    <Input  
+                                        icon={<Icon name='search' inverted circular link color='orange' />} 
+                                        label={{ icon: 'map marker alternate', color : 'orange' }} 
                                         labelPosition="left corner"
                                         placeholder='የሚሄዱት ወዴት ነው ?' 
                                         onClick={this.handleClickDropOff} 
@@ -1346,7 +1427,7 @@ class PickUpMap extends Component {
                                         value={this.state.dropoff_search} 
                                         name="dropoff_search" 
                                         className="dropoff_search"
-                                        size={this.state.input_dropoff_size}
+                                        size='huge'
                                         fluid
                                         ref={(input) => { this.nameInput = input; }} 
                                     />
@@ -1364,34 +1445,24 @@ class PickUpMap extends Component {
                             </div>                                  
                         </div>
               </div>  
-              : ''
-              }
+              
               <div className="user-info" id="user-info">
-                <Grid container columns={2} centered>
+                <Grid container columns={1} centered>
                     <Grid.Row>
-                        <Grid.Column mobile={8} tablet={8} computer={8}>
+                        <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center">
                             {this.state.user.hasProfile === true ?  
-                                <Image floated='left'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar/>
+                                <Image floated='left'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar centered/>
                                 : 
                                 <Image floated='left' height={30}  src={'/assets/awet-rider-m.png'} />
                             }                         
                         </Grid.Column>
-                        <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                            {this.state.isLogedIn === true ?
-                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="green">
-                                LOGOUT
-                                </Label>  
-                            :
-                                <Label size="mini" as={NavLink} to="/" basic pointing="left" color="blue" centered>
-                                LOGIN
-                                </Label>
-                            }
-                        </Grid.Column>
                     </Grid.Row>
                 </Grid>
               </div>
-              
-              {this.state.user.verified === false ?  
+
+             <div className='div-diff' id='div-diff'> <Label color="orange" tag>33% የዋጋ ልዩነት</Label> </div>
+
+              {this.state.user.verified === true ?  
               <div className="account-verify" id="account-verfiy">
                         <form>
                         <Message  positive>
@@ -1488,6 +1559,7 @@ class PickUpMap extends Component {
               : '' }
               
               <div className="div-notification-1" id="div-notification-1"></div>
+              <div className="div-notification-2" id="div-notification-2"></div>
 
               <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
@@ -1497,10 +1569,10 @@ class PickUpMap extends Component {
                         <Grid columns={3} divided>
                             <Grid.Row>
                                 <Grid.Column>
-                                   <h3>{this.state.route_price + ' birr'}</h3>
+                                   <h3>{this.state.route_price + ' ብር'}</h3>
                                 </Grid.Column>
                                 <Grid.Column>
-                                  <h3>{this.state.route_distance + ' km'}</h3>
+                                  <h3>{this.state.route_distance + ' ኪ/ሜ'}</h3>
                                 </Grid.Column>
                                 <Grid.Column>
                                  <h3>{this.state.route_time_string} </h3>
@@ -1511,12 +1583,8 @@ class PickUpMap extends Component {
                     </Card.Content>
                     <Card.Content extra>
                      <div className='ui two buttons'>
-                        <Button className="btn" color='green' onClick={(e) => this.rideRequest(e)}>
-                            CALL DRIVER 
-                        </Button>
-                        <Button basic color='red' onClick={(e) => this.cancelRide(e)}>
-                            CANCEL
-                        </Button>
+                      <Button content='ሹፌር ጥራ' icon='call' labelPosition='left' color="green" className="btn" onClick={(e) => this.checkLogin(e)} />
+                      <Button content='ይቅር'  onClick={(e) => this.cancelRide(e)} />
                      </div>
                     </Card.Content>
                     </Card>
@@ -1524,8 +1592,8 @@ class PickUpMap extends Component {
                  
               </div>
               
-              <div className="ride-request-dashboard shake-ride-request" id="ride-request-dashboard"> 
-                    Calling nearest drivers wait !
+              <div className="ride-request-dashboard shake-ride-request" id="ride-request-dashboard">
+                    እባኮትን ይጠብቁ ...
               </div>
 
               <div className="ride-route-status" id="ride-route-status"> 
@@ -1595,10 +1663,20 @@ class PickUpMap extends Component {
                  </Grid>
               </div>
 
-              <div id="div-logo" className="div-logo">
+              <div id="div-logo-user" className="div-logo-user">
                  <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
                  <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
               </div>
+
+              <div className="driver-page" id="driver-page">
+                 <Button className="btn_apply"  as={NavLink} to='/driver/login' content='የሹፌር መግብያ' icon='right arrow' labelPosition='right'  color='teal' size='tiny' onClick={(e) => this.clearThisPage(e)}></Button>
+              </div>
+
+              <div className="faq-page" id="faq-page">
+                 <Button className="btn_apply"  content='ተደጋጋሚ ጥያቄ' icon='right arrow' labelPosition='right'  color='green' size='tiny' onClick={(e) => this._show_faq(e)}></Button>
+              </div>
+
+              <div id="div-faq-txt" className="div-faq-txt"></div>
 
               <div className="mapid" id="mapid"></div>
             </div>

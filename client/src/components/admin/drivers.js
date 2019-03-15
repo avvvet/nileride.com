@@ -45,6 +45,8 @@ class Drivers extends Component {
                 <Table.Cell>{driver.gender}</Table.Cell>
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
+                <Table.Cell>{driver.verified}</Table.Cell>
+                <Table.Cell>{driver.currentLocation.coordinates}</Table.Cell>
                 <Table.Cell>{driver.count_rating}</Table.Cell>
                 <Table.Cell><Rating icon='star' defaultRating={driver.avg_rating} maxRating={5} /></Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(driver.status)}</Table.Cell>
@@ -77,6 +79,8 @@ class Drivers extends Component {
                     <Table.HeaderCell>Gener</Table.HeaderCell>
                     <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Email</Table.HeaderCell>
+                    <Table.HeaderCell>verified</Table.HeaderCell>
+                    <Table.HeaderCell>coordinates</Table.HeaderCell>
                     <Table.HeaderCell>Rides</Table.HeaderCell>
                     <Table.HeaderCell>Avg.Rating</Table.HeaderCell>
                     <Table.HeaderCell>Status</Table.HeaderCell>
