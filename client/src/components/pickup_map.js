@@ -156,7 +156,8 @@ class PickUpMap extends Component {
                 lng: 0
             },
             pickup_searchbox_selected : false,
-            dropoff_searchbox_selected : false
+            dropoff_searchbox_selected : false,
+            zoom_one_time_flag : false
         }
     }
 
@@ -304,11 +305,16 @@ class PickUpMap extends Component {
                 L.circle(e.latlng, radius).addTo(locationGroup);
                 //map.setView(e.latlng,15);
                 // ጌታ እየሱስ ይባረክ አባቴ ይህንን ሥራ አሳልፈህ ስለምትሰጠኝ አመሰግናለሁኝ አቅምን ጨምርልኝ 
+                if(this.state.zoom_one_time_flag === false) {
+                    map.setZoom(14); 
+                }
+                
                 this.setState({
                     currentLatLng : e.latlng,
                     pickup_flag : 'on',
                     pickup_latlng : e.latlng,   //current location become as pickup 
-                    first_time_flag : true
+                    first_time_flag : true,
+                    zoom_one_time_flag : true
                 });   
             if(radius < env.LOCATION_ACCURACY) {
                 if(this.state.dropoff_searchbox_selected === false && _.isNull(document.getElementById('search_1')) === false) {

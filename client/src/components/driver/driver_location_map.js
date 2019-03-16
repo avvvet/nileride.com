@@ -177,6 +177,7 @@ class DriverLocation extends Component {
            model_year : '',
            code: '',
            plate_no : '',
+           zoom_one_time_flag : false
        }
 
     
@@ -266,7 +267,13 @@ class DriverLocation extends Component {
         
         L.circle(e.latlng, radius).addTo(locationGroup);
         //map.setView(e.latlng,17);
-        //map.setZoom(15); 
+        if(this.state.zoom_one_time_flag === false) {
+            map.setZoom(14); 
+
+            this.setState({
+                 zoom_one_time_flag : true
+            })
+        }
         if(radius < env.LOCATION_ACCURACY){
             this.setState({current_latlng : e.latlng});
         } 
