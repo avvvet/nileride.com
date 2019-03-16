@@ -266,7 +266,7 @@ class DriverLocation extends Component {
         
         L.circle(e.latlng, radius).addTo(locationGroup);
         //map.setView(e.latlng,17);
-        map.setZoom(15); 
+        //map.setZoom(15); 
         if(radius < env.LOCATION_ACCURACY){
             this.setState({current_latlng : e.latlng});
         } 

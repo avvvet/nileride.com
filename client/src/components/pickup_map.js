@@ -303,7 +303,7 @@ class PickUpMap extends Component {
                 L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup);
                 L.circle(e.latlng, radius).addTo(locationGroup);
                 //map.setView(e.latlng,15);
-                map.setZoom(15);  // ጌታ እየሱስ ይባረክ አባቴ ይህንን ሥራ አሳልፈህ ስለምትሰጠኝ አመሰግናለሁኝ አቅምን ጨምርልኝ 
+                // ጌታ እየሱስ ይባረክ አባቴ ይህንን ሥራ አሳልፈህ ስለምትሰጠኝ አመሰግናለሁኝ አቅምን ጨምርልኝ 
                 this.setState({
                     currentLatLng : e.latlng,
                     pickup_flag : 'on',
