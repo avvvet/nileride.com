@@ -1,8 +1,30 @@
 import React, { Component } from 'react';
-import { Grid, Message, List, Label ,Form, Image, Header, Card } from 'semantic-ui-react'
+import $ from 'jquery';
+import { Message, List, Label , Header} from 'semantic-ui-react'
 
 class Notes extends Component {
+    componentDidMount(){
+        this.add_trafic('GPS-note');
+    }
 
+    add_trafic = (trafic_type) => {
+        var data = {
+            trafic_type : trafic_type, 
+        };
+    
+        $.ajax({ 
+            type:"POST",
+            url:"/admin/add_trafic",
+            data: JSON.stringify(data), 
+            contentType: "application/json",
+            success: function(data, textStatus, jqXHR) {
+                console.log('trafic', data);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error("erroorror", err.toString());
+            }.bind(this)
+        });  
+    }
     render(){
         return(
             <div>
