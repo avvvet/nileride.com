@@ -48,7 +48,7 @@ class Drivers extends Component {
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
                 <Table.Cell>{driver.verified}</Table.Cell>
-                <Table.Cell>{_.isNull(driver.currentLocation.coordinates) ? '0' : '1'}</Table.Cell>
+                {_.isNull(driver.currentLocation) ? <Table.Cell>{0}</Table.Cell> : <Table.Cell>{1}</Table.Cell>}
                 <Table.Cell>{driver.count_rating}</Table.Cell>
                 <Table.Cell><Rating icon='star' defaultRating={driver.avg_rating} maxRating={5} /></Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(driver.status)}</Table.Cell>
