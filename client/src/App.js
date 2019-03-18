@@ -12,7 +12,9 @@ import RiderLogin from './components/rider/login';
 import AdminLogin from './components/admin/admin_login';
 import ControlPanel from './components/admin/control_panel';
 import Playground from './components/playground';
+import Notes from './components/driver/note';
 import './App.css';
+
 
 
 class App extends React.Component {
@@ -45,6 +47,7 @@ class App extends React.Component {
                 <Route path="/admin" component={AdminLogin} exact />
                 <Route path="/admin/control_panel" component={ControlPanel} exact />
                 <Route path="/playground" component={Playground} exact />
+                <Route path="/notes" component={Notes} exact />
             </Switch>
           </div>
         </BrowserRouter>  
