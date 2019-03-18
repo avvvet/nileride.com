@@ -3,6 +3,8 @@ import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
 import { Image, Table, Checkbox, Rating, Label} from 'semantic-ui-react'
 import $ from 'jquery';
+import _ from 'lodash';
+
 class Drivers extends Component {
     constructor(){
         super();
@@ -46,7 +48,7 @@ class Drivers extends Component {
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
                 <Table.Cell>{driver.verified}</Table.Cell>
-                <Table.Cell>{driver.currentLocation.coordinates}</Table.Cell>
+                <Table.Cell>{_.isNull(driver.currentLocation.coordinates) ? '0' : '1'}</Table.Cell>
                 <Table.Cell>{driver.count_rating}</Table.Cell>
                 <Table.Cell><Rating icon='star' defaultRating={driver.avg_rating} maxRating={5} /></Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(driver.status)}</Table.Cell>

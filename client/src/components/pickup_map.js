@@ -1365,7 +1365,7 @@ class PickUpMap extends Component {
         return(
             <div>
                 <div className="search_help shake-slow" id="search_help">
-                  <Label size="large" color="blue" pointing="below">ሰማያዊ ምልክቶቹን በመግፋት ቦት ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። </Label> 
+                  <Label size="large" color="blue" pointing="below">ሰማያዊ ምልክቶቹን በመግፋት ቦታ ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። </Label> 
                 </div>
 
                <div className="search_0" id="search_0">
