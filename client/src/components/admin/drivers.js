@@ -47,6 +47,7 @@ class Drivers extends Component {
                 <Table.Cell>{driver.gender}</Table.Cell>
                 <Table.Cell>{driver.mobile}</Table.Cell>
                 <Table.Cell>{driver.email}</Table.Cell>
+                <Table.Cell>{driver.hasProfile}</Table.Cell>
                 <Table.Cell>{driver.verified}</Table.Cell>
                 {_.isNull(driver.currentLocation) ? <Table.Cell>{0}</Table.Cell> : <Table.Cell>{1}</Table.Cell>}
                 <Table.Cell>{driver.count_rating}</Table.Cell>
@@ -81,6 +82,7 @@ class Drivers extends Component {
                     <Table.HeaderCell>Gener</Table.HeaderCell>
                     <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Email</Table.HeaderCell>
+                    <Table.HeaderCell>Profile</Table.HeaderCell>
                     <Table.HeaderCell>verified</Table.HeaderCell>
                     <Table.HeaderCell>coordinates</Table.HeaderCell>
                     <Table.HeaderCell>Rides</Table.HeaderCell>

@@ -1347,7 +1347,7 @@ app.post('/admin/users', (req, res) => {
 
 app.post('/admin/drivers', (req, res) => {
     models.drivers.findAll({
-        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 'currentLocation',
+        attributes: ['id','firstName','middleName', 'email', 'mobile', 'gender', 'profile', 'isOnline', 'verified', 'status', 'currentLocation', 'hasProfile',
                     [Sequelize.fn('count', Sequelize.col('ratings.id')), 'rating'],
                     [Sequelize.literal('SUM(ratings.rating) / COUNT(ratings.id)'), 'avg_rating'],
                     [Sequelize.literal('COUNT(ratings.id)'), 'count_rating']
