@@ -21,7 +21,7 @@ var validator = require('validator');
 var Busboy = require('busboy');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
-var {send_mail, send_mail_driver} = require('./utils/email');
+var {send_mail, send_mail_driver, send_mail_driver_change_password} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 const {ride_control_auto, ride_request} = require('./utils/ride_control');
 const {add_trafic, get_trafic} = require('./utils/trafics');
@@ -999,6 +999,111 @@ app.post('/driver/login', (req, res) => {
  
 });
 
+app.post('/driver/change_password_request', (req, res) => {
+    var body = _.pick(req.body, ['mobile']);
+    console.log(body);
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) { 
+        return models.drivers.findOne({
+            where : {mobile: body.mobile}  
+            }, {transaction: t}).then((_driver) => {
+                if(_driver){
+                    return models.change_passwords.create(
+                           body,
+                          {transaction: t}
+                        ).then((_change_passwords) => {
+                        if(_change_passwords) {
+                            const dataObj = _change_passwords.get({plain:true})
+                            send_mail_driver_change_password(_driver, dataObj.verification_token);
+                            const data = {
+                                rply : 1
+                            }
+                            return data;
+                        } else {
+                            throw new Error('t save err');
+                        }
+                    })
+                } else {
+                    const data = {
+                        rply : 0
+                    }
+                    return data;
+                }
+            });
+    }).then(function (result) {
+        console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+        res.status(200).send(result);
+    }).catch(function (err) {
+        console.log('trsancation rollback ', err);
+        return null ;
+    });   
+   
+});
+
+app.post('/driver/change_password', (req, res) => {
+    var body = _.pick(req.body, ['mobile','varification_code', 'password']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    let PromiseHashedPassword = new Promise((res, rej) => {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(body.password, salt, (err, hash) => {
+                if(err) {
+                    rej(err);
+                } else {
+                    body.password = hash;
+                    res(body);
+                }
+            });
+        });
+    });
+     
+    PromiseHashedPassword.then((body) => {
+        return sequelize.transaction(function (t) {
+            return models.change_passwords.findOne({
+                where : {mobile: body.mobile, status: 0, verification_token: body.varification_code}  
+            }, {transaction: t}).then( (v) => {
+                if(v){
+                  return models.change_passwords.update(
+                        { status: 1 },
+                        { where : {mobile: body.mobile, status: 0} } ,
+                        {transaction: t}
+                      ).then(result => {
+                         if(result){
+                             //JESUSMYHEALER ጌታዬ ባለውለታዬ
+                             return models.drivers.update(
+                                { password: body.password },
+                                { where : { mobile: body.mobile } } ,
+                                {transaction: t}
+                             ).then((_driver)=>{
+                                 if(_driver){
+                                     const data = {
+                                         rply : 1
+                                     }
+                                     return data
+                                 } else {
+                                     throw new Error('in transaction driver not found on varification update');
+                                 }
+                             })
+                         }
+                      }).catch(err => {
+                        return err;
+                      });
+                } else {
+                    throw new Error('varification not found');
+                }
+            });
+          
+          }).then(function (result) {
+              res.send(result);
+              console.log('trsancation varified driver commited   tttttttttttttttttttttttttttttt ', result);
+          }).catch(function (err) {
+            res.sendStatus(400).send();
+            console.log('trsancation driver varified rollback ', err);
+          });
+    });
+});
+
+
 app.post('/admin/login', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']);
     console.log('data', body);
@@ -1164,7 +1269,6 @@ app.post('/driver/apply', (req, res) => {
     });
    
     PromiseHashedPassword.then((_body) => {
-        console.log('new body', _body);
       var driver = models.drivers.build(_body);
       driver.save().then((driver)=> {
         res.header('x-auth', driver.token).send(driver);
@@ -1229,6 +1333,22 @@ app.post('/driver/mobile_verification', (req, res) => {
       });
 });
 
+app.post('/driver/change_password_verification', (req, res) => {
+    var body = _.pick(req.body, ['varification_code']);
+    var token = req.header('x-auth');
+        models.change_passwords.findOne({
+            where : {mobile: token, status: 0, verification_token: body.varification_code}  
+        }).then( (v) => {
+            if(v){
+              const data = {
+                  rply : 1
+              }
+              res.send(data);
+            } else {
+              res.sendStatus(401).send();
+            }
+        });
+});
 
 app.post('driver/status', (req, res) => {
     console.log('online_status', req.body);

@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Grid, Message, Form, Button, Header, Label , Input} from 'semantic-ui-react'
 import { render } from 'react-dom';
 import  { Redirect } from 'react-router-dom'
+import DriverChangePassword from './change_password';
 import $ from 'jquery';
+import DriverChangePasswordRequest from './change_password_request';
 var validator = require('validator');
 
 class DriverLoginForm extends Component {
@@ -10,7 +12,8 @@ class DriverLoginForm extends Component {
       super();
       this.state = {
           mobile: '',
-          password: ''
+          password: '',
+          mobile_2 : ''
       }
     }
 
@@ -44,6 +47,25 @@ class DriverLoginForm extends Component {
             errors.push("የሚስጢር ኮድ በጣም ረዘመ !");
         }
 
+        return errors;
+    }
+
+    validateMobile = () => {
+        let errors = [];
+        
+        if(this.state.mobile_2.length === 0 ){
+            errors.push("ሞባይል ቁጥር ያስገቡ");
+        }
+        else if (validator.isNumeric(this.state.mobile_2, {no_symbols: true} ) === false) {
+            errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
+        }
+        else if(validator.isMobilePhone(this.state.mobile_2) === false) {
+             errors.push("ትክክለኛ ሞባይል ቁጥር አይደለም !");
+        } else if (this.state.mobile_2.length < 10){
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }else if (this.state.mobile_2.length > 10){
+            errors.push("የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }
         return errors;
     }
 
@@ -102,13 +124,55 @@ class DriverLoginForm extends Component {
             error: function(xhr, status, err) {
                 $('.btn_login').removeClass("loading");
                 if(err.toString() === 'Unauthorized'){
-                  render(<Message negative > Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
+                  render(<Message negative > ትክክል አይደለም ። እባኮትን የሞባይል ቁጥሩን እና የሚሲጢር ኮድ ትክክል መሆኑን ያረጋግጡ።</Message>,document.getElementById('FormError'));
                 } else {
-                    render(<Message negative > Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
+                    render(<Message negative > ኢንተርኒት ግንኙነት የለመ ። እንደገና ይሞክሩ ። </Message>,document.getElementById('FormError'));  
                 }  
             }.bind(this)
         });  
-   } 
+    } 
+
+    on_password_change_request = (e) => {
+        e.preventDefault();
+        $('.btn_next').addClass("loading");
+        const err = this.validateMobile();
+        if(err.length > 0){
+            $('.btn_next').removeClass("loading");
+            let error_list = this.getErrorList(err);
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
+        } else {
+            $('.btn_next').removeClass("loading");
+            var data = {
+                mobile_2: this.state.mobile_2,
+            }
+            this._send_varification(data)
+            this.setState({
+                mobile_2: '',
+                errors: []
+            });
+        }
+    }
+
+    _send_varification = (data) => {
+        $('.btn_next').addClass("loading");
+         $.ajax({ 
+             type:"POST",
+             url:"/driver/change_password",
+             data: JSON.stringify(data), 
+             contentType: "application/json",
+             success: function(data, textStatus, jqXHR) {
+              
+             }.bind(this),
+             error: function(xhr, status, err) {
+                 $('.btn_next').removeClass("loading");
+                 if(err.toString() === 'Unauthorized'){
+                   render(<Message negative > Invalid account ! please check your email and password</Message>,document.getElementById('FormError'));
+                 } else {
+                     render(<Message negative > Somthing wrong ! try again.</Message>,document.getElementById('FormError'));  
+                 }  
+             }.bind(this)
+         });  
+     } 
 
    add_trafic = (trafic_type) => {
     var data = {
@@ -128,7 +192,11 @@ class DriverLoginForm extends Component {
         }.bind(this)
     });  
    }
+   //I WORSHIP YOU LORD - HELP ME TO WORSHIP YOU THE WAY YOU LOVE IT 
 
+   _show_change_pass = (e) => {
+    render(<DriverChangePasswordRequest></DriverChangePasswordRequest>,document.getElementById('div-change-pass'));
+   }
 
   render(){
       if(this.state.auth) {
@@ -180,6 +248,16 @@ class DriverLoginForm extends Component {
                 <Grid.Row>
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                      <Button className="btn_login" color='teal' size='huge' onClick={e => this.onDriverLogin(e)}  fluid >አስገባኝ</Button>
+                    </Grid.Column> 
+                </Grid.Row>
+                
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                     <div className="div-change-pass" id="div-change-pass">
+                     <Label size="medium" as="a"  onClick={(e) => this._show_change_pass(e)} textAlign='center' >
+                      የሚስጢር ኮድ ቀይር 
+                     </Label>
+                     </div>
                     </Grid.Column> 
                 </Grid.Row>
 

@@ -15,7 +15,6 @@ class DriverLogin extends Component {
 
   render() {
     const auth = localStorage.getItem("_auth_driver");
-    console.log('received token', auth);
     return(
      <div>
        {auth ? (
