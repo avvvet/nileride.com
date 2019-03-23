@@ -47,7 +47,7 @@ class Msg extends Component {
                                 የተለመደ ዕለተዊ እንቅስቃሴዎን እያደረጉ ሰኞ ፡ ከጥዋት 2 ሰዓት ጀምረው  
                                 nileride.com በስልኮ በመክፈት ፡ የስልክ ቁጥሮን እና የሚሲጥር ኮዶን አስገብተው ፡ 
                                 ወደ ሲስተሙ ይግቡ። በካርታው ላይ ፡ እርሶ ያሉበት ቦታ ጋር ፡ የመኪና ምልክት ካዩ ፡  
-                                ሲስተሙ እንደተከፈተ ይተዎት። የስልኮ ድምጽ አለመጥፋቱን ያረጋግጡ። oneline ይሁኑ። 
+                                ሲስተሙ እንደተከፈተ ይተዎት። የስልኮ ድምጽ አለመጥፋቱን ያረጋግጡ። online ይሁኑ። 
                                 (ሌላ ነገር መክፈት ይችላሉ ፡ ነገር ግን  የተከፈተውን nileride.com ግጽ እይዝጉት)
                                 </List.Item>
                                 <List.Item as='li' value='*'>
@@ -69,7 +69,9 @@ class Msg extends Component {
                                 <List.Item as='li' value='*'>
                                 ስልኮ ለ 8 ሰዓት online በሚሆንበት ወቀት ፡ ሌላ ነገር እስካልከፈቱ ድረስ ፡ ፍጆታው ከ 5 – 7 ብር መብለጥ የለበትም፡፡ ይህ ግን ካልሆነ እባኮትን ስልኮ ከበስተጀርባ ኢንተርኒት እየተጠቀመ በመሆኑ ፡ የማይጠቀሙባቸውን ሶፍትዎች ይጥፉ። 
                                 </List.Item>
-
+                                <List.Item as='li' value='*'>
+                                በተጨማሪ ይህንን ያስተካክሉ settings > Data Usage > ከዝርዝሩ ውስጥ ያሉትን ሶፍዎሮችን በመክፈት > Restrict background data > የሚለውን ራይት ያድርጉ ። 
+                                </List.Item>
                                 <List.Item as='li' value='*'>
                                 በተጨማሪ ይህንን ያስተካክሉ settings > Apps > Mange Apps > All Apps > Software ወይም System Update > የሚለውን  ይፈልጉ > Force Stop ወይም Turn Off ወይም Disable ያድርጉት፡ 
                                 </List.Item>
