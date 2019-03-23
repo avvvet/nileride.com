@@ -57,7 +57,11 @@ class Notes extends Component {
                   </List.Item>
 
                   <List.Item as='li' value='*'>
-                    2. nileride.com በምባይሎ በሚከፍቱበት ወቀት https://nileride.com Would Like To Use Your Current Location ? የሚል ተመሳሳይ ጥያቄ ይመጣል ፡ OK የሚለውን ይምረጡ። ካልመረጡ አይሰራሎትም።
+                    2. Location Services > ከሚለው ከስር ዝርዝር ውስጥ ፡ Safari Websites የሚለውን ያገኛሉ While Using የሚለውን ይምረጡ።
+                  </List.Item>
+
+                  <List.Item as='li' value='*'>
+                    3. nileride.com በምባይሎ በሚከፍቱበት ወቀት https://nileride.com Would Like To Use Your Current Location ? የሚል ተመሳሳይ ጥያቄ ይመጣል ፡ OK የሚለውን ይምረጡ። ካልመረጡ አይሰራሎትም።
                   </List.Item>
                 </List>
                 </p>
