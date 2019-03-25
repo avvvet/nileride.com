@@ -1185,7 +1185,7 @@ app.post('/driver/updateLocation', (req, res) => {
             { where: { mobile : decoded } }
           ).then(result => {
             res.send(result);
-             console.log('driver location updated', result);
+             console.log('driver location updated llllllllllllllllllllllllllll', result);
           }).catch(err => {
              console.log('update error', err);
           });

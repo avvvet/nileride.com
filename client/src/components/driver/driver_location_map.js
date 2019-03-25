@@ -14,6 +14,7 @@ import DriverDashBoard from './driver_dashboard'
 
 var validator = require('validator');
 
+const isCoordinates = require('is-coordinates');
 //const socket = socketClient('http://localhost:7000');
 const env = require('../../env')
 const {Howl, Howler} = require('howler');
@@ -276,7 +277,12 @@ class DriverLocation extends Component {
         //map.setView(e.latlng,17);
         
         if(radius < env.LOCATION_ACCURACY){
-            this.setState({current_latlng : e.latlng});
+            const  ary_latlng = [];
+            ary_latlng.push(e.latlng.lat);
+            ary_latlng.push(e.latlng.lng);
+            if(isCoordinates(ary_latlng)) {
+                this.setState({current_latlng : e.latlng});
+            } 
         } 
     });
     
