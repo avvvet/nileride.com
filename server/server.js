@@ -1537,7 +1537,7 @@ app.post('/admin/users/count', (req, res) => {
         attributes: [
                     [Sequelize.fn('count', Sequelize.col('id')), 'total_users']
         ],
-        where : {verified : true, hasProfile : true},
+        where : {verified : true},
         raw: true
     }).then(user =>{
         console.log('Jesus', user);
