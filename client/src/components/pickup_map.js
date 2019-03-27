@@ -541,6 +541,7 @@ class PickUpMap extends Component {
            document.getElementById('search_0').style.visibility = 'hidden';
            document.getElementById('search_1').style.visibility = 'hidden';
            document.getElementById('user-info').style.visibility = 'hidden';
+           document.getElementById('user-manual').style.visibility = 'hidden';
            render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} ></RiderLoginForm>, document.getElementById('div-notification-2'));
        }
     }
@@ -1334,6 +1335,10 @@ class PickUpMap extends Component {
         clearInterval(this.userCurrentLocation);
     }
 
+    _trafic_user_manual = (e) => {
+        this.add_trafic('passenger-manual');
+    }
+
     add_trafic = (trafic_type) => {
         var data = {
             trafic_type : trafic_type, 
@@ -1355,6 +1360,7 @@ class PickUpMap extends Component {
 
     _show_faq = (e) => {
         document.getElementById('user-info').style.visibility = 'hidden';
+        document.getElementById('user-manual').style.visibility = 'hidden'
         document.getElementById('driver-page').style.visibility = 'hidden';
         document.getElementById('div-logo-user').style.visibility = 'hidden';
         document.getElementById('faq-page').style.visibility = 'hidden';
@@ -1670,6 +1676,10 @@ class PickUpMap extends Component {
 
               <div className="driver-page" id="driver-page">
                  <Button className="btn_apply"  as={NavLink} to='/driver/login' content='የሹፌር መግብያ' icon='right arrow' labelPosition='right'  color='teal' size='tiny' onClick={(e) => this.clearThisPage(e)}></Button>
+              </div>
+
+              <div className="user-manual" id="user-manual">
+                 <Label  content='አጠቃቀም' icon='help circle'  color='blue' as="a" href='/assets/pdf/nileride_passenger_manual.pdf' target="_blank" onClick={(e) => this._trafic_user_manual(e)}/>             
               </div>
 
               <div className="faq-page" id="faq-page">

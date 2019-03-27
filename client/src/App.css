@@ -128,7 +128,7 @@ body {
   color: #ffffff;
   position: fixed;
   top: 3%;
-  right: 50%;
+  right: 71%;
   width: 91px;
   height: 38px;
   padding-top: 4px;
@@ -781,6 +781,14 @@ input[type="file"] {
   transform: translate(50%, 50%);
 }
 
+.user-manual {
+  position: fixed;
+  top: 3.5%;
+  right: 20%;
+  z-index: 2900;
+  transform: translate(50%, 0%);
+}
+
 .faq-page {
   position: fixed;
   bottom: 23%;
@@ -819,7 +827,7 @@ input[type="file"] {
   position: fixed;
   top: 15%;
   right: 50%;
-  width: 255px;
+  width: 295px;
   height: 48px;
   transform: translate(50%, 0%);
   z-index: 3000;
@@ -831,7 +839,7 @@ input[type="file"] {
   position: fixed;
   top: 15%;
   right: 50%;
-  width: 255px;
+  width: 295px;
   height: 48px;
   transform: translate(50%, 0%);
   z-index: 3000;

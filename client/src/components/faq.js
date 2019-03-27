@@ -44,6 +44,7 @@ class Faq extends Component {
 
     _hide = (e) => {
       document.getElementById('user-info').style.visibility = 'visible';
+      document.getElementById('user-manual').style.visibility = 'visible';
       document.getElementById('driver-page').style.visibility = 'visible';
       document.getElementById('div-logo-user').style.visibility = 'visible';
       document.getElementById('faq-page').style.visibility = 'visible';
