@@ -208,12 +208,15 @@ const ride_request2 = async (user_request) => {
 }
 
 const getNearestDrivers = async (_pickup_latlng) => {
+    var sequelize = models.sequelize;
     let drivers = null;
     var distance = Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng);
     const Op = Sequelize.Op;
     await models.drivers.findAll({ 
        attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
-       where: {verified: 1, status: 0, currentLocation: {[Op.ne]: null}},
+       where: [sequelize.where(distance, {
+        [Op.lt] : env.NEAREST_DRIVER_RADIUS
+       }), {verified: 1, status: 0, currentLocation: {[Op.ne]: null} }], 
        order: distance,
        limit: 1,
        raw: true,
@@ -221,6 +224,7 @@ const getNearestDrivers = async (_pickup_latlng) => {
      }).then(_drivers => {
         drivers = _drivers;
      });
+     console.log('bashnkaaaaaaaaaaaaaaaa', drivers);
    return drivers;
  }
 

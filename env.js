@@ -11,6 +11,7 @@ const env = {
   NODE_ENV:'production',
   EMAIL_CC_A: 'avvvet@gmail.com',
   EMAIL_CC_B: 'natimancloud@gmail.com',
-  MISSED_RIDE_DURATION: 20,
+  MISSED_RIDE_DURATION: 15,
+  NEAREST_DRIVER_RADIUS: 1000,
 };
 module.exports = env;
