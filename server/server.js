@@ -1567,9 +1567,12 @@ app.post('/admin/payments/count', (req, res) => {
 
 app.post('/admin/rides', (req, res) => {
     models.riderequests.findAll({
-        attributes: ['id','pickup_latlng','dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status', 
+        attributes: ['id','pickup_latlng','dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status', 'createdAt', 
         ],
         raw: false,
+        order : [
+            ['id', 'DESC']
+        ],
         include: [
             {
                 model: models.drivers,

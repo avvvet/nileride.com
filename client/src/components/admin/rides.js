@@ -55,14 +55,17 @@ class Rides extends Component {
                   <Image size='mini' src={'/assets/profile/user/' + ride.user.profile} circular />
                 </Table.Cell>
                 <Table.Cell>{ride.user.firstName + ' ' + ride.user.middleName}</Table.Cell>
+                <Table.Cell>{ride.user.mobile}</Table.Cell>
                 <Table.Cell collapsing>
                   <Image size='mini' src={'/assets/profile/driver/' + ride.driver.profile} circular />
                 </Table.Cell>
                 <Table.Cell>{ride.driver.firstName + ' ' + ride.driver.middleName}</Table.Cell>
+                <Table.Cell>{ride.driver.mobile}</Table.Cell>
                 <Table.Cell>{ride.route_distance}</Table.Cell>
                 <Table.Cell>{this.timeConvert(Number.parseInt(ride.route_time))}</Table.Cell>
                 <Table.Cell>{ride.route_price}</Table.Cell>
                 <Table.Cell>{ride.dropoff_latlng.coordinates}</Table.Cell>
+                <Table.Cell>{ride.createdAt}</Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(ride.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>
@@ -95,12 +98,15 @@ class Rides extends Component {
                     <Table.Row>
                     <Table.HeaderCell />
                     <Table.HeaderCell>Passenger</Table.HeaderCell>
+                    <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell/>
                     <Table.HeaderCell>Driver</Table.HeaderCell>
+                    <Table.HeaderCell>Mobile</Table.HeaderCell>
                     <Table.HeaderCell>Distance</Table.HeaderCell>
                     <Table.HeaderCell>Time</Table.HeaderCell>
                     <Table.HeaderCell>Price</Table.HeaderCell>
                     <Table.HeaderCell>Map</Table.HeaderCell>
+                    <Table.HeaderCell>when</Table.HeaderCell>
                     <Table.HeaderCell>Status</Table.HeaderCell>
                     <Table.HeaderCell>Cancel</Table.HeaderCell>
                     </Table.Row>
