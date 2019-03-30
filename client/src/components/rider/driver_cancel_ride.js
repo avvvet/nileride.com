@@ -55,7 +55,7 @@ class DriverCancelRide extends Component {
         return(
             <div>
                 <Message negative>
-                    <Message.Header><strong>አኦ ! ሹፌሩ ሥራውን ሰረዘው !</strong></Message.Header>
+                    <Message.Header><strong>ይቅርታ ! ሹፌሩ ሥራውን ሰረዘው !</strong></Message.Header>
                     <p>
                         በጣም ይቅርታ ፡ ሹፌሩ ለምን ሥራውን አንደሰረዘው አሁን እናጣራለን ። 
                         እባኮትን በድጋሚ ይሞክሩ።

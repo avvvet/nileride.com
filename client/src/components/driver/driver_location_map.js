@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
-import { Grid, Message, Button, Label ,Form, Image, Header, Card } from 'semantic-ui-react'
+import { Grid, Message, Button, Label ,Form, Image, Header, Icon } from 'semantic-ui-react'
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
@@ -1222,7 +1222,8 @@ class DriverLocation extends Component {
                        {this.state.rideUser}
                       </Grid.Column>
                       <Grid.Column mobile={8} tablet={8} computer={8}>
-                       {this.state.userMobile}
+                         <Icon name="phone volume" color="purple"></Icon>
+                         <a href={'tel:' + this.state._driverMobile}>{this.state.userMobile}</a>
                       </Grid.Column>
                     </Grid.Row>
                     

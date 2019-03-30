@@ -661,6 +661,64 @@ app.post('/driver/ready_for_work', (req, res) => {
       });
 });
 
+app.post('/ride/convert_missed_to_ride', (req, res) => {
+    var body = _.pick(req.body , ['id', 'driver_id']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+    return sequelize.transaction(function (t) {
+        return models.drivers.update(
+            { status: 1 },
+            { where: {token: body.driver_id, status: 2 }, transaction: t}
+        ).then(r => {
+            if(r){
+                return models.riderequests.update(
+                    { status: 7 },
+                    { where: { id: body.id}, transaction: t } 
+                  ).then(result => {
+                     if(result) {
+                        return r;
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('Transaction driver not updated');
+            }
+        })
+      }).then(function (result) {
+          res.send(result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+      });
+});
+
+app.post('/ride/ban_driver', (req, res) => {
+    var body = _.pick(req.body , ['driver_id']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    models.drivers.update(
+        { status: 3 },
+        { 
+            where: { token: body.driver_id}
+        } 
+      ).then(result => {
+         if(result) {
+            const data = {
+                rply : 1
+            }
+            res.send(data);
+         } else {
+             const data = {
+                 rply : 0
+             }
+            res.send(rply);
+         }
+      });
+});
+
 app.post('/ride/busy_ok', (req, res) => {
     var token = req.header('x-auth');
     var sequelize = models.sequelize;

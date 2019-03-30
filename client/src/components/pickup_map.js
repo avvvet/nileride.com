@@ -709,12 +709,12 @@ class PickUpMap extends Component {
                     document.getElementById('u-driver-dashboard-2').style.visibility="hidden";
                    
                     document.getElementById('div-notification-1').style.visibility="visible";
-                    render(<DriverBusy resetRide={this.resetRide}></DriverBusy>,document.getElementById('div-notification-1'));
+                    render(<DriverBusy chkTimerRideStatus={this.chkTimerRideStatus} resetRide={this.resetRide} ride={ride}></DriverBusy>,document.getElementById('div-notification-1'));
                    
                     clearInterval(this.timer_pickup_eta);
                     clearInterval(this.timer_dropoff_eta);
                     clearInterval(this.timerRideStatus);
-                    
+                    this.timerRideStatus = null;
                 }  else if(ride.status === 7777) { // rate your ride 
                     document.getElementById('ride-request-dashboard').style.visibility="hidden";
                     document.getElementById('u-driver-dashboard').style.visibility="hidden";
