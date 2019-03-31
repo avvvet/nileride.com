@@ -218,10 +218,10 @@ body {
 .ride-price-dashboard {
   color: #ffffff;
   position: fixed;
-  bottom: 10%;
-  right: 50%;
+  bottom: 15%;
+  right: 45%;
   transform: translate(50%, 0%);
-  width: 269px;
+  width: 336px;
   height: 151px;
   z-index: 3010;
   text-align: center;

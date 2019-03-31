@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const models = require('../models');
 var _ = require('lodash');
+var {send_mail_ride_request} = require('./email');
 const env = require('../../env');
 
 
@@ -117,6 +118,7 @@ const ride_request = async (body) => {
         }
     }).then(function (result) {
         console.log('t: commited');
+        send_mail_ride_request(null, null);
         return result;
     }).catch(function (err) {
       console.log('t: error', err)

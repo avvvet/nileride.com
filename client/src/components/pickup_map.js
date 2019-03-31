@@ -408,7 +408,14 @@ class PickUpMap extends Component {
             addWaypoints : false, //disable adding new waypoints to the existing path
             show: false,
             showAlternatives: false,
-            
+            createMarker: function(i, wp, nWps) {    //እኔ ዝም ብዬ አመልካለሁ 
+                
+                if (i === 0) {
+                    return L.marker(wp.latLng, {icon: marker_a , draggable: true});
+                } else {
+                    return L.marker(wp.latLng, {icon: marker_b , draggable: true });
+                }
+            },
             lineOptions: {
                 styles: [{color: 'red', opacity: 1, weight: 5}]
             },
@@ -532,7 +539,6 @@ class PickUpMap extends Component {
     }
 
     checkLogin = (e) => {
-       document.getElementById('search_help').style.visibility = 'hidden';
        if(this.state.isLogedIn === true) {
            this.rideRequest(e);
            this.add_trafic('call-driver');
@@ -942,8 +948,6 @@ class PickUpMap extends Component {
 
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
-        document.getElementById('search_help').style.visibility = 'hidden';
-
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1305,8 +1309,7 @@ class PickUpMap extends Component {
           document.getElementById('search_0').style.visibility = 'hidden';
           document.getElementById('search_1').style.visibility = 'hidden';
           document.getElementById('driver-page').style.visibility = 'hidden';
-          document.getElementById('search_help').style.visibility = 'visible';
-
+          
           this.add_trafic('search-dropoff');
         }
     }
@@ -1370,10 +1373,6 @@ class PickUpMap extends Component {
     render(){ 
         return(
             <div>
-                <div className="search_help shake-slow" id="search_help">
-                  <Label size="large" color="blue" pointing="below">ሰማያዊ ምልክቶቹን በመግፋት ቦታ ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። </Label> 
-                </div>
-
                <div className="search_0" id="search_0">
                        <div id="div-pickup-input" className="div-pickup-input">
                        </div>
@@ -1466,7 +1465,7 @@ class PickUpMap extends Component {
                 </Grid>
               </div>
 
-             <div className='div-diff' id='div-diff'> <Label color="orange" tag>በደቂቃ ሹፌር ያገኛሉ</Label> </div>
+             <div className='div-diff' id='div-diff'> <Label icon="time" content="በደቂቃ ሹፌር ያገኛሉ" color="purple" tag/></div>
 
               {this.state.user.verified === true ?  
               <div className="account-verify" id="account-verfiy">
@@ -1572,8 +1571,14 @@ class PickUpMap extends Component {
                 <Card color='teal'>
                     <Card.Content>       
                         <Card.Description>
-                        <Grid columns={3} divided>
-                            <Grid.Row>
+                        
+                        <Grid  divided>
+                            <Grid.Row columns={1}>
+                                <Grid.Column>
+                                <Label size="medium"><Icon color='green' size="large" name='map marker alternate' /><Icon color='red' size="large" name='map marker alternate' />ምልክቶችን በመግፋት ቦታ ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። ቢሳሳቱ ችግር የለም ! </Label>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row columns={3}>
                                 <Grid.Column>
                                    <h3>{this.state.route_price + ' ብር'}</h3>
                                 </Grid.Column>
@@ -1589,7 +1594,7 @@ class PickUpMap extends Component {
                     </Card.Content>
                     <Card.Content extra>
                      <div className='ui two buttons'>
-                      <Button content='ሹፌር ጥራ' icon='call' labelPosition='left' color="green" className="btn" onClick={(e) => this.checkLogin(e)} />
+                      <Button content='ሹፌር ጥራ' icon={<Icon name='car' size="large" />} labelPosition='left' color="green" className="btn" onClick={(e) => this.checkLogin(e)} />
                       <Button content='ይቅር'  onClick={(e) => this.cancelRide(e)} />
                      </div>
                     </Card.Content>
