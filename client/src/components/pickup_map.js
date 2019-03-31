@@ -1466,7 +1466,7 @@ class PickUpMap extends Component {
                 </Grid>
               </div>
 
-             <div className='div-diff' id='div-diff'> <Label color="orange" tag>33% የዋጋ ልዩነት</Label> </div>
+             <div className='div-diff' id='div-diff'> <Label color="orange" tag>በደቂቃ ሹፌር ያገኛሉ</Label> </div>
 
               {this.state.user.verified === true ?  
               <div className="account-verify" id="account-verfiy">

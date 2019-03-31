@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
-import MissedRide from './missed_ride';
+import MissedRide from './missed_ride'; 
 import DriverDashBoard from './driver_dashboard'
 
 var validator = require('validator');
@@ -432,7 +432,7 @@ class DriverLocation extends Component {
                     document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
                     document.getElementById('missed-ride').style.visibility="visible"; 
                     render(<MissedRide></MissedRide>,document.getElementById('missed-ride'));
-                }        
+                }  
              }
              
          }); 
@@ -468,8 +468,6 @@ class DriverLocation extends Component {
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
                 //alert('Jesus');
-               // 
-                console.log('jsesu', ride);
                 if(ride){
                    this.acceptRideAction(ride);
                 }  
@@ -495,6 +493,7 @@ class DriverLocation extends Component {
         let PromiseSlientAlert = new Promise((resolve, rejects) => {
          document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
          document.getElementById("driver-dashboard").style.visibility = "hidden";
+         document.getElementById("missed-ride").style.visibility = "hidden";
          document.getElementById("driver-pax-action").style.visibility = "visible";
          sound.volume(0,this.soundAccept); 
          this.setState({
@@ -1222,8 +1221,8 @@ class DriverLocation extends Component {
                        {this.state.rideUser}
                       </Grid.Column>
                       <Grid.Column mobile={8} tablet={8} computer={8}>
-                         <Icon name="phone volume" color="purple"></Icon>
-                         <a href={'tel:' + this.state._driverMobile}>{this.state.userMobile}</a>
+                         <Icon name="phone volume"></Icon>
+                         <a className='a-phone' href={'tel:' + this.state._driverMobile}>{this.state.userMobile}</a>
                       </Grid.Column>
                     </Grid.Row>
                     

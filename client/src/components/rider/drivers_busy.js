@@ -35,7 +35,7 @@ class DriverBusy extends Component {
         };
         $.ajax({ 
             type:"POST",
-            url:"/ride/ban_driver",
+            url:"/ride/busy_ok",
             headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
@@ -86,7 +86,7 @@ class DriverBusy extends Component {
         return(
             <div>
                 <Message negative>
-                    <Message.Header>ይቅርታ ! ሹፌር online አይደልም</Message.Header>
+                    <Message.Header>ይደውሉ ! ሹፌር online አይደልም</Message.Header>
                     <p>
                         እባኮትን ስልክ ደውለው ይግኝዋቸው ። 
                     </p>
@@ -112,14 +112,14 @@ class DriverBusy extends Component {
                             </Grid.Row>
                         </Grid>
                         <Grid container columns={1}>
+                            <Grid.Row>
+                                <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
+                                    <Button className="btn_busy_ok" onClick={(e) => this._driver_busy_ok(e)} fluid >ደውዬ አልተገኝም</Button>
+                                </Grid.Column>
+                            </Grid.Row>
                             <Grid.Row className="row_xs">
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
                                     <Button className="btn_convert" color='green' onClick={(e) => this._convert_to_ride(e)} content='ተግኝትዋል ቀጥል' icon='right arrow' labelPosition='right' fluid/>
-                                </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row>
-                                <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button className="btn_busy_ok" onClick={(e) => this._driver_busy_ok(e)} fluid >ሹፌሩ አልተገኝም</Button>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>
