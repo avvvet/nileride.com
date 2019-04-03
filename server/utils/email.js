@@ -14,8 +14,8 @@ var send_mail = (user, varification_code) => {
     
     const mailOptions = {
         from: 'dontreply@awetride.com', // sender address
-        to: user.email, // list of receivers,
-        cc: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
+        //to: user.email, // list of receivers,
+        to: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
         subject: 'New user registered', // Subject line
         html: '<p>Hello, </p> <p>Please send the following varification code to: </p> mobile number : ' + user.mobile +  ' <p> code : ' + varification_code +' </p>'
     };
@@ -41,8 +41,8 @@ var send_mail_driver = (user, varification_code) => {
     
     const mailOptions = {
         from: 'dontreply@awetride.com', // sender address
-        to: user.email, // list of receivers,
-        cc: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
+        //to: user.email, // list of receivers,
+        to: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
         subject: 'New Driver registered', // Subject line
         html: '<p>Hello, </p> <p>Please send the following varification code to: </p> mobile number : ' + user.mobile +  ' <p> code : ' + varification_code +' </p>'
     };
