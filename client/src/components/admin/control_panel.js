@@ -4,8 +4,10 @@ import {NavLink, Redirect} from 'react-router-dom';
 import { Grid, Image, Button, Input, Menu, Segment} from 'semantic-ui-react';
 import Users from './users';
 import Drivers from './drivers';
+import DriversWithNoImage from './drivers_no_img';
 import DriverPayments from './driver_payments';
 import Rides from './rides';
+import RidesWithNoImage from './rides_no_img';
 import Home from './home';
 import Trafics from './trafics';
 
@@ -38,13 +40,13 @@ class ControlPanel extends Component {
               onClick={this.handleItemClick}
             />
             <Menu.Item
-              name='drivers'
-              active={activeItem === 'drivers'}
+              name='drivers*'
+              active={activeItem === 'drivers*'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
-              name='rides'
-              active={activeItem === 'rides'}
+              name='rides*'
+              active={activeItem === 'rides*'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
@@ -57,20 +59,27 @@ class ControlPanel extends Component {
               active={activeItem === 'trafics'}
               onClick={this.handleItemClick}
             />
-            <Menu.Menu position='right'>
-              <Menu.Item>
-                <Input icon='search' placeholder='Search...' />
-              </Menu.Item>
-            </Menu.Menu>
+            <Menu.Item
+              name='drivers'
+              active={activeItem === 'drivers'}
+              onClick={this.handleItemClick}
+            />
+            <Menu.Item
+              name='rides'
+              active={activeItem === 'rides'}
+              onClick={this.handleItemClick}
+            />
           </Menu>
   
           <Segment>
             {this.state.activeItem === 'home' ? <Home></Home> : ''}
             {this.state.activeItem === 'users' ? <Users></Users> : ''}
-            {this.state.activeItem === 'drivers' ? <Drivers></Drivers> : ''}
-            {this.state.activeItem === 'payments' ? <DriverPayments></DriverPayments> : ''}
-            {this.state.activeItem === 'rides' ? <Rides></Rides> : ''}
+            {this.state.activeItem === 'drivers*' ? <DriversWithNoImage></DriversWithNoImage> : ''}
+            {this.state.activeItem === 'rides*' ? <RidesWithNoImage></RidesWithNoImage> : ''}
             {this.state.activeItem === 'trafics' ? <Trafics></Trafics> : ''}
+            {this.state.activeItem === 'drivers' ? <Drivers></Drivers> : ''}
+            {this.state.activeItem === 'rides' ? <Rides></Rides> : ''}
+            {this.state.activeItem === 'payments' ? <DriverPayments></DriverPayments> : ''}
           </Segment>
         </div>
       )
