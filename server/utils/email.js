@@ -68,8 +68,7 @@ var send_mail_driver_change_password = (driver, varification_code) => {
   
   const mailOptions = {
       from: 'dontreply@awetride.com', // sender address
-      to: driver.email, // list of receivers,
-      cc: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
+      to: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
       subject: 'Change Password Request', // Subject line
       html: '<p>Hello, </p> <p>You have requested change password at nileride.com. Please use this varification code. </p> mobile number : ' + driver.mobile +  ' <p> code : ' + varification_code +' Well,Jesus Loves you !</p>'
   };
