@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
-import { Image, Table, Checkbox, Rating, Label} from 'semantic-ui-react'
+import { Image, Table, Checkbox, Rating, Label, Button} from 'semantic-ui-react'
 import $ from 'jquery';
 
 class RidesWithNoImage extends Component {
@@ -13,6 +13,34 @@ class RidesWithNoImage extends Component {
     }
     componentDidMount(){
         this.showrides();
+    }
+
+    _convert_to_ride = (ride_id, driver_id) => {    //this changes the ride to accepted 
+        $('.'+ride_id).addClass("loading");
+        if (window.confirm('Are you sure ?')) {
+            var data = {
+                id : ride_id,
+                driver_id : driver_id
+            };
+     
+            $.ajax({ 
+                type:"POST",
+                url:"/ride/convert_missed_to_ride",
+                headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+                data: JSON.stringify(data), 
+                contentType: "application/json",
+                success: function(data, textStatus, jqXHR) {
+                    $('.'+ride_id).removeClass("loading");
+                    $('.'+ride_id).remove();
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    $('.btn_convert').removeClass("loading"); 
+                }.bind(this)
+            });  
+        } else {
+            $('.'+ride_id).removeClass("loading");
+        }
+        
     }
 
     showrides = () => {
@@ -66,6 +94,11 @@ class RidesWithNoImage extends Component {
                 <Table.Cell>{ride.route_price}</Table.Cell>
                 <Table.Cell>{ride.dropoff_latlng.coordinates}</Table.Cell>
                 <Table.Cell>{ride.createdAt}</Table.Cell>
+                {ride.status === 2 ? 
+                 <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._convert_to_ride(ride.id, ride.driver.token)} circular>accepted</Label></Table.Cell>
+                 :
+                 <Table.Cell textAlign="center"></Table.Cell>
+                }
                 <Table.Cell textAlign="center">{this.convert_status(ride.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>
@@ -74,7 +107,6 @@ class RidesWithNoImage extends Component {
     }
     
     convert_status = (code) => {
-        console.log("code ", code);
          if(code === 1) {
              return <Label size="mini" color="grey" circular>calling</Label>;
          } else if(code === 2 || code === 22 || code === 222) {
@@ -107,6 +139,7 @@ class RidesWithNoImage extends Component {
                     <Table.HeaderCell>Price</Table.HeaderCell>
                     <Table.HeaderCell>Map</Table.HeaderCell>
                     <Table.HeaderCell>when</Table.HeaderCell>
+                    <Table.HeaderCell>Action</Table.HeaderCell>
                     <Table.HeaderCell>Status</Table.HeaderCell>
                     <Table.HeaderCell>Cancel</Table.HeaderCell>
                     </Table.Row>

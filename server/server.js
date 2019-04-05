@@ -1612,7 +1612,7 @@ app.post('/admin/rides', (req, res) => {
         include: [
             {
                 model: models.drivers,
-                attributes: ['firstName','middleName', 'email', 'mobile', 'profile']
+                attributes: ['firstName','middleName', 'email', 'mobile', 'profile', 'token']
             },
             {
                 model: models.users,
