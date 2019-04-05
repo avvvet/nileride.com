@@ -116,7 +116,7 @@ class DriverLoginForm extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
              $('.btn_login').removeClass("loading");
-             sessionStorage.setItem("_auth_driver", data.token);
+             localStorage.setItem("_auth_driver", data.token);
              this.setState({
                 auth: data.token
              });   

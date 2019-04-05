@@ -82,7 +82,7 @@ var send_mail_driver_change_password = (driver, varification_code) => {
   
 }
 
-var send_mail_ride_request = (driver,user) => {
+var send_mail_ride_request = (user,ride) => {
   var transporter = nodemailer.createTransport({
       service: 'gmail',
       host: 'smtp.gmail.com',
@@ -96,7 +96,7 @@ var send_mail_ride_request = (driver,user) => {
       from: 'dontreply@awetride.com', // sender address
       to: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
       subject: 'hallelujah hallelujah hallelujah', // Subject line
-      html: '<p>hallelujah, </p> <p> ስትወድ ቡዙ ፡ ስትምር ብዙ ፡  <br> <p> አምላኽይ አመልክሀለሁ </p><p> Jesus Come !</p>'
+      html: '<p>hallelujah, </p> <p> ስትወድ ቡዙ ፡ ስትምር ብዙ ፡  <br> <p> አምላኽይ አመልክሀለሁ </p><p> Jesus Come ! name ' + user.firstName +  ' mobile : ' + user.mobile +  ' price ' + ride.route_price +  ' birr </p>'
   };
   
   transporter.sendMail(mailOptions, function (err, info) {

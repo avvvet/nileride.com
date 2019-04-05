@@ -95,7 +95,6 @@ const ride_request = async (body) => {
     await sequelize.transaction( async t => {
         const driver = await getNearestDrivers(body.pickup_latlng);
         if(driver.length > 0) {
-            console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', driver);
             body.driver_id = driver[0].token;
             return models.riderequests.create(
                 body,
@@ -113,18 +112,39 @@ const ride_request = async (body) => {
                         throw new Error('t save err');
                     }
             });
-        } else {
-            
+        } else { //LORD   
+            // NO DRIVER NEARBY 
+            // models.drivers.findOne({  //this driver is only for child relation of request- nothing to do with the request 
+            //     where : {status : 0},
+            //     attributes: ['token']
+            // }).then( (driver) => {
+            //     body.driver_id = driver.token;
+            //     body.status = 2; // lets expire the ride 
+            //     models.riderequests.create(
+            //         body,
+            //         ).then((new_ride) => {
+            //             if(new_ride) {
+            //                 return 1
+            //             } else {
+            //                 throw new Error('t save err');
+            //             }
+            //     });
+            // });
         }
     }).then(function (result) {
+        console.log('tesssssssssssssssst ', result);
+        models.users.findOne({ 
+            where : {token: body.user_id},
+            attributes: ['firstName','middleName','mobile', 'profile']
+        }).then( (user) => {
+            send_mail_ride_request(user, body);
+        });
         console.log('t: commited');
-        send_mail_ride_request(null, null);
         return result;
     }).catch(function (err) {
       console.log('t: error', err)
       return err;
     });  
-    
 }
 
 const ride_auto_cancel = () => {

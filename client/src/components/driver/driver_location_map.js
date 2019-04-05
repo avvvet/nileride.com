@@ -199,14 +199,12 @@ class DriverLocation extends Component {
         headers: { 'x-auth': token },
         contentType: "application/json",
         success: function(driver, textStatus, jqXHR) {
-            console.log('driver data is ', driver)
           this.setState({
               driver: driver,
               isLogedIn : true,
           });   
         }.bind(this),
         error: function(xhr, status, err) {
-            console.log('getdriver', err.toString());
             console.error(xhr, status, err.toString());
         }.bind(this)
     });  
@@ -237,9 +235,9 @@ class DriverLocation extends Component {
 //    }
 
    componentDidMount(){
-    this.getDriver(sessionStorage.getItem("_auth_driver"));   
+    this.getDriver(localStorage.getItem("_auth_driver"));   
     this.setState({
-        auth: sessionStorage.getItem("_auth_driver")
+        auth: localStorage.getItem("_auth_driver")
     });
 
     this.driverRidesInfo();
@@ -308,7 +306,7 @@ class DriverLocation extends Component {
     PromiseLocateDriver.then((r)=>{
         if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
             console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
-            var token = sessionStorage.getItem("_auth_driver");
+            var token = localStorage.getItem("_auth_driver");
             var current_latlng = {
                 _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
             }; 
@@ -338,7 +336,7 @@ class DriverLocation extends Component {
     $.ajax({ 
         type:"POST",
         url:"/driver/getRidesInfo",
-        headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+        headers: { 'x-auth': localStorage.getItem("_auth_driver")},
         data: JSON.stringify(driver), 
         contentType: "application/json",
         success: (driver) => {
@@ -369,6 +367,75 @@ class DriverLocation extends Component {
    }
 
    checkForRide = () => {
+    console.log('ride check', localStorage.getItem("_auth_driver"));
+     var driver = {
+         status : 1
+     };
+     $.ajax({ 
+        type:"POST",
+        url:"/ride/check_ride_driver",
+        headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+        data: JSON.stringify(driver), 
+        contentType: "application/json",
+        success: function(ride, textStatus, jqXHR) {
+            //alert('Jesus');
+            console.log('always ', ride);
+          
+            if(!_.isNull(ride) && !_.isUndefined(ride.driver)) {
+               if(ride.status === 1) {
+                  this.ride_alert(ride);
+               } else if (ride.status === 7) {
+                   let PromiseOneTimeCall = new Promise((res,rej) => {
+                       clearInterval(this.timerCheckForRide);
+                       res(true);
+                   });
+                   PromiseOneTimeCall.then(() => {
+                       this.acceptRideAction(ride);
+                   });
+               } else if (ride.status === 77) {
+                   this.setState({
+                       ridePrice: ride.route_price,
+                       rideDistance: ride.route_distance,
+                       rideTime: ride.route_time,
+                       rideUser: ride.user.firstName + ' ' + ride.user.middleName,
+                       userMobile: ride.user.mobile,
+                       userPic: "/assets/profile/user/" + ride.user.profile,
+                       pickup_latlng : ride.pickup_latlng.coordinates,
+                       dropoff_latlng: ride.dropoff_latlng.coordinates,
+                       stopMapViewFlag : true
+                   });
+                   let PromiseSetlatlng = new Promise((res,rej) => {
+                       this.setState({
+                           pickup_latlng : ride.pickup_latlng.coordinates,
+                           dropoff_latlng: ride.dropoff_latlng.coordinates,
+                           stopMapViewFlag : true
+                       });
+  
+                       res(true);
+                   });
+  
+                   PromiseSetlatlng.then(()=>{
+                       this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
+                       clearInterval(this.timerCheckForRide);
+                   })
+                   
+               } else if (ride.driver.status === 2) {   //you have missed the ride 
+                   sound.volume(0,this.soundAccept);
+                   document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
+                   document.getElementById('missed-ride').style.visibility="visible"; 
+                   render(<MissedRide reset_ride={this.reset_ride} ride = {ride}></MissedRide>,document.getElementById('missed-ride'));
+               }  
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error('check ride error', err.toString());
+        }.bind(this)
+    });  
+      
+ }
+
+   checkForRideOLd = () => {
+       console.log('ride check', localStorage.getItem("_auth_driver"));
         var driver = {
             status : 1
         };
@@ -376,7 +443,7 @@ class DriverLocation extends Component {
         $.ajax({
             type:"POST",
             url:"/ride/check_ride_driver",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json"
          })
@@ -431,7 +498,7 @@ class DriverLocation extends Component {
                     sound.volume(0,this.soundAccept);
                     document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
                     document.getElementById('missed-ride').style.visibility="visible"; 
-                    render(<MissedRide></MissedRide>,document.getElementById('missed-ride'));
+                    render(<MissedRide reset_ride={this.reset_ride} ride = {ride}></MissedRide>,document.getElementById('missed-ride'));
                 }  
              }
              
@@ -463,7 +530,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/accepted",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -521,7 +588,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/completed",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
@@ -535,6 +602,24 @@ class DriverLocation extends Component {
                 console.error('ride completed error', err.toString());
             }.bind(this)
         });  
+    }
+
+    reset_ride = () => {
+        document.getElementById("driver-pax-action").style.visibility = "hidden";
+        document.getElementById("driver-pax-end-action").style.visibility = "hidden";
+        document.getElementById("check-ride-dashboard").style.visibility = "hidden";
+        var map = this.state.map;
+        if(this.routeControl){
+            map.removeControl(this.routeControl);
+            this.routeControl = null;
+        }
+        var markerGroup = this.state.markerGroup;
+        markerGroup.clearLayers();
+
+        clearInterval(this.timerCheckForRide);
+        this.timerCheckForRide = null;
+        this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
+        document.getElementById("driver-dashboard").style.visibility = "visible"; 
     }
 
     rideCompletedAction = (ride) => {
@@ -563,6 +648,7 @@ class DriverLocation extends Component {
 
         PromiseRemoveAll.then(()=>{
             this.driverRidesInfo();
+            clearInterval(this.timerCheckForRide);
             this.timerCheckForRide = setInterval(this.checkForRide, 5000); //lets wait for ride again
             document.getElementById("driver-dashboard").style.visibility = "visible"; 
         });
@@ -577,7 +663,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/paxFound",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: (_ride) => {
@@ -786,7 +872,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/driver/mobile_verification",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
@@ -794,7 +880,7 @@ class DriverLocation extends Component {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getDriver(sessionStorage.getItem("_auth_driver")); //reload user after varification
+                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -835,7 +921,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/car/register",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
@@ -843,7 +929,7 @@ class DriverLocation extends Component {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('register-car'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getDriver(sessionStorage.getItem("_auth_driver")); //reload user after varification
+                this.getDriver(localStorage.getItem("_auth_driver")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -919,7 +1005,7 @@ class DriverLocation extends Component {
         $.ajax({ 
             type:"POST",
             url:"/driver/profile",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: formData, 
             cache: false,
             contentType: false,
@@ -929,7 +1015,7 @@ class DriverLocation extends Component {
               if(data.length > 0) {
                 if(data[0] === 1) {
                    document.getElementById('div-profile').style.visibility = 'hidden';
-                   this.getDriver(sessionStorage.getItem("_auth_driver"));
+                   this.getDriver(localStorage.getItem("_auth_driver"));
                 } else {
                     render(<Message bsStyle="danger" >በድጋሚ ይሞክሩ ! </Message>,document.getElementById('ProfileError'));
                 }

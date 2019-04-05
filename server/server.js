@@ -609,7 +609,7 @@ app.post('/ride/busy_ok', (req, res) => {
                      if(result){
                          return ride;  /// update successfull return ride
                      } else {
-                         throw new Error('ride not found after update');
+                         return ride;
                      }
                   }).catch(err => {
                     return err;
@@ -629,18 +629,19 @@ app.post('/ride/busy_ok', (req, res) => {
 });
 
 app.post('/driver/ready_for_work', (req, res) => {
+    var body = _.pick(req.body, ['ride_id']);
     var token = req.header('x-auth');
     var sequelize = models.sequelize;
     const Op = Sequelize.Op;
     return sequelize.transaction(function (t) {
         return models.drivers.update(
             { status: 0 },
-            { where: {token: token, status: {[Op.or] : [2, 3]} }, transaction: t}
+            { where: {token: token, status:2 }, transaction: t}
         ).then(r => {
             if(r){
                 return models.riderequests.update(
                     { status: 222 },
-                    { where: { driver_id: token, status: {[Op.or] : [2, 22]}}, transaction: t } 
+                    { where: {id: body.ride_id, driver_id: token, status: {[Op.or] : [2, 22]}}, transaction: t } 
                   ).then(result => {
                      if(result) {
                         return r;

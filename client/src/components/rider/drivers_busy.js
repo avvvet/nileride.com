@@ -86,11 +86,7 @@ class DriverBusy extends Component {
         return(
             <div>
                 <Message negative>
-                    <Message.Header>ይደውሉ ! ሹፌር online አይደልም</Message.Header>
-                    <p>
-                        እባኮትን ስልክ ደውለው ይግኝዋቸው ። 
-                    </p>
-
+                    <Message.Header>እባኮትን ደውለው ያግኝዋቸው !</Message.Header>
                     <p>
                         <Grid columns={3} centered>
                             <Grid.Row>
@@ -102,24 +98,23 @@ class DriverBusy extends Component {
                                 </Grid.Column>
                                 <Grid.Column mobile={7} tablet={7} computer={7} className="text-center" textAlign="center">
                                   <Icon name="phone volume" color="purple"></Icon>
-                                  <a href={'tel:' + this.state._driverMobile}>{this.props.ride.driver.mobile}</a>
+                                  <a href={'tel:' + this.props.ride.driver.mobile}>{this.props.ride.driver.mobile}</a>
                                 </Grid.Column>
                             </Grid.Row>
-                            <Grid.Row>
-                                <Grid.Column mobile={16} tablet={16} computer={16}>
-                                    <div className="div-error" id="driver-busy-error"></div>
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                        <Grid container columns={1}>
+                           
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button className="btn_busy_ok" onClick={(e) => this._driver_busy_ok(e)} fluid >ደውዬ አልተገኝም</Button>
+                                <Message.Header>ደውለው አገኙት ?</Message.Header>
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row className="row_xs">
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
-                                    <Button className="btn_convert" color='green' onClick={(e) => this._convert_to_ride(e)} content='ተግኝትዋል ቀጥል' icon='right arrow' labelPosition='right' fluid/>
+                                    <Button className="btn_convert" size='large' color='green' onClick={(e) => this._convert_to_ride(e)} content='ተግኝትዋል ቀጥል' icon='right arrow' labelPosition='right' fluid/>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
+                                    <Button className="btn_busy_ok" size='large' color='blue' content='ደውዬ አልተገኘም' icon='left arrow' labelPosition='left' onClick={(e) => this._driver_busy_ok(e)} fluid />
                                 </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>

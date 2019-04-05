@@ -27,17 +27,20 @@ class MissedRide extends Component {
 
     confirm_missed_ride = (e) => {
         $('.btn_confirm_missed').addClass("loading");
-        let data = {};
+        let data = {
+            ride_id : this.props.ride.id
+        };
         e.target.disabled = true;
         $.ajax({ 
             type:"POST",
             url:"/driver/ready_for_work",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_driver")},
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: (_ride) => {
                 $('.btn_confirm_missed').removeClass("loading");
                 if(_ride[0] === 1){
+                    this.props.reset_ride();
                     document.getElementById('missed-ride').style.visibility="hidden"; 
                     render('',document.getElementById('missed-ride'));
                 } else {
