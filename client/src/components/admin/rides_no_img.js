@@ -94,7 +94,7 @@ class RidesWithNoImage extends Component {
                 <Table.Cell>{ride.route_price}</Table.Cell>
                 <Table.Cell>{ride.dropoff_latlng.coordinates}</Table.Cell>
                 <Table.Cell>{ride.createdAt}</Table.Cell>
-                {ride.status === 2 ? 
+                {ride.status === 2 || ride.status === 22 || ride.status === 222 ? 
                  <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._convert_to_ride(ride.id, ride.driver.token)} circular>accepted</Label></Table.Cell>
                  :
                  <Table.Cell textAlign="center"></Table.Cell>
@@ -109,8 +109,10 @@ class RidesWithNoImage extends Component {
     convert_status = (code) => {
          if(code === 1) {
              return <Label size="mini" color="grey" circular>calling</Label>;
-         } else if(code === 2 || code === 22 || code === 222) {
-             return <Label size="mini" color="red" circular>missed ride</Label>
+         } else if(code === 2 || code === 22 ) {
+            return <Label size="mini" color="red" circular>missed ride</Label>
+         } else if(code === 222) {
+             return <Label size="mini" color="brown" circular>missed ride</Label>
          } else if(code === 777 || code === 7777) {
              return <Label size="mini" color="green" circular>completed</Label>
          } else if(code === 4 || code === 444) {
