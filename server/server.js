@@ -628,6 +628,75 @@ app.post('/ride/busy_ok', (req, res) => {
       });
 });
 
+app.post('/ride/driver_not_located', (req, res) => {
+    var body = _.pick(req.body, ['ride_id','driver_id']);
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+    return sequelize.transaction(function (t) {
+        return models.drivers.update(
+            { status: 3 },
+            { where: {token: body.driver_id}, transaction: t}
+        ).then(r => {
+            if(r){
+                return models.riderequests.update(
+                    { status: 222 },
+                    { where: {id: body.ride_id, driver_id: body.driver_id, status: {[Op.or] : [2, 22]}}, transaction: t } 
+                  ).then(result => {
+                     if(result) {
+                        return r;
+                     } else {
+                         throw new Error('ride not found after update');
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('Transaction driver not updated');
+            }
+        })
+      }).then(function (result) {
+          res.send(result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+      });
+});
+
+app.post('/driver/logout', (req, res) => {
+    var token = req.header('x-auth');
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.drivers.findOne({
+            where : {token: token, status: 0}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              return models.drivers.update(
+                    { status: 4 },
+                    { where: { token : token, status: 0} } ,
+                    {transaction: t}
+                  ).then(result => {
+                     if(result){
+                         return result;  
+                     } else {
+                         return result;
+                     }
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                return null;
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('trsancation commited   tttttttttttttttttttttttttttttt ', result);
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('trsancation rollback ', err);
+      });
+});
+
 app.post('/driver/ready_for_work', (req, res) => {
     var body = _.pick(req.body, ['ride_id']);
     var token = req.header('x-auth');
@@ -1008,7 +1077,6 @@ app.post('/driver/getRidesInfo', (req, res) => {
 
 app.post('/driver/login', (req, res) => {
   var body = _.pick(req.body, ['mobile', 'password']);
-  console.log(body);
   models.drivers.findOne({ where : {mobile: body.mobile}}).then( (driver) => {
      if(!driver) {
         res.status(401).send();
@@ -1026,6 +1094,11 @@ app.post('/driver/login', (req, res) => {
      
      PromisePasswordCompare.then((compareFlag) => {
          if(compareFlag === true){
+            models.drivers.update(
+                { status: 0 },
+                { where: { token : driver.token, status: 4} }
+              ).then(result => {
+              })
             res.header('x-auth', driver.token).send(driver);
          } else {
             res.status(401).send();

@@ -1053,6 +1053,27 @@ class DriverLocation extends Component {
         });
     }
 
+    _driver_logout = (e) => {
+        var d = {
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/driver/logout",
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            data: d, 
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data, textStatus, jqXHR) {
+                localStorage.setItem("_auth_driver", false);
+            }.bind(this),
+            error: function(xhr, status, err) {
+               
+            }.bind(this)
+        });  
+    }
+
     render(){
         return(
             <div>
@@ -1064,7 +1085,7 @@ class DriverLocation extends Component {
                             </Grid.Column>
                             <Grid.Column mobile={5} tablet={5} computer={5} textAlign="center">
                             {this.state.isLogedIn === true ?
-                                <Label as={NavLink} to="/" basic pointing="left" color="green">
+                                <Label as={NavLink} to="/" basic pointing="left" color="green" onClick={(e) => this._driver_logout(e)}>
                                 LOGOUT
                                 </Label>  
                             :
@@ -1097,7 +1118,11 @@ class DriverLocation extends Component {
                                 ጉዞ <Label color="teal" size="medium" circular>{this.state.total_rides}</Label> 
                             </Grid.Column>
                             <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                                <Label color="olive">የተፈቀደለት</Label>
+                                {this.state.driver.status === 3 ? 
+                                 <Label color="red">ተዘግትዋል</Label>
+                                 :
+                                 <Label color="olive">የተፈቀደለት</Label>    
+                                }
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>

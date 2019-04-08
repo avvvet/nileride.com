@@ -868,3 +868,8 @@ input[type="file"] {
   color : white;
 }
 
+.a-phone-size {
+  font-size: 17px;
+  font-weight: bold;
+}
+
