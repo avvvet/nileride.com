@@ -463,7 +463,7 @@ class PickUpMap extends Component {
             var mDisplay = rminutes > 0 ? rminutes + " min" : "";
             return hDisplay + mDisplay; 
          }
-        var price_per_km = 10;
+        var price_per_km = env.RIDE_PER_KM;
         var _ride_price = (_distance * price_per_km).toFixed(2);
         
         this.setState({

@@ -796,7 +796,7 @@ app.post('/ride/completed', (req, res) => {
                          'ride_id': ride.id,
                          'amount': ride.route_price,
                          'charge_dr': 0.00,
-                         'charge_cr': ride.route_price * 0.1,
+                         'charge_cr': ride.route_price * env.RIDE_PERCENTAGE,
                          'status': 0
                      }
                      var body = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
