@@ -1333,7 +1333,7 @@ class DriverLocation extends Component {
                       </Grid.Column>
                       <Grid.Column mobile={8} tablet={8} computer={8}>
                          <Icon name="phone volume"></Icon>
-                         <a className='a-phone' href={'tel:' + this.state._driverMobile}>{this.state.userMobile}</a>
+                         <a className='a-phone' href={'tel:' + this.state.userMobile}>{this.state.userMobile}</a>
                       </Grid.Column>
                     </Grid.Row>
                     
@@ -1372,7 +1372,7 @@ class DriverLocation extends Component {
                        {this.state.rideUser}
                       </Grid.Column>
                       <Grid.Column mobile={8} tablet={8} computer={8}>
-                       {this.state.userMobile}
+                      <a className='a-phone' href={'tel:' + this.state.userMobile}>{this.state.userMobile}</a>
                       </Grid.Column>
                     </Grid.Row>
                     <Grid.Row className="row_sm">

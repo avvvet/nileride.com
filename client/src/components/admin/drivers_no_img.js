@@ -74,6 +74,8 @@ class DriversWithNoImage extends Component {
              return <Label size="mini" color="red" circular>missed ride</Label>
          } else if(code === 3) {
             return <Label size="mini" color="grey" circular>disabled</Label>
+         } else if(code === 4) {
+            return <Label size="mini" color="blue" circular>logoff</Label>
          } 
     }
 
