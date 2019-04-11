@@ -17,6 +17,7 @@ class DriversWithNoImage extends Component {
         this.showDrivers();
     }
 
+
     showDrivers = () => {
         //$('.btn_apply').addClass("loading");
         var data = {};
@@ -55,9 +56,9 @@ class DriversWithNoImage extends Component {
                 <Table.Cell><Rating icon='star' defaultRating={driver.avg_rating} maxRating={5} /></Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(driver.status)}</Table.Cell>
                 { driver.status === 3 ? 
-                <Table.Cell collapsing textAlign='right'><Checkbox toggle checked={false} /></Table.Cell>
+                <Table.Cell collapsing textAlign='right'><Checkbox className={driver.id} toggle checked={false} onChange={() => this._change_driver_status(driver.id, driver.token, 0)} /></Table.Cell>
                 : 
-                <Table.Cell collapsing textAlign='right'><Checkbox toggle checked={true} /></Table.Cell>
+                <Table.Cell collapsing textAlign='right'><Checkbox className={driver.id} toggle checked={true} onChange={() => this._change_driver_status(driver.id, driver.token, 3)} /></Table.Cell>
                 }
                 
             </Table.Row>
@@ -77,6 +78,33 @@ class DriversWithNoImage extends Component {
          } else if(code === 4) {
             return <Label size="mini" color="blue" circular>logoff</Label>
          } 
+    }
+
+    _change_driver_status = (driver_id, driver_token, status) => {    
+       
+         $('.'+driver_id).prop('checked', false);
+         if (window.confirm('Are you sure ?')) {
+             var data = {
+                 driver_token : driver_token
+             };
+      
+             $.ajax({ 
+                 type:"POST",
+                 url:"/ride/convert_missed_to_ride",
+                 headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+                 data: JSON.stringify(data), 
+                 contentType: "application/json",
+                 success: function(data, textStatus, jqXHR) {
+                    // $('.'+ride_id).removeClass("loading");
+                     //$('.'+ride_id).remove();
+                 }.bind(this),
+                 error: function(xhr, status, err) {
+                     $('.btn_convert').removeClass("loading"); 
+                 }.bind(this)
+             });  
+         } else {
+             //$('.'+ride_id).removeClass("loading");
+         }   
     }
 
     render(){
