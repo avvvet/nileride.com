@@ -11,11 +11,13 @@ const Sequelize = require('sequelize');
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const sharp = require('sharp');
 //const publicPath = path.join(__dirname, '../client/build');
 const port = process.env.PORT || 4000;
 const publicPath = path.join(__dirname, '../client/public');
 const publicPathProfileUser = path.join(__dirname, '../client/public/assets/profile/user');
 const publicPathProfileDriver = path.join(__dirname, '../client/public/assets/profile/driver');
+const assets_path = path.join(__dirname, '../client/public/assets/profile');
 var _ = require('lodash');
 var validator = require('validator');
 var Busboy = require('busboy');
@@ -149,22 +151,34 @@ app.post('/user/profile', function (req, res) {
     var f = null;
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       f =  "user-" + Date.now() + filename;
-      var saveTo = path.join(publicPathProfileUser, f);
+      var saveTo = path.join(assets_path + "/user_img", f);
       console.log('Uploading: ' + saveTo);
       file.pipe(fs.createWriteStream(saveTo));
     });
     busboy.on('finish', function() {
         if(!_.isNull(f)) {
-            models.users.update(
+            //lets resize and crop the image using sharp
+            let inputFile = assets_path + "/user_img/" + f;
+            let outputFile = assets_path + "/user/" + f;
+            sharp(inputFile).resize({ height: 100, width: 100, fit : 'cover'}).toFile(outputFile)
+            .then(function(newFileInfo) {
+              // newFileInfo holds the output file properties
+              console.log("Success", newFileInfo);
+              models.users.update(
                 { profile : f, hasProfile : true},
                 { where: { token: token } }
-             ).then(user => {
+              ).then(user => {
                 //res.writeHead(200, user);
                 res.send(user);
                 res.end("Jesus is my light");
-             }).catch(err => {
+              }).catch(err => {
                 res.sendStatus(400).send();
-             });
+              });
+            })
+            .catch(function(err) {
+                res.sendStatus(400).send();
+                console.log("Error occured",err);
+            });
            } else {
                res.sendStatus(400).send();
            } 
@@ -180,22 +194,37 @@ app.post('/driver/profile', function (req, res) {
     var f = null;
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       f =  "driver-" + Date.now() + filename;
-      var saveTo = path.join(publicPathProfileDriver, f);
+      var saveTo = path.join(assets_path + "/driver_img", f);
       console.log('Uploading: ' + saveTo);
       file.pipe(fs.createWriteStream(saveTo));
     });
     busboy.on('finish', function() {
         if(!_.isNull(f)) {
-            models.drivers.update(
+            //lets resize and crop the image using sharp
+            let inputFile = assets_path + "/driver_img/" + f;
+            let outputFile = assets_path + "/driver/" + f;
+            sharp(inputFile).resize({ height: 100, width: 100, fit : 'cover'}).toFile(outputFile)
+            .then(function(newFileInfo) {
+              // newFileInfo holds the output file properties
+              console.log("Success", newFileInfo);
+              
+              models.drivers.update(
                 { profile : f, hasProfile : true},
                 { where: { token: token } }
-             ).then(driver => {
+              ).then(driver => {
                 //res.writeHead(200, user);
                 res.send(driver);
                 res.end("Jesus is my light");
-             }).catch(err => {
+              }).catch(err => {
                 res.sendStatus(400).send();
-             });
+              });
+
+            })
+            .catch(function(err) {
+                res.sendStatus(400).send();
+                console.log("Error occured",err);
+            });
+            
            } else {
                res.sendStatus(400).send();
            } 
