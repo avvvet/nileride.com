@@ -12,7 +12,7 @@ const env = {
   EMAIL_CC_A: 'avvvet@gmail.com',
   EMAIL_CC_B: 'natimancloud@gmail.com',
   MISSED_RIDE_DURATION: 5,
-  NEAREST_DRIVER_RADIUS: 1800,
+  NEAREST_DRIVER_RADIUS: 2500,
   RIDE_PERCENTAGE: 0.19,
 };
 module.exports = env;
