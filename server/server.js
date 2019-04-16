@@ -176,7 +176,9 @@ app.post('/user/profile', function (req, res) {
               });
             })
             .catch(function(err) {
-                res.sendStatus(400).send();
+                var data = [];
+                data.push(-1);   //image faild try again
+                res.send(data);
                 console.log("Error occured",err);
             });
            } else {
@@ -310,7 +312,7 @@ app.get('/user/get', (req, res) => {
 
 //user-apply
 app.post('/user/apply', (req, res) => {
-    var body = _.pick(req.body, ['firstName', 'middleName', 'mobile', 'gender', 'password', 'token', 'profile']);
+    var body = _.pick(req.body, ['firstName', 'middleName', 'mobile', 'gender', 'password', 'token', 'profile', 'hasProfile']);
     //body.token = jwt.sign(body.email, 'JESUSMYHEALER');
     body.token = jwt.sign(body.mobile, 'JESUSMYHEALER');
 

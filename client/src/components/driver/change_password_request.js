@@ -73,7 +73,7 @@ class DriverChangePasswordRequest extends Component {
              success: function(data, textStatus, jqXHR) {
               $('.btn_next').removeClass("loading");
               if(data.rply === 1){
-                sessionStorage.setItem("_change_password_mobile", this.state.mobile_2);
+                localStorage.setItem("_change_password_mobile", this.state.mobile_2);
                 render(<DriverChangePasswordVarify></DriverChangePasswordVarify>,document.getElementById('div-change-pass'));
                 this.setState({
                     mobile_2: '',

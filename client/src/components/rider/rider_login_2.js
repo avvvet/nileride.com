@@ -107,7 +107,17 @@ class RiderLoginForm extends Component {
             contentType: "application/json",
             success: function(user, textStatus, jqXHR) {
              $('.btn_login').removeClass("loading");
-             sessionStorage.setItem("_auth_user", user.token);
+             localStorage.setItem("_auth_user", user.token);
+             
+             document.getElementById('div-notification-2').style.visibility = 'hidden';
+             render('', document.getElementById('div-notification-2'));
+             if(this.props.is_this_login) {
+                document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+                document.getElementById('user-info').style.visibility = 'visible'; 
+             } else {
+                document.getElementById('ride-price-dashboard').style.visibility = 'visible';
+                document.getElementById('user-info').style.visibility = 'visible'; 
+             }
              this.props.callBackFromLogin(user);
              this.setState({
                 auth: user.token
@@ -124,18 +134,9 @@ class RiderLoginForm extends Component {
         });  
   } 
 
-  show_apply_passenger = (e) => {
-    document.getElementById('div-notification-2').style.visibility = 'visible';
-    render(<ApplyToRide callBackFromLogin={this.props.callBackFromLogin}></ApplyToRide>, document.getElementById('div-notification-2'));
-  }
+  
 
   render(){
-      if(this.state.auth) {
-        document.getElementById('ride-price-dashboard').style.visibility = 'visible';
-        document.getElementById('user-info').style.visibility = 'visible';
-        document.getElementById('div-notification-2').style.visibility = 'hidden';
-        render('', document.getElementById('div-notification-2'));
-      }
       return(
         <div>
            <div className="driverLoginBox">
@@ -144,7 +145,7 @@ class RiderLoginForm extends Component {
                     
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Label color="green" pointing="below" size="large">
-                    እባኮትን ከዚህ በፊት ተመዝግበው ከሆነ የሞባይል ቁጥር እና ኮዶን ያስገቡ !</Label>
+                    ከዚህ በፊት የተመዘገቡ መግብያ !</Label>
                     <Form>
                     <Input
                     name="loginMobile"
@@ -186,7 +187,7 @@ class RiderLoginForm extends Component {
 
                 <Grid.Row columns={1} className="row_sm">
                     <Grid.Column mobile={18} tablet={18} computer={18}>
-                      <Button color="teal" content='አዲስ ተሳፋሪ' icon='right arrow' labelPosition='right' size="huge" onClick={(e) => this.show_apply_passenger(e)} fluid></Button>
+                      <Button color="teal" content='አዲስ ተሳፋሪ' icon='right arrow' labelPosition='right' size="huge" onClick={(e) => this.props.show_apply_passenger(e)} fluid></Button>
                     </Grid.Column>
                 </Grid.Row>
 

@@ -52,9 +52,9 @@ class DriverChangePassword extends Component {
         } else {
             $('.btn_next').removeClass("loading");
             var data = {
-                mobile : sessionStorage.getItem("_change_password_mobile"),
+                mobile : localStorage.getItem("_change_password_mobile"),
                 password : this.state.password_2,
-                varification_code : sessionStorage.getItem("_change_password_varificationCode")
+                varification_code : localStorage.getItem("_change_password_varificationCode")
             }
             this._change_password(data);
         }
@@ -70,8 +70,8 @@ class DriverChangePassword extends Component {
              success: function(data, textStatus, jqXHR) {
                 if(data.rply === 1){
                     render(<Message positive > የሚሲጢር ኮድ ተቀይርዋል። እባኮትን የሞባይል ቁጥር እና አዲሱን የሚሲጢር ኮድ ያስገቡ ፡ አስገባኝ ይጫኑ።</Message>,document.getElementById('div-change-pass'));
-                    sessionStorage.removeItem("_change_password_varificationCode");
-                    sessionStorage.removeItem("_change_password_mobile"); 
+                    localStorage.removeItem("_change_password_varificationCode");
+                    localStorage.removeItem("_change_password_mobile"); 
                 }
                 this.setState({
                     mobile: '',
@@ -83,8 +83,8 @@ class DriverChangePassword extends Component {
              error: function(xhr, status, err) {
                  $('.btn_next').removeClass("loading");
                  render(<Message negative > የሚሲጢር ኮድ መቀየር አልተሳካም ፡ እንደገና ይሞክሩ ።</Message>,document.getElementById('div-change-pass'));
-                 sessionStorage.removeItem("_change_password_varificationCode");
-                 sessionStorage.removeItem("_change_password_mobile");
+                 localStorage.removeItem("_change_password_varificationCode");
+                 localStorage.removeItem("_change_password_mobile");
                  this.setState({
                     mobile: '',
                     password : '',

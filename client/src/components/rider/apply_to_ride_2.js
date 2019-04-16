@@ -109,7 +109,8 @@ class ApplyToRide extends Component {
                 mobile: this.state.mobile,
                 password: this.state.password,
                 gender: this.state.gender,
-                profile : 'nileride-profile.png'
+                profile : 'nileride-profile.png',
+                hasProfile : false
             }
             this.riderApply(rider)
             this.setState({
@@ -132,8 +133,15 @@ class ApplyToRide extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
               this.props.callBackFromLogin(data);
+              document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+             
+              document.getElementById('search_1').style.visibility = 'visible'
+              document.getElementById('user-info').style.visibility = 'visible';
+              document.getElementById('div-notification-2').style.visibility = 'hidden';
+              render('', document.getElementById('div-notification-2'));
+
               $('.btn_apply').removeClass("loading");
-              sessionStorage.setItem("_auth_user", data.token);
+              localStorage.setItem("_auth_user", data.token);
               this.setState({
                   auth: data.token
               });  
@@ -152,11 +160,7 @@ class ApplyToRide extends Component {
 
     render(){
         if(this.state.auth) {
-            document.getElementById('ride-price-dashboard').style.visibility = 'visible';
-            document.getElementById('search_1').style.visibility = 'visible';
-            document.getElementById('user-info').style.visibility = 'visible';
-            document.getElementById('div-notification-2').style.visibility = 'hidden';
-            render('', document.getElementById('div-notification-2'));
+           
           }
         return(
             <div>

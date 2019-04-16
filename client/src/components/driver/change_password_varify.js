@@ -62,13 +62,13 @@ class DriverChangePasswordVarify extends Component {
         $.ajax({ 
             type:"POST",
             url:"/driver/change_password_verification",
-            headers: { 'x-auth': sessionStorage.getItem("_change_password_mobile")},
+            headers: { 'x-auth': localStorage.getItem("_change_password_mobile")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
                $('.btn_mobile_varify').removeClass("loading");
                if(data.rply === 1){
-                sessionStorage.setItem("_change_password_varificationCode", this.state.varificationCode);
+                localStorage.setItem("_change_password_varificationCode", this.state.varificationCode);
                 render(<DriverChangePassword></DriverChangePassword>,document.getElementById('div-change-pass'));
                } 
                this.setState({

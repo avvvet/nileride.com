@@ -14,6 +14,7 @@ import VerificationRply from './verfication_rply';
 import { ETIME } from 'constants';
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import RiderLoginForm from './rider/rider_login_2';
+import ApplyToRide from './rider/apply_to_ride_2';
 import Faq from './faq';
 
 const env = require('../env');
@@ -156,7 +157,8 @@ class PickUpMap extends Component {
                 lng: 0
             },
             pickup_searchbox_selected : false,
-            dropoff_searchbox_selected : false
+            dropoff_searchbox_selected : false,
+            is_this_login : '',
         }
     }
 
@@ -174,7 +176,7 @@ class PickUpMap extends Component {
                 var current_latlng = {
                     _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
                 };
-                var token = sessionStorage.getItem("_auth_user");
+                var token = localStorage.getItem("_auth_user");
                 $.ajax({ 
                     type:"POST",
                     url:"/user/updateLocation",
@@ -258,7 +260,7 @@ class PickUpMap extends Component {
     }
 
     componentDidMount(){
-        this.getUser(sessionStorage.getItem("_auth_user"));
+        this.getUser(localStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
         //var map = L.map('mapid');
         map.locate({setView: true, maxZoom: 15});
@@ -473,7 +475,7 @@ class PickUpMap extends Component {
             route_time_string :_ride_time_string,
             isRouteFound : true 
         });
-       //lord your are God of order, I beg you father not now. THANK YOU FATHER
+       //lord your are God of order, I beg you father not now. THANK YOU FATHER - Let your will be done
        document.getElementById('ride-route-try').style.visibility = 'hidden';
        document.getElementById('ride-route-status').style.visibility = 'hidden';
        document.getElementById('ride-price-dashboard').style.visibility = "visible";
@@ -540,16 +542,36 @@ class PickUpMap extends Component {
 
     checkLogin = (e) => {
        if(this.state.isLogedIn === true) {
+           
            this.rideRequest(e);
            this.add_trafic('call-driver');
+           this.setState({
+               is_this_login : null
+           })
        } else {
            document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
            document.getElementById('search_0').style.visibility = 'hidden';
            document.getElementById('search_1').style.visibility = 'hidden';
            document.getElementById('user-info').style.visibility = 'hidden';
            document.getElementById('user-manual').style.visibility = 'hidden';
-           render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} ></RiderLoginForm>, document.getElementById('div-notification-2'));
+           this.setState({
+            is_this_login : false
+            });
+           render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} is_this_login={false} show_apply_passenger={this.show_apply_passenger}></RiderLoginForm>, document.getElementById('div-notification-2'));
        }
+    }
+
+    pax_login = (e) => {
+           document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+           document.getElementById('search_0').style.visibility = 'hidden';
+           document.getElementById('search_1').style.visibility = 'hidden';
+           document.getElementById('user-info').style.visibility = 'hidden';
+           document.getElementById('user-manual').style.visibility = 'hidden';
+           document.getElementById('div-notification-2').style.visibility = 'visible';
+           this.setState({
+             is_this_login : true
+           });
+           render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} is_this_login={true} show_apply_passenger={this.show_apply_passenger}></RiderLoginForm>, document.getElementById('div-notification-2'));
     }
 
     callBackFromLogin = (user) => {
@@ -558,6 +580,16 @@ class PickUpMap extends Component {
             isLogedIn : true,
             _signInFlag : false
         }); 
+        //this.chkTimerRideStatus();
+    }
+
+    show_apply_passenger = (e) => {
+        document.getElementById('div-notification-2').style.visibility = 'visible';
+        if(this.state.is_this_login) {
+            render(<ApplyToRide callBackFromLogin={this.callBackFromLogin} is_this_login={true} show_apply_passenger={this.show_apply_passenger}></ApplyToRide>, document.getElementById('div-notification-2'));
+        } else {
+            render(<ApplyToRide callBackFromLogin={this.callBackFromLogin} is_this_login={false} show_apply_passenger={this.show_apply_passenger}></ApplyToRide>, document.getElementById('div-notification-2'));
+        } 
     }
 
     rideRequest = (e) => {
@@ -565,7 +597,7 @@ class PickUpMap extends Component {
         //e.target.disabled = true;
         $('.btn').addClass("disabled");
 
-        var user_token = sessionStorage.getItem("_auth_user");
+        var user_token = localStorage.getItem("_auth_user");
         var objRideRequest = {
             user_id: user_token,
             driver_id: this.state._nearest_driver_token,
@@ -580,7 +612,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/rideRequest",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: function(ride, e) {
@@ -622,7 +654,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/check_ride_user",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(driver), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
@@ -988,17 +1020,16 @@ class PickUpMap extends Component {
     
         return errors;
     }
-
     validateProfile = () => {
         console.log('file', this.state.file);
         let errors = [];
         
         if(this.state.file.length === 0) {
-            errors.push("Picture is empty. Browse first.");
+            errors.push("ፎቶ አልመረጡም ! Browse የሚለውን ይጫኑ።");
         } 
 
         if(this.state.file.size > 3024000) {
-            errors.push("Selected Picture is very large");
+            errors.push("የመረጡት ፎቶ መጠን ትልቅ ነው ! አነስተኛ ፎቶ ይምረጡ።");
         }
        
         if(this.state.file.size > 0) {
@@ -1006,7 +1037,7 @@ class PickUpMap extends Component {
             var t = this.state.file.type.split('/').pop().toLowerCase();
             console.log('ttt', t);
             if (t != "jpeg" && t != "jpg" && t != "png" && t != "bmp" && t != "gif") {
-                errors.push('Please select a valid image file');
+                errors.push('ትክክለኛ የፎቶ ዓይነት ይምረጡ !');
             }
         }
         
@@ -1045,8 +1076,8 @@ class PickUpMap extends Component {
     }
 
     onProfileUpload = (e) => {
-        e.target.disabled = true;
-        e.preventDefault();
+        // e.target.disabled = true;
+        // e.preventDefault();
         const err = this.validateProfile();
         if(err.length > 0){
             e.target.disabled = false;
@@ -1085,7 +1116,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/user/mobile_verification",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
@@ -1093,7 +1124,7 @@ class PickUpMap extends Component {
                if(data){
                 render(<VerificationRply></VerificationRply>,document.getElementById('account-verfiy'));
                 //document.getElementById('account-verfiy').style.visibility = 'hidden';
-                this.getUser(sessionStorage.getItem("_auth_user")); //reload user after varification
+                this.getUser(localStorage.getItem("_auth_user")); //reload user after varification
                } 
             }.bind(this),
             error: function(xhr, status, err) {
@@ -1112,7 +1143,7 @@ class PickUpMap extends Component {
         $.ajax({ 
             type:"POST",
             url:"/user/profile",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: formData, 
             cache: false,
             contentType: false,
@@ -1122,17 +1153,18 @@ class PickUpMap extends Component {
               if(data.length > 0) {
                 if(data[0] === 1) {
                    document.getElementById('div-profile').style.visibility = 'hidden';
-                   
-                   this.getUser(sessionStorage.getItem("_auth_user"));
+                   this.getUser(localStorage.getItem("_auth_user"));
                 } else {
-                    e.target.disabled = false;
-                    render(<Message bsStyle="danger" >Not updated. Try again !</Message>,document.getElementById('ProfileError'));
+                    
+                    $('.btn_upload').removeClass("disabled");
+                    $('.btn_upload').removeClass("loading");
+                    render(<Message bsStyle="danger" >እባኮትን ሌላ ፎት ይምረጡ ! አልተመዘገበም።</Message>,document.getElementById('ProfileError'));
                 }
               }
             }.bind(this),
             error: function(xhr, status, err) {
                 $('.btn_upload').removeClass("loading");
-                e.target.disabled = false;
+                
                 render(<Message bsStyle="danger" >Connection error, try again !</Message>,document.getElementById('ProfileError'));
             }.bind(this)
         });  
@@ -1370,6 +1402,17 @@ class PickUpMap extends Component {
         render(<Faq></Faq>,document.getElementById('div-faq-txt'));
     }
 
+    _pax_logout = (e) => {
+        localStorage.setItem("_auth_user", false);
+        this.setState({
+            user : {
+                hasProfile : '',
+                verified : ''
+            },
+            isLogedIn : false,
+        });
+    }
+
     render(){ 
         return(
             <div>
@@ -1452,22 +1495,34 @@ class PickUpMap extends Component {
               </div>  
               
               <div className="user-info" id="user-info">
-                <Grid container columns={1} centered>
-                    <Grid.Row>
-                        <Grid.Column mobile={18} tablet={18} computer={18} textAlign="center">
-                            {this.state.user.hasProfile === true ?  
-                                <Image floated='left'  height={25} src={'/assets/profile/user/' + this.state.user.profile} circular avatar centered/>
+                <Grid>
+                        <Grid.Row className="row_xs">
+                            <Grid.Column mobile={6} tablet={6} computer={6} textAlign="center">
+                                {this.state.isLogedIn === true && this.state.user.hasProfile === true ?  
+                                <Image floated='right' height={25} src={'/assets/profile/user/' + this.state.user.profile} circular />
                                 : 
-                                <Image floated='left' height={30}  src={'/assets/awet-rider-m.png'} />
-                            }                         
-                        </Grid.Column>
-                    </Grid.Row>
+                                <Image floated='right' height={25} src={'/assets/awet-rider-m.png'} />
+                                }
+                            </Grid.Column>
+                            <Grid.Column mobile={10} tablet={10} computer={10} textAlign="center">
+                            {this.state.isLogedIn === true ?
+                                <Label size='mini' as={NavLink} to="/" basic color="green" pointing='left' onClick={(e) => this._pax_logout(e)}>
+                                LOGOUT
+                                </Label>  
+                            :
+                                <Label size='mini' as='a' pointing='left' basic color="blue" onClick={(e) => this.pax_login(e)}>
+                                LOGIN
+                                </Label>
+                            }
+                            </Grid.Column>
+                            
+                        </Grid.Row>
                 </Grid>
               </div>
 
              <div className='div-diff' id='div-diff'> <Label icon="time" content="በደቂቃ ሹፌር ያገኛሉ" color="purple" tag/></div>
 
-              {this.state.user.verified === true ?  
+              {this.state.isLogedIn === 'yes' ?  
               <div className="account-verify" id="account-verfiy">
                         <form>
                         <Message  positive>
@@ -1512,19 +1567,20 @@ class PickUpMap extends Component {
               </div>
               : ''}
               
-              {this.state.user.verified === true && this.state.user.hasProfile === false ? 
+              {this.state.user.hasProfile === true && this.state.is_this_login === false ? 
+               document.getElementById('ride-price-dashboard').style.visibility = 'visible'
+               :
+               ''
+              }
+
+              {this.state.user.hasProfile === false ? 
                <div className="div-profile" id="div-profile">
                <Grid>
                      <Message info>
-                      <Message.Header>ፍቶ ያስገቡ profile picture !</Message.Header>
+                      <Message.Header>እባኮትን ፍቶ ያስገቡ </Message.Header>
                             <p>
-                             እባኮትን መልኮን በግልጽ የሚይሳይ ጉርድ ፎቶ ይመረጡ እና ያያይዙ።
-                            </p>
-                               
-                            <p>
-                                Helps to identify who you are.
-                            </p>
-                           
+                             ለሹፌሩ ደህንነት ፡ መልኮን የሚይሳያ ፎቶ እራሶን አንስተው ያያይዙ።
+                            </p>  
                     <Grid.Row> 
                         <Grid.Column>
                             <Form>

@@ -57,7 +57,7 @@ class Rate extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/rating",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {

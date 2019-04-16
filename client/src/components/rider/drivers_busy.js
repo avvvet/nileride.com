@@ -36,7 +36,7 @@ class DriverBusy extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/driver_not_located",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
@@ -61,7 +61,7 @@ class DriverBusy extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/busy_ok",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
@@ -87,7 +87,7 @@ class DriverBusy extends Component {
         $.ajax({ 
             type:"POST",
             url:"/ride/convert_missed_to_ride",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {

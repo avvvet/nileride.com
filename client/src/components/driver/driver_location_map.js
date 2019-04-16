@@ -1081,7 +1081,7 @@ class DriverLocation extends Component {
                     <Grid container columns={3} centered>
                         <Grid.Row className="row_sm">
                             <Grid.Column mobile={6} tablet={6} computer={6} textAlign="center">
-                              {this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'}
+                              {this.state.isLogedIn === true ? 'hi ' + this.state.driver.firstName : 'hi there!'} 
                             </Grid.Column>
                             <Grid.Column mobile={5} tablet={5} computer={5} textAlign="center">
                             {this.state.isLogedIn === true ?

@@ -37,7 +37,7 @@ class DriverCancelRide extends Component {
         $.ajax({ 
             type:"POST",
             url:"/user/driver_cancel_ride_ok",
-            headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {

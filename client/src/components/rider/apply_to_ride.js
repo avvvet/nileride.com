@@ -139,7 +139,7 @@ class ApplyToRide extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
               $('.btn_apply').removeClass("loading");
-              sessionStorage.setItem("_auth_user", data.token);
+              localStorage.setItem("_auth_user", data.token);
               this.setState({
                   auth: data.token
               });  

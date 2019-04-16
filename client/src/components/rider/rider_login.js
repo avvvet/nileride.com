@@ -107,7 +107,7 @@ class RiderLoginForm extends Component {
             success: function(user, textStatus, jqXHR) {
              $('.btn_login').removeClass("loading");
              
-             sessionStorage.setItem("_auth_user", user.token);
+             localStorage.setItem("_auth_user", user.token);
              this.setState({
                 auth: user.token
              });   

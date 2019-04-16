@@ -129,9 +129,10 @@ body {
   position: fixed;
   top: 3%;
   right: 71%;
-  width: 91px;
-  height: 38px;
-  padding-top: 4px;
+  width: 120px;
+  height: 30px;
+  padding-top: 15px;
+  padding-right: 3px;
   box-shadow: 10px 10px 10px gray;
   border-radius: 60px;
   transform: translate(50%, 0%);
@@ -190,12 +191,12 @@ body {
 .div-notification-2 {
   color: #ffffff;
   position: fixed;
-  top: 4%;
+  top: 14%;
   right: 50%;
-  width: 300px;
+  width: 342px;
   height: 44px;
   transform: translate(50%, 0);
-  z-index: 2000;
+  z-index: 3000;
   padding-top: 3px;
   padding-left: 4px;
   padding-right: 9px;
@@ -870,6 +871,11 @@ input[type="file"] {
 
 .a-phone-size {
   font-size: 17px;
+  font-weight: bold;
+}
+
+.div-pax-name {
+  font-size: 10px;
   font-weight: bold;
 }
 
