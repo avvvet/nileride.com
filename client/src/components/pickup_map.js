@@ -215,7 +215,7 @@ class PickUpMap extends Component {
                     count_user = currentUsers.length;
                     var img;
                     for (var i = 0; i < currentUsers.length; i++) {
-                        if(currentUsers.hasProfile === true) {
+                        if(currentUsers[i].hasProfile === true) {
                             img = `<img src='/assets/profile/user/${currentUsers[i].profile}' />` 
                         } else {
                             img = `<img src='/assets/awet-rider-m.png' />`
