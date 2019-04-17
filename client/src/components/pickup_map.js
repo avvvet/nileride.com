@@ -218,7 +218,7 @@ class PickUpMap extends Component {
                         if(currentUsers[i].hasProfile === true) {
                             img = `<img src='/assets/profile/user/${currentUsers[i].profile}' />` 
                         } else {
-                            img = `<img src='/assets/awet-rider-m.png' />`
+                            img = `<img src='/assets/profile/user/nileride-profile.png' />`
                         }
                         var user_icon = L.divIcon({
                             html: img,
