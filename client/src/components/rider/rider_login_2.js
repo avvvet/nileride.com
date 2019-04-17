@@ -3,6 +3,7 @@ import  { Redirect } from 'react-router-dom'
 import { render } from 'react-dom';
 import { Grid, Message, Form, Button, Header, Image, Label, Input } from 'semantic-ui-react'
 import $ from 'jquery';
+import UserChangePasswordRequest from './change_password_request';
 import ApplyToRide from './apply_to_ride_2';
 
 var validator = require('validator');
@@ -134,6 +135,10 @@ class RiderLoginForm extends Component {
         });  
   } 
 
+  _show_change_pass = (e) => {
+    render(<UserChangePasswordRequest></UserChangePasswordRequest>,document.getElementById('div-change-pass'));
+   }
+
   
 
   render(){
@@ -178,7 +183,15 @@ class RiderLoginForm extends Component {
                     </Form>
                     </Grid.Column>
                 </Grid.Row>
-                
+                <Grid.Row>
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                     <div className="div-change-pass" id="div-change-pass">
+                     <Label size="medium" as="a"  onClick={(e) => this._show_change_pass(e)} textAlign='center' >
+                      የሚስጢር ኮድ ቀይር  
+                     </Label>
+                     </div>
+                    </Grid.Column> 
+                </Grid.Row>
                 <Grid.Row className="row_sm">
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Button className="btn_login"  content='ቀጥል' icon='right arrow' labelPosition='right' color='green' size='huge' onClick={e => this.onRiderLogin(e)}  fluid ></Button>

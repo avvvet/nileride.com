@@ -61,7 +61,7 @@ class DriverChangePasswordVarify extends Component {
         $('.btn_mobile_varify').addClass("loading");
         $.ajax({ 
             type:"POST",
-            url:"/driver/change_password_verification",
+            url:"/change_password_verification",
             headers: { 'x-auth': localStorage.getItem("_change_password_mobile")},
             data: JSON.stringify(data), 
             contentType: "application/json",

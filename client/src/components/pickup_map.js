@@ -117,6 +117,7 @@ class PickUpMap extends Component {
             map : '',
             markerGroup: '',
             carMarkerGroup: '',
+            userMarkerGroup : '',
             locationGroup: '',
             list: [],
             currentDrivers : [],
@@ -200,7 +201,50 @@ class PickUpMap extends Component {
         .then(res => res.json())
         .then(list => this.setState({ list }))
     }
-    
+
+    getUsersMarker = (map) => {
+        $.ajax({ 
+            type:"GET",
+            url:"/users_marker",
+            contentType: "application/json",
+            success: function(currentUsers, textStatus, jqXHR) {
+                var userMarkerGroup = this.state.userMarkerGroup;
+                userMarkerGroup.clearLayers();  //lets clear and update it 
+                var count_user = 0;
+                if(currentUsers){
+                    count_user = currentUsers.length;
+                    var img;
+                    for (var i = 0; i < currentUsers.length; i++) {
+                        if(currentUsers.hasProfile === true) {
+                            img = `<img src='/assets/profile/user/${currentUsers.profile}' />` 
+                        } else {
+                            img = `<img src='/assets/awet-rider-m.png' />`
+                        }
+                        var user_icon = L.divIcon({
+                            html: img,
+                            shadowUrl: '',
+                            className: 'image-icon',
+                            iconSize:     [25, 25], // size of the icon
+                            shadowSize:   [50, 64], // size of the shadow
+                            iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+                            shadowAnchor: [4, 62],  // the same for the shadow
+                            popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+                        });
+
+                        L.marker([currentUsers[i].currentLocation[0],currentUsers[i].currentLocation[1]], {icon: user_icon})
+                        .bindPopup('የናይል ተሳፋሪ')
+                        .addTo(userMarkerGroup);
+                    }
+                }
+
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.log('passenger error', err.toString());
+                
+            }.bind(this)
+        });  
+    }
+
     getDrivers = (map) => {
         $.ajax({ 
             type:"GET",
@@ -274,10 +318,12 @@ class PickUpMap extends Component {
         this.setState({
             markerGroup : new L.LayerGroup().addTo(map),
             locationGroup : new L.LayerGroup().addTo(map),
-            carMarkerGroup : new L.LayerGroup().addTo(map)
+            carMarkerGroup : new L.LayerGroup().addTo(map),
+            userMarkerGroup : new L.LayerGroup().addTo(map)
         });
     
         this.getDrivers(map);
+        this.getUsersMarker(map);
 
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
