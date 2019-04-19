@@ -133,9 +133,13 @@ class ApplyToRide extends Component {
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
               this.props.callBackFromLogin(data);
-              document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
-             
-              document.getElementById('search_1').style.visibility = 'visible'
+              
+              if(this.props.is_this_login) {
+                document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+              } else {
+                document.getElementById('ride-price-dashboard').style.visibility = 'visible';
+              }
+              
               document.getElementById('user-info').style.visibility = 'visible';
               document.getElementById('div-notification-2').style.visibility = 'hidden';
               render('', document.getElementById('div-notification-2'));

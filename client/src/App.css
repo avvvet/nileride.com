@@ -715,6 +715,17 @@ input[type="file"] {
   padding-top: 20px;
 }
 
+.image-icon-user img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: rgb(7, 162, 209);
+  background-color:rgb(188, 245, 122);
+  box-shadow: 10px 10px 10px gray;
+}
+
 .image-icon img {
   height: 25px !important;
   width: 25px !important;
@@ -788,6 +799,15 @@ input[type="file"] {
   right: 20%;
   z-index: 2900;
   transform: translate(50%, 0%);
+}
+
+.show_profile_img_upload {
+  position: fixed;
+  top: 3.5%;
+  right: 33%;
+  z-index: 2900;
+  transform: translate(50%, 0%);
+  visibility: hidden;
 }
 
 .faq-page {

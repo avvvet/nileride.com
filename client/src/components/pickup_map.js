@@ -223,7 +223,7 @@ class PickUpMap extends Component {
                         var user_icon = L.divIcon({
                             html: img,
                             shadowUrl: '',
-                            className: 'image-icon',
+                            className: 'image-icon-user',
                             iconSize:     [25, 25], // size of the icon
                             shadowSize:   [50, 64], // size of the shadow
                             iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
@@ -239,7 +239,7 @@ class PickUpMap extends Component {
 
             }.bind(this),
             error: function(xhr, status, err) {
-                console.log('passenger error', err.toString());
+               // console.log('passenger error', err.toString());
                 
             }.bind(this)
         });  
@@ -282,7 +282,7 @@ class PickUpMap extends Component {
             data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: function(driver, textStatus, jqXHR) {
-                console.log('nearest driver', driver, 'pickup', pickup_latlng);
+                //console.log('nearest driver', driver, 'pickup', pickup_latlng);
                 if(driver.length > 0){
                   this.setState({
                       _nearest_driver_token : driver[0].token,
@@ -407,6 +407,7 @@ class PickUpMap extends Component {
         
         this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
         this.timerUserLocation = setInterval(this.userCurrentLocation, 15000);
+        this.timerUserMarker = setInterval(this.getUsersMarker, 10000);
     };
 
     componentDidUpdate(){
@@ -663,9 +664,9 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(ride, e) {
                 $('.btn').removeClass("disabled");
-                console.log('repy of request ', ride);
+                //console.log('repy of request ', ride);
                 if(!_.isNull(ride)) {
-                    console.log('yes yes yes ');
+                    //console.log('yes yes yes ');
                     this.rideRequestAction(ride);
                 }
             }.bind(this),
@@ -1185,7 +1186,7 @@ class PickUpMap extends Component {
         $('.btn_upload').addClass("loading");
         const formData = new FormData();
         formData.append('myImage',this.state.file);
-        console.log('dataaa', formData, this.state.file);
+        
         $.ajax({ 
             type:"POST",
             url:"/user/profile",
@@ -1224,7 +1225,7 @@ class PickUpMap extends Component {
             .then((results) => { 
               $('.pickup_search').removeClass("loading");
               // do something with result;
-              console.log('I am winner beacuse I have Jesus', results);
+              //console.log('I am winner beacuse I have Jesus', results);
               this.setState({
                 pickup_search_results : results
               });
@@ -1290,7 +1291,6 @@ class PickUpMap extends Component {
         clearTimeout(this.timeout_pickup);
 
         this.timeout_pickup = setTimeout(this._search_pickup, 1000, e.target.value);
-        console.log('typing', e.target.value);
     }
 
     handleFocusPickup = (event) => event.target.select();
@@ -1318,18 +1318,18 @@ class PickUpMap extends Component {
               if(results.length > 0) {
                 $('.dropoff_search').removeClass("loading");
                 // do something with result;
-                console.log('I am winner beacuse I have Jesus', results);
+                //console.log('I am winner beacuse I have Jesus', results);
                 this.setState({
                   dropoff_search_results : results
                 });
-                console.log('again winner');
+                //console.log('again winner');
                 document.getElementById('search_result_dropoff').style.visibility = 'visible';
               } else {
                 $('.dropoff_search').removeClass("loading");
                 this.setState({
                     dropoff_search_results : [{'label' : 'No result !'}]
                 });
-                console.log('again again winner');
+                //console.log('again again winner');
                 document.getElementById('search_result_dropoff').style.visibility = 'visible';
               }
             });
@@ -1411,7 +1411,7 @@ class PickUpMap extends Component {
     }
 
     clearThisPage = (e) => {
-        console.log('do somthing bright');
+        //console.log('do somthing bright');
         clearInterval(this.checkRideStatus);
         clearInterval(this.userCurrentLocation);
     }
@@ -1431,7 +1431,7 @@ class PickUpMap extends Component {
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
-                console.log('trafic', data);
+                //console.log('trafic', data);
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error("erroorror", err.toString());
@@ -1619,7 +1619,7 @@ class PickUpMap extends Component {
                ''
               }
 
-              {this.state.user.hasProfile === false ? 
+              {this.state.user.hasProfile === "nexttime" ? 
                <div className="div-profile" id="div-profile">
                <Grid>
                      <Message info>
@@ -1650,10 +1650,10 @@ class PickUpMap extends Component {
 
                     <Grid.Row>
                         <Grid.Column>
-                            <Button className="btn_upload" fluid color="teal" onClick={(e) => this.onProfileUpload(e)}>Upload Image</Button>
+                            <Button className="btn_upload" fluid color="teal" onClick={(e) => this.onProfileUpload(e)}>መዝግብ</Button>
                         </Grid.Column>
                     </Grid.Row>
-
+                   
                     <Grid.Row>
                         <Grid.Column>
                             <div className="ProfileError" id="ProfileError"></div>
@@ -1783,6 +1783,10 @@ class PickUpMap extends Component {
 
               <div className="driver-page" id="driver-page">
                  <Button className="btn_apply"  as={NavLink} to='/driver/login' content='የሹፌር መግብያ' icon='right arrow' labelPosition='right'  color='teal' size='tiny' onClick={(e) => this.clearThisPage(e)}></Button>
+              </div>
+
+              <div className="user-manual" id="user-manual">
+                 <Label  content='አጠቃቀም' icon='help circle'  color='blue' as="a" href='/assets/pdf/nileride_passenger_manual.pdf' target="_blank" onClick={(e) => this._trafic_user_manual(e)}/>             
               </div>
 
               <div className="user-manual" id="user-manual">
