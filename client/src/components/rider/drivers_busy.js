@@ -113,7 +113,7 @@ class DriverBusy extends Component {
                 <Message positive>
                     <Message.Header>እባኮትን ደውለው ያግኝዋቸው !</Message.Header>
                     <p>
-                        አጠገቦ ያለ ሹፌር ይደውሉ 
+                        ቁጥሩን ይጫኑት 
                     </p>
                     <p>
                         <Grid columns={3} centered>
@@ -131,7 +131,7 @@ class DriverBusy extends Component {
                                    {this.props.ride.driver.firstName}
                                 </Grid.Column>
                             </Grid.Row>
-                           
+                            
                             <Grid.Row>
                                 <Grid.Column mobile={16} tablet={16} computer={16} textAlign="center"> 
                                 <Message.Header>ደውለው አገኙት ?</Message.Header>

@@ -115,6 +115,7 @@ class RiderLoginForm extends Component {
              if(this.props.is_this_login) {
                 document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
                 document.getElementById('user-info').style.visibility = 'visible'; 
+                document.getElementById('fast-nile').style.visibility = 'visible';
              } else {
                 document.getElementById('ride-price-dashboard').style.visibility = 'visible';
                 document.getElementById('user-info').style.visibility = 'visible'; 

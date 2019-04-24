@@ -11,6 +11,7 @@ import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
 import MissedRide from './missed_ride'; 
 import DriverDashBoard from './driver_dashboard'
+import EndRide from './end_ride';
 
 var validator = require('validator');
 
@@ -144,8 +145,14 @@ class DriverLocation extends Component {
                lng: 0
            },
            isLogedIn : false,
-           pickup_latlng: '',
-           dropoff_latlng: '',
+           pickup_latlng : {
+            lat: 0,
+            lng: 0
+           },
+           dropoff_latlng : {
+            lat: 0,
+            lng: 0
+           },
            driver_id: '',
            markerGroup: '',
            locationGroup: '',
@@ -186,10 +193,8 @@ class DriverLocation extends Component {
            model : '',
            model_year : '',
            code: '',
-           plate_no : ''
+           plate_no : '',
        }
-
-    
    }
    
    getDriver = (token) => {
@@ -310,7 +315,7 @@ class DriverLocation extends Component {
             var current_latlng = {
                 _latlng : `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`, 
             }; 
-            console.log('token', token);
+            
             $.ajax({ 
                 type:"POST",
                 url:"/driver/updateLocation",
@@ -318,7 +323,7 @@ class DriverLocation extends Component {
                 data: JSON.stringify(current_latlng), 
                 contentType: "application/json",
                 success: function(data, textStatus, jqXHR) {
-                  console.log('drive location update', data);
+                  
                 }.bind(this),
                 error: function(xhr, status, err) {
                     console.error(xhr, status, err.toString());
@@ -341,7 +346,7 @@ class DriverLocation extends Component {
         contentType: "application/json",
         success: (driver) => {
             if(driver.length > 0){
-                console.log('driver info', driver);
+                
                 this.setState({
                     driverName : driver[0].driver.firstName,
                     driverMobile : driver[0].driver.mobile,
@@ -350,7 +355,7 @@ class DriverLocation extends Component {
                     total_rides: driver[0].total_rides
                 });
             } else {
-                console.log('driver has no payment', this.state.driver);
+                
                 this.setState({
                     driverName : this.state.driver.firstName,
                     driverMobile : this.state.driver.mobile,
@@ -367,7 +372,7 @@ class DriverLocation extends Component {
    }
 
    checkForRide = () => {
-    console.log('ride check', localStorage.getItem("_auth_driver"));
+    
      var driver = {
          status : 1
      };
@@ -400,14 +405,23 @@ class DriverLocation extends Component {
                        rideUser: ride.user.firstName + ' ' + ride.user.middleName,
                        userMobile: ride.user.mobile,
                        userPic: "/assets/profile/user/" + ride.user.profile,
-                       pickup_latlng : ride.pickup_latlng.coordinates,
+                       pickup_latlng : {
+                            lat : ride.pickup_latlng.coordinates[0],
+                            lng : ride.pickup_latlng.coordinates[1]
+                       },
                        dropoff_latlng: ride.dropoff_latlng.coordinates,
                        stopMapViewFlag : true
                    });
                    let PromiseSetlatlng = new Promise((res,rej) => {
                        this.setState({
-                           pickup_latlng : ride.pickup_latlng.coordinates,
-                           dropoff_latlng: ride.dropoff_latlng.coordinates,
+                           pickup_latlng : {
+                            lat : ride.pickup_latlng.coordinates[0],
+                            lng : ride.pickup_latlng.coordinates[1]
+                           },
+                           dropoff_latlng: {
+                            lat : ride.dropoff_latlng.coordinates[0],
+                            lng : ride.dropoff_latlng.coordinates[1]
+                           },
                            stopMapViewFlag : true
                        });
   
@@ -435,7 +449,7 @@ class DriverLocation extends Component {
  }
 
    checkForRideOLd = () => {
-       console.log('ride check', localStorage.getItem("_auth_driver"));
+       
         var driver = {
             status : 1
         };
@@ -585,6 +599,15 @@ class DriverLocation extends Component {
         var driver = {
             status : 777
         };
+        
+        var objRideRequest = {
+            driver_id: localStorage.getItem("_auth_driver"),
+            dropoff_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            route_distance: 10,
+            route_time: 480,
+            route_price: 140,
+            status: 1
+        };
         $.ajax({ 
             type:"POST",
             url:"/ride/completed",
@@ -604,6 +627,125 @@ class DriverLocation extends Component {
         });  
     }
 
+    rideCompletedManual = (e) => {
+        e.preventDefault(); 
+        $('.btn_ride_completed').addClass("loading");
+        var driver = {
+            status : 777
+        };
+        this.end_trip(this.state.pickup_latlng, this.state.current_latlng)
+    }
+
+    end_trip = (latlng1, latlng2) => {
+        // alert('jesus');my lord help me 
+        
+         var map = this.state.map;
+         if(this.routeControl){
+             map.removeControl(this.routeControl);
+             this.routeControl = null;
+         }
+ 
+         this.routeControl = L.Routing.control({
+             waypoints: [
+              L.latLng(latlng1),
+              L.latLng(latlng2)
+             ],
+             routeWhileDragging: false,
+             addWaypoints : false, //disable adding new waypoints to the existing path
+             show: false,
+             showAlternatives: false,
+             createMarker: function(i, wp, nWps) {    //እኔ ዝም ብዬ አመልካለሁ 
+                 if (i === 0) {
+                     return L.marker(wp.latLng, {icon: marker_a , draggable: true});
+                 } else {
+                     return L.marker(wp.latLng, {icon: marker_b , draggable: true });
+                 }
+             },
+             lineOptions: {
+                 styles: [{color: 'green', opacity: 1, weight: 5}]
+             },
+             router: L.Routing.osrmv1({
+                 serviceUrl: env.ROUTING_SERVICE
+             })
+         })
+         .on('routesfound', this.EndTripRouteFound)
+         .on('routingerror', (err) => {
+             
+             if(err.error.status === -1){
+                 document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+                 document.getElementById('ride-route-status').style.visibility = 'hidden';
+                 document.getElementById('ride-route-try').style.visibility = 'visible';
+             }
+         })
+         .addTo(map);  
+     }
+     
+      EndTripRouteFound = async (e) => {   
+         
+         var markerGroup = this.state.markerGroup;
+         markerGroup.clearLayers();
+ 
+         var routes = e.routes;
+         var _distance = routes[0].summary.totalDistance;
+         var _ride_time = routes[0].summary.totalTime;
+         
+         _distance = (_distance/1000).toFixed(2);
+         var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+         
+         function timeConvert(n) {
+             var num = n;
+             var hours = (num / 3600);
+             var rhours = Math.floor(hours);
+             var minutes = (hours - rhours) * 60;
+             var rminutes = Math.round(minutes);
+             
+             var hDisplay = rhours > 0 ? rhours + " hr" : "";
+             var mDisplay = rminutes > 0 ? rminutes + " min" : "";
+             return hDisplay + mDisplay; 
+          }
+         var price_per_km = env.RIDE_PER_KM;
+         var _ride_price = (_distance * price_per_km).toFixed(2);
+         
+         this.setState({
+             route_distance : Number.parseFloat(_distance).toFixed(2),
+             route_price : Number.parseFloat(_ride_price).toFixed(2),
+             route_time : _ride_time,
+             route_time_string :_ride_time_string,
+             isRouteFound : true 
+         });
+
+         var objTrip = {
+            driver_id: localStorage.getItem("_auth_driver"),
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`,
+            route_distance: this.state.route_distance,
+            route_time: this.state.route_time,
+            route_price: this.state.route_price,
+            status: 1
+        };
+       
+        $.ajax({ 
+            type:"POST",
+            url:"/actual_ride/completed",
+            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
+            data: JSON.stringify(objTrip), 
+            contentType: "application/json",
+            success: (rtn) => {
+                $('.btn_ride_completed').removeClass("loading");
+                if(rtn){
+                    document.getElementById('div-notification-1').style.visibility = 'visible';
+                    render(<EndRide final_ride={rtn}></EndRide>, document.getElementById('div-notification-1'));
+                    this.rideCompletedAction(rtn);
+                }  
+            },
+            error: function(xhr, status, err) {
+                e.target.disabled = true;
+                console.error('ride completed error', err.toString());
+            }.bind(this)
+        }); 
+       
+    }
+  
     reset_ride = () => {
         document.getElementById("driver-pax-action").style.visibility = "hidden";
         document.getElementById("driver-pax-end-action").style.visibility = "hidden";
@@ -686,7 +828,7 @@ class DriverLocation extends Component {
         L.marker(_pickup_latlng, {icon: marker_a}).addTo(markerGroup)
         .bindPopup("Pick passenger here.");
 
-        console.log('current loooooocaaaaationnn', this.state.current_latlng);
+        
        // map.setView(_pickup_latlng,15);
         this.showPickUpRoute(this.state.current_latlng, _pickup_latlng);
     }
@@ -1266,7 +1408,6 @@ class DriverLocation extends Component {
                                             </Grid.Column>
                                         </Grid.Row>
 
-                                           
                                         <Grid.Row>
                                             <Grid.Column mobile={16} tablet={16} computer={16}>
                                             <Button className="btn_upload" color="green" onClick={(e) => this.onProfileUpload(e)}  fluid>መዝግብ</Button>
@@ -1274,9 +1415,9 @@ class DriverLocation extends Component {
                                         </Grid.Row>
 
                                         <Grid.Row>
-                                        <Grid.Column mobile={16} tablet={16} computer={16}>
+                                         <Grid.Column mobile={16} tablet={16} computer={16}>
                                            <div className="ProfileError" id="ProfileError"></div>
-                                        </Grid.Column>
+                                         </Grid.Column>
                                     </Grid.Row>
                                 </p>
                             </Message>
@@ -1377,7 +1518,7 @@ class DriverLocation extends Component {
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompleted(e)} fluid>ጉዞው አለቀ</Button>
+                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompletedManual(e)} fluid>ጉዞው አለቀ</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>  

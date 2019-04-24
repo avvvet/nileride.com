@@ -787,8 +787,16 @@ input[type="file"] {
 
 .driver-page {
   position: fixed;
-  bottom: 28%;
+  bottom: 29%;
   right: 50%;
+  z-index: 1900;
+  transform: translate(50%, 50%);
+}
+
+.fast-nile {
+  position: fixed;
+  bottom: 14%;
+  right: 81%;
   z-index: 1900;
   transform: translate(50%, 50%);
 }

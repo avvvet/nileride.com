@@ -937,6 +937,94 @@ app.post('/ride/completed', (req, res) => {
       });
 });
 
+app.post('/actual_ride/completed', (req, res) => {
+    var sequelize = models.sequelize;
+    var body = _.pick(req.body, ['status','dropoff_latlng', 'route_distance', 'route_time', 'route_price']);
+    var _dropoff_latlng = sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
+    body.dropoff_latlng = _dropoff_latlng;
+    console.log(' ridddddddddddddddddddddddddddddddddd', _dropoff_latlng);
+    var token = req.header('x-auth');
+    
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {driver_id: token, status: 77}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){  
+                
+              if(parseFloat(ride.route_price) > parseFloat(body.route_price)) { // lets take the greater price
+                body.dropoff_latlng = ride.dropoff_latlng;
+                body.route_distance = ride.route_distance;
+                body.route_time = ride.route_time;
+                body.route_price = ride.route_price;
+              }
+
+              //console.log(' ridddddddddddddddddddddddddddddddddd', body);
+              return models.riderequests.update(
+                    { status: 7777, dropoff_latlng: body.dropoff_latlng, route_distance : body.route_distance, route_time:body.route_time, route_price : body.route_price },
+                    { where: { driver_id: token, status: 77} } ,
+                    {transaction: t}
+                  ).then(result => {
+                    
+                     //return result;
+                     var actual_price = 0 ;
+                     if(parseFloat(ride.route_price) < 50.00 || parseFloat(ride.route_price) === 50.00 ) {
+                         actual_price = 50;
+                     } else {
+                        actual_price = ride.route_price;
+                     }
+                     console.log('actualaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', actual_price, ride.route_price, ride.route_distance);
+                     var paymentObj = {
+                         'pay_type': 1,
+                         'driver_id': ride.driver_id,
+                         'ride_id': ride.id,
+                         'amount': actual_price,
+                         'charge_dr': 0.00,
+                         'charge_cr': actual_price * env.RIDE_PERCENTAGE,
+                         'status': 0
+                     }
+                     var body_payment = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
+                     const payment = models.payments.build(body_payment, {transaction: t}); 
+                    return payment.save().then((payment_data) => {
+                        return models.drivers.update(
+                            { status: 0 },
+                            { where: {token: token, status: 1 } },
+                            {transaction: t}
+                        ).then(r => {
+                            if(r){
+                                var rtn = {
+                                    final_price : actual_price,
+                                    final_distance : body.route_distance,
+                                    final_time : body.route_time
+                                }
+                                return rtn;
+                            } else {
+                                throw new Error('Transaction driver not updated');
+                            }
+                        })
+                     }).catch(err => {
+                         throw new Error(err);
+                     });
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('ride completed t commited', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('ride completed rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
+});
+
 app.post('/driver/ride/cancel', (req, res) => {
     var body = _.pick(req.body, ['reason','ride_id']);
     var token = req.header('x-auth');

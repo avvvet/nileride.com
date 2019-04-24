@@ -441,6 +441,7 @@ class PickUpMap extends Component {
         document.getElementById('ride-route-status').style.visibility = 'visible';
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = 'hidden';
+        document.getElementById('fast-nile').style.visibility = 'hidden';
 
         var map = this.state.map;
         if(this.routeControl){
@@ -608,6 +609,28 @@ class PickUpMap extends Component {
        }
     }
 
+    _fast_nile = (e) => {
+        if(this.state.isLogedIn === true) {
+            
+            this.fast_ride_request(e);
+            this.add_trafic('fast-nile');
+            this.setState({
+                is_this_login : null
+            })
+        } else {
+            document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+            document.getElementById('fast-nile').style.visibility = 'hidden';
+            document.getElementById('search_0').style.visibility = 'hidden';
+            document.getElementById('search_1').style.visibility = 'hidden';
+            document.getElementById('user-info').style.visibility = 'hidden';
+            document.getElementById('user-manual').style.visibility = 'hidden';
+            this.setState({
+             is_this_login : true
+             });
+            render(<RiderLoginForm callBackFromLogin={this.callBackFromLogin} is_this_login={true} show_apply_passenger={this.show_apply_passenger}></RiderLoginForm>, document.getElementById('div-notification-2'));
+        }
+     }
+
     pax_login = (e) => {
            document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
            document.getElementById('search_0').style.visibility = 'hidden';
@@ -643,7 +666,7 @@ class PickUpMap extends Component {
         e.preventDefault(); 
         //e.target.disabled = true;
         $('.btn').addClass("disabled");
-
+        document.getElementById('fast-nile').style.visibility = 'hidden';
         var user_token = localStorage.getItem("_auth_user");
         var objRideRequest = {
             user_id: user_token,
@@ -681,6 +704,49 @@ class PickUpMap extends Component {
         });  
     }
 
+    fast_ride_request = (e) => {
+        e.preventDefault(); 
+        //e.target.disabled = true;
+        $('.btn').addClass("disabled");
+        document.getElementById('fast-nile').style.visibility = 'hidden';
+        var user_token = localStorage.getItem("_auth_user");
+        var objRideRequest = {
+            user_id: user_token,
+            driver_id: 0,
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            route_distance: 3.5,
+            route_time: 180,
+            route_price: 50,
+            status: 1
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/rideRequest",
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(ride, e) {
+                $('.btn').removeClass("disabled");
+                //console.log('repy of request ', ride);
+                if(!_.isNull(ride)) {
+                    //console.log('yes yes yes ');
+                    this.rideRequestAction(ride);
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                e.target.disabled = false;
+                // if(xhr.status === 401){
+                //    this.setState({_signInFlag:true});
+                // }
+                console.log('ride request reply error', xhr.status);
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
+    
     chkTimerRideStatus = () => {
         if(_.isNull(this.timerRideStatus)){
             this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
@@ -995,7 +1061,7 @@ class PickUpMap extends Component {
     resetRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('ride-route-try').style.visibility = "hidden";
-
+        document.getElementById('fast-nile').style.visibility = 'visible';
         if(this.state.user.verified === true && this.state.user.hasProfile === true) {
             document.getElementById('search_1').style.visibility = "visible" 
         }
@@ -1027,6 +1093,7 @@ class PickUpMap extends Component {
 
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+        document.getElementById('fast-nile').style.visibility = 'visible';
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1067,6 +1134,7 @@ class PickUpMap extends Component {
     
         return errors;
     }
+
     validateProfile = () => {
         console.log('file', this.state.file);
         let errors = [];
@@ -1779,6 +1847,10 @@ class PickUpMap extends Component {
               <div id="div-logo-user" className="div-logo-user">
                  <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
                  <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
+              </div>
+
+              <div className="fast-nile" id="fast-nile">
+                 <Button content='አስቸኳይ' icon={<Icon name='car' size="large" />} labelPosition='left' color="blue" className="btn" size="mini" onClick={(e) => this._fast_nile(e)} />
               </div>
 
               <div className="driver-page" id="driver-page">
