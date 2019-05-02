@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
-import { Grid, Message, Button, Label ,Form, Image, Header, Icon } from 'semantic-ui-react'
+import { Grid, Message, Button, Label ,Form, Image, Header, Icon, Rating } from 'semantic-ui-react'
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
@@ -194,6 +194,7 @@ class DriverLocation extends Component {
            model_year : '',
            code: '',
            plate_no : '',
+           avg_rating : null,
        }
    }
    
@@ -208,6 +209,32 @@ class DriverLocation extends Component {
               driver: driver,
               isLogedIn : true,
           });   
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(xhr, status, err.toString());
+        }.bind(this)
+    });  
+   }
+
+   getDriverRating = (token) => {
+    $.ajax({ 
+        type:"GET",
+        url:"/driver/rating",
+        headers: { 'x-auth': token },
+        contentType: "application/json",
+        success: function(driver, textStatus, jqXHR) {
+          if(driver.length > 0) {
+            if(driver[0].avg_rating !== null) {
+                this.setState({
+                    avg_rating: driver[0].avg_rating,
+                });   
+            } else {
+                this.setState({
+                    avg_rating: 0,
+                });   
+            }
+          }
+         
         }.bind(this),
         error: function(xhr, status, err) {
             console.error(xhr, status, err.toString());
@@ -240,7 +267,8 @@ class DriverLocation extends Component {
 //    }
 
    componentDidMount(){
-    this.getDriver(localStorage.getItem("_auth_driver"));   
+    this.getDriver(localStorage.getItem("_auth_driver"));  
+    this.getDriverRating(localStorage.getItem("_auth_driver")); 
     this.setState({
         auth: localStorage.getItem("_auth_driver")
     });
@@ -1217,6 +1245,7 @@ class DriverLocation extends Component {
     }
 
     render(){
+        console.log('this', parseFloat(this.state.avg_rating));
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
@@ -1252,7 +1281,7 @@ class DriverLocation extends Component {
                                 ክፍያ <Label size="medium" color="green" circular>{this.state.amount} </Label>
                             </Grid.Column>
                             <Grid.Column mobile={8} tablet={8} computer={8} textAlign="center">
-                                ተቀናሽ <Label size="medium" color="yellow" circular>{this.state.charge}</Label>
+                                ተቀናሽ <Label size="medium" color="yellow" circular>{this.state.charge}</Label> 
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row className="row_sm">
@@ -1263,7 +1292,16 @@ class DriverLocation extends Component {
                                 {this.state.driver.status === 3 ? 
                                  <Label color="red">ተዘግትዋል</Label>
                                  :
-                                 <Label color="olive">የተፈቀደለት</Label>    
+                                  '' 
+                                }
+
+                                {this.state.avg_rating !== null && this.state.driver.status !== 3 ? 
+                                    <div>
+                                       <Rating icon='star' defaultRating={parseFloat(this.state.avg_rating)} maxRating={5} /> 
+                                       <Label circular size='tiny' color='orange'>{parseFloat(this.state.avg_rating).toFixed(2)}</Label>
+                                    </div>
+                                    :
+                                    ''
                                 }
                             </Grid.Column>
                         </Grid.Row>
@@ -1440,7 +1478,7 @@ class DriverLocation extends Component {
                            <h3>{this.state.rideDistance}</h3>ኪ/ሜ
                         </Grid.Column>
                         <Grid.Column mobile={4} tablet={4} computer={4} textAlign="center">
-                          <h3>{this.timeConvert(Number.parseInt(this.state.rideTime))} </h3>
+                          <h3>{this.timeConvert(Number.parseInt(this.state.rideTime))} </h3> 
                         </Grid.Column>
                     </Grid.Row>
                     

@@ -1596,20 +1596,47 @@ app.get('/drivers', (req, res) => {
 //driver-get
 app.get('/driver/get', (req, res) => {
     var token = req.header('x-auth');
-    console.log('yesyes',token);
     var decoded;
     try {
         decoded = jwt.verify(token, 'JESUSMYHEALER');
-        models.drivers.findOne({ where: {mobile: decoded} }).then(driver => {
+        models.drivers.findOne({ 
+            attributes: ['id', 'firstName', 'middleName', 'email', 'mobile', 'token', 'gender', 'verified', 'isCarRegistered', 'isCarVerified', 'profile', 'hasProfile', 'status',
+        ],
+        where: {'mobile': decoded}
+        }).then(driver => {
           if(!driver) {
             res.sendStatus(401).send();
           }
-          res.send(_.pick(driver,['firstName', 'middleName', 'email', 'mobile', 'gender', 'verified', 'isCarRegistered', 'isCarVerified', 'profile', 'hasProfile', 'status']));  
+          res.send(driver);  
         });
     } catch (e) {
       res.status(401).send();
     }
 });
+
+app.get('/driver/rating', (req, res) => {
+    var token = req.header('x-auth');
+    models.drivers.findAll({
+        attributes: [
+                [Sequelize.literal('SUM(ratings.rating) / COUNT(ratings.id)'), 'avg_rating']
+        ],
+        where: {'token': token},
+        raw: true,
+        include: [
+            {
+                model: models.ratings,
+                attributes: []
+            }
+        ],
+        group: ['drivers.token',Sequelize.col('ratings.driver_id')]
+    }).then(driver =>{
+        console.log('Jesus', driver);
+        if(driver){
+         res.send(driver);
+        }
+    })
+});
+
 
 //driver-apply
 app.post('/driver/apply', (req, res) => {
