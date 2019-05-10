@@ -716,13 +716,13 @@ input[type="file"] {
 }
 
 .image-icon-user img {
-  height: 25px !important;
-  width: 25px !important;
+  height: 17px !important;
+  width: 17px !important;
   border-radius: 50%;
   border: solid;
   border-width: 1px;
-  border-color: rgb(7, 162, 209);
-  background-color:rgb(188, 245, 122);
+  border-color: rgb(241, 244, 245);
+  background-color:rgb(231, 160, 127);
   box-shadow: 10px 10px 10px gray;
 }
 

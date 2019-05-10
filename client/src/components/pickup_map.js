@@ -216,15 +216,15 @@ class PickUpMap extends Component {
                     var img;
                     for (var i = 0; i < currentUsers.length; i++) {
                         if(currentUsers[i].hasProfile === true) {
-                            img = `<img src='/assets/awet-rider-m.png' />`
+                            img = `<img src='/assets/profile/user/nileride-profile.png' />`
                         } else {
-                            img = `<img src='/assets/awet-rider-m.png' />`
+                            img = `<img src='/assets/profile/user/nileride-profile.png' />`
                         }
                         var user_icon = L.divIcon({
                             html: img,
                             shadowUrl: '',
                             className: 'image-icon-user',
-                            iconSize:     [25, 25], // size of the icon
+                            iconSize:     [20, 20], // size of the icon
                             shadowSize:   [50, 64], // size of the shadow
                             iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
                             shadowAnchor: [4, 62],  // the same for the shadow
