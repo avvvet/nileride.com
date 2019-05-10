@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import { render } from 'react-dom';
 import L from 'leaflet';
 import {NavLink, Redirect} from 'react-router-dom';
-import { Image, Table, Checkbox, Rating, Label} from 'semantic-ui-react'
+import { Image, Table, Checkbox, Rating, Label, Button} from 'semantic-ui-react'
 import $ from 'jquery';
+import RideControlMap from './ride_control';
 
 class Rides extends Component {
     constructor(){
@@ -11,6 +13,7 @@ class Rides extends Component {
             rides : []
         }
     }
+    
     componentDidMount(){
         this.showrides();
     }
@@ -48,6 +51,10 @@ class Rides extends Component {
         return hDisplay + mDisplay; 
     }
 
+    _show_ride = () => {
+        render(<RideControlMap ride_id={80}></RideControlMap>,document.getElementById('ride_control'));
+    }
+
     createGrid = (rides) => {
         const row = rides.map((ride) =>
             <Table.Row key={ride.id}>
@@ -64,7 +71,7 @@ class Rides extends Component {
                 <Table.Cell>{ride.route_distance}</Table.Cell>
                 <Table.Cell>{this.timeConvert(Number.parseInt(ride.route_time))}</Table.Cell>
                 <Table.Cell>{ride.route_price}</Table.Cell>
-                <Table.Cell>{ride.dropoff_latlng.coordinates}</Table.Cell>
+                <Table.Cell><Label color='orange' size='tiny' onClick={(e) => this._show_ride(e)}>ride map</Label></Table.Cell>
                 <Table.Cell>{ride.createdAt}</Table.Cell>
                 <Table.Cell textAlign="center">{this.convert_status(ride.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
@@ -93,6 +100,7 @@ class Rides extends Component {
     render(){
         return(
             <div>
+            <div className="ride_control" id="ride_control"></div>
               <Table celled striped>
                 <Table.Header>
                     <Table.Row>

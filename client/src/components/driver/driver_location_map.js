@@ -700,9 +700,9 @@ class DriverLocation extends Component {
          .on('routingerror', (err) => {
              
              if(err.error.status === -1){
-                 document.getElementById('ride-price-dashboard').style.visibility = "hidden";
-                 document.getElementById('ride-route-status').style.visibility = 'hidden';
-                 document.getElementById('ride-route-try').style.visibility = 'visible';
+                 //document.getElementById('ride-price-dashboard').style.visibility = "hidden";
+                // document.getElementById('ride-route-status').style.visibility = 'hidden';
+                 //document.getElementById('ride-route-try').style.visibility = 'visible';
              }
          })
          .addTo(map);  

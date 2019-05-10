@@ -111,7 +111,7 @@ class RiderLoginForm extends Component {
              localStorage.setItem("_auth_user", user.token);
              
              document.getElementById('div-notification-2').style.visibility = 'hidden';
-             render('', document.getElementById('div-notification-2'));
+             render('', document.getElementById('div-notification-2')); // ክብር ተመስገን ጌታ - ይሄ ነው እግዚአብሄር ለኔ የደረሰው 
              if(this.props.is_this_login) {
                 document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
                 document.getElementById('user-info').style.visibility = 'visible'; 

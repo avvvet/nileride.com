@@ -16,7 +16,6 @@ class Home extends Component {
                 paid : 0,
                 remain : 0
             } 
-
         }
     }
 

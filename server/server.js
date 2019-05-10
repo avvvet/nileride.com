@@ -115,6 +115,10 @@ app.get('/msg', (req, res)=>{
     res.sendFile(path.join(clientPath, '/index.html'));
 });
 
+app.get('/ride/id', (req, res)=>{
+    res.sendFile(path.join(clientPath, '/index.html'));
+});
+
 
 console.log('client path', clientPath);
 app.use(bodyParser.json());
@@ -1107,6 +1111,35 @@ app.post('/user/driver_cancel_ride_ok', (req, res) => {
       });
 });
 
+app.post('/ride/id', (req, res) => {
+    var body = _.pick(req.body, ['id']);
+    var token = req.header('x-auth');
+    //THANK YOU JESUS THANK YOU 
+    const Op = Sequelize.Op;
+    models.riderequests.findOne({ 
+        where : {id : body.id },
+        include: [
+            { model: models.drivers,
+              attributes: ['firstName','middleName','mobile', 'plateNo', 'profile', 'currentLocation'],
+              include : [
+                  { model : models.cars,
+                    attributes : ['model','plate_no','side_token']
+                  }
+              ]
+            }
+        ]
+    }).then( (ride) => {
+        if(ride){
+          res.send(ride);  
+        } else {
+          var ride = {
+              status : null  // custom status = no ride on progress 
+          }
+          res.send(ride);
+        }
+    });
+});
+
 app.post('/ride/check_ride_user', (req, res) => {
     var body = _.pick(req.body, ['status']);
     var token = req.header('x-auth');
@@ -1954,6 +1987,7 @@ app.post('/admin/rides', (req, res) => {
         attributes: ['id','pickup_latlng','dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status', 'createdAt', 
         ],
         raw: false,
+        limit : 30,
         order : [
             ['id', 'DESC']
         ],

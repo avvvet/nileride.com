@@ -409,11 +409,7 @@ class PickUpMap extends Component {
         this.timerUserLocation = setInterval(this.userCurrentLocation, 15000);
         this.timerUserMarker = setInterval(this.getUsersMarker, 10000);
     };
-
-    componentDidUpdate(){
-       
-    }
-
+ 
     getUser = (token) => {
         $.ajax({ 
             type:"GET",
@@ -898,7 +894,6 @@ class PickUpMap extends Component {
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
-
     }
 
     _pickup_route = (latlng1, latlng2) => {
@@ -1681,12 +1676,6 @@ class PickUpMap extends Component {
               </div>
               : ''}
               
-              {this.state.user.hasProfile === true && this.state.is_this_login === false ? 
-               document.getElementById('ride-price-dashboard').style.visibility = 'visible'
-               :
-               ''
-              }
-
               {this.state.user.hasProfile === "nexttime" ? 
                <div className="div-profile" id="div-profile">
                <Grid>

@@ -113,7 +113,7 @@ class DriverBusy extends Component {
                 <Message positive>
                     <Message.Header>እባኮትን ደውለው ያግኝዋቸው !</Message.Header>
                     <p>
-                        ቁጥሩን ይጫኑት 
+                        <h4>ቁጥሩን ይጫኑት</h4> 
                     </p>
                     <p>
                         <Grid columns={3} centered>
