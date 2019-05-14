@@ -113,23 +113,23 @@ const ride_request = async (body) => {
                     }
             });
         } else { //LORD   
-            // NO DRIVER NEARBY 
-            // models.drivers.findOne({  //this driver is only for child relation of request- nothing to do with the request 
-            //     where : {status : 0},
-            //     attributes: ['token']
-            // }).then( (driver) => {
-            //     body.driver_id = driver.token;
-            //     body.status = 2; // lets expire the ride 
-            //     models.riderequests.create(
-            //         body,
-            //         ).then((new_ride) => {
-            //             if(new_ride) {
-            //                 return 1
-            //             } else {
-            //                 throw new Error('t save err');
-            //             }
-            //     });
-            // });
+            //NO DRIVER NEARBY 
+            models.drivers.findOne({  //this driver is only for child relation of request- nothing to do with the request 
+                where : {mobile : '0911003994'},
+                attributes: ['token']
+            }).then( (driver) => {
+                body.driver_id = driver.token;
+                body.status = 2; // lets expire the ride 
+                models.riderequests.create(
+                    body,
+                    ).then((new_ride) => {
+                        if(new_ride) {
+                            return 1
+                        } else {
+                            throw new Error('t save err');
+                        }
+                });
+            });
         }
     }).then(function (result) {
         console.log('tesssssssssssssssst ', result);
