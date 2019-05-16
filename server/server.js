@@ -447,7 +447,7 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
    }
 });
 
-app.post('/ride/updateRide', authUser, (req, res) => { 
+app.post('/ride/updateRide', (req, res) => { 
     let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
 
     let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
@@ -493,7 +493,7 @@ app.post('/ride/updateRide', authUser, (req, res) => {
       });
 });
 
-app.post('/ride/manual_create_ride', authUser, (req, res) => { 
+app.post('/ride/manual_create_ride', (req, res) => { 
     let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
 
     let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
