@@ -14,5 +14,6 @@ const env = {
   MISSED_RIDE_DURATION: 8,
   NEAREST_DRIVER_RADIUS: 1000,
   RIDE_PERCENTAGE: 0.19,
+  DRIVER_ONLINE_SINCE_DAY : 5,
 };
 module.exports = env;
