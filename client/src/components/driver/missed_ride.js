@@ -57,7 +57,7 @@ class MissedRide extends Component {
 
     render(){
         return(
-            <div>
+            <div> 
                 <Message negative>
                  <Message.Header>ስራ አመለጦት !</Message.Header>
                     <p>

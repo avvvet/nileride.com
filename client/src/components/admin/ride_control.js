@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import L from 'leaflet';
 import $ from 'jquery';
+import _ from 'lodash';
 import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react'
 const env = require('../../env');
+var validator = require('validator');
 
 var marker_a = L.icon({
     iconUrl: '/assets/marker_a.png',
@@ -41,6 +43,8 @@ class RideControlMap extends Component {
     constructor(){
         super();
         this.state = {
+            paxMobile : '',
+            driverMobile : '',
             dropoff_flag: false,
             pickup_flag: true,
             dropoff_location : 'Select your pickup location',
@@ -90,10 +94,21 @@ class RideControlMap extends Component {
             userMarkerGroup : new L.LayerGroup().addTo(map)
         });
 
+        this.setState({
+            paxMobile : this.props.ride.user.mobile,
+            driverMobile : this.props.ride.driver.mobile
+        })
         this.getRide(this.props.ride_id);
         this.getDrivers();
         this.timerDrivers = setInterval(this.getDrivers, 7000);
+        console.log('rideddddd', this.props.ride.user.mobile);
     };
+
+    change = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    } 
 
     getDrivers = () => {
         $.ajax({ 
@@ -288,6 +303,150 @@ class RideControlMap extends Component {
         render('',document.getElementById('ride_control'));
     }
 
+    _show_update = () => {
+        document.getElementById('ride-price-dashboard').style.visibility = 'hidden';
+        document.getElementById('div-update-ride').style.visibility = 'visible';
+    }
+
+    validateUpdate = () => {
+        let errors = [];
+        
+        if(this.state.paxMobile.length === 0 ){
+            errors.push("የተሳፋሪ ሞባይል ቁጥር ያስገቡ");
+        } else if (validator.isNumeric(this.state.paxMobile, {no_symbols: true} ) === false) {
+            errors.push("ትክክለኛ የተሳፋሪ ሞባይል ቁጥር አይደለም !");
+        } else if(validator.isMobilePhone(this.state.paxMobile) === false) {
+            errors.push("ትክክለኛ የተሳፋሪ ሞባይል ቁጥር አይደለም !");
+        } else if (this.state.paxMobile.length < 10) {
+            errors.push("የተሳፋሪ የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }else if (this.state.paxMobile.length > 10){
+            errors.push("የተሳፋሪ የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }
+
+        if(this.state.driverMobile.length === 0 ){
+            errors.push("የሹፌር ሞባይል ቁጥር ያስገቡ");
+        } else if (validator.isNumeric(this.state.driverMobile, {no_symbols: true} ) === false) {
+            errors.push("ትክክለኛ የሹፌር ሞባይል ቁጥር አይደለም !");
+        } else if(validator.isMobilePhone(this.state.driverMobile) === false) {
+            errors.push("ትክክለኛ የሹፌር ሞባይል ቁጥር አይደለም !");
+        } else if (this.state.driverMobile.length < 10) {
+            errors.push("የሹፌር የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        } else if (this.state.driverMobile.length > 10) {
+            errors.push("የሹፌር የሞባይል ቁጥሩ 10 አሀዝ መሆን አለበት !");
+        }
+       
+        return errors;
+    }
+
+    getErrorList(errors) {
+        var i = 0;
+        let error_list = errors.map(error => {
+            return <li key={i++}>{error}</li>
+        });
+        return error_list;
+    }
+
+    onUpdate = (e) => {
+        e.preventDefault();
+        $('.btn_update').addClass("loading");
+        const err = this.validateUpdate();
+        if(err.length > 0){
+            $('.btn_update').removeClass("loading");
+            let error_list = this.getErrorList(err);
+            render(<Message negative >{error_list}</Message>,document.getElementById('FormError'));
+        } else {
+            $('.btn_update').removeClass("loading");
+            this.updateRide(e);
+
+            this.setState({
+                errors: []
+            });
+        }
+    }
+
+    updateRide = (e) => {
+        e.preventDefault(); 
+        $('.btn_update').addClass("loading");
+        
+        var objRideRequest = {
+            ride_id : this.props.ride.id,
+            user_id: this.state.paxMobile,
+            driver_id : this.state.driverMobile,
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
+            route_distance: this.state.route_distance,
+            route_time: this.state.route_time,
+            route_price: this.state.route_price,
+            status: 1
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/updateRide",
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(ride, e) {
+                console.log('test test', ride);
+                $('.btn_update').removeClass("loading");
+                if(!_.isNull(ride)) {
+                    this._clear_map();
+                } else {
+                    alert('request not updated');
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                $('.btn_update').removeClass("loading");
+                if(xhr.status === 401) {
+                    render(<Message negative >user not found</Message>,document.getElementById('FormError'));
+                } else if(xhr.status === 402) {
+                    render(<Message negative >driver not found</Message>,document.getElementById('FormError'));
+                }
+            }.bind(this)
+        });  
+    }
+
+    manual_create_ride = (e) => {
+        e.preventDefault(); 
+        $('.btn_create').addClass("loading");
+        
+        var objRideRequest = {
+            ride_id : this.props.ride.id,
+            user_id: this.state.paxMobile,
+            driver_id : this.state.driverMobile,
+            pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
+            dropoff_latlng: `POINT(${this.state.dropoff_latlng.lat} ${this.state.dropoff_latlng.lng})`,
+            route_distance: this.state.route_distance,
+            route_time: this.state.route_time,
+            route_price: this.state.route_price,
+            status: 7
+        };
+
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/manual_create_ride",
+            headers: { 'x-auth': localStorage.getItem("_auth_user")},
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(ride, e) {
+                $('.btn_create').removeClass("loading");
+                if(!_.isNull(ride)) {
+                    this._clear_map();
+                } else {
+                    alert('request not updated');
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                $('.btn_create').removeClass("loading");
+                if(xhr.status === 401) {
+                    render(<Message negative >user not found</Message>,document.getElementById('FormError'));
+                } else if(xhr.status === 402) {
+                    render(<Message negative >driver not found</Message>,document.getElementById('FormError'));
+                }
+            }.bind(this)
+        });  
+    }
+
     render(){    
         
         return(
@@ -320,13 +479,81 @@ class RideControlMap extends Component {
                     </Card.Content>
                     <Card.Content extra>
                      <div className='ui two buttons'>
-                      <Button content='UPDATE' icon={<Icon name='car' size="large" />} labelPosition='left' color="green" className="btn" onClick={(e) => this.checkLogin(e)} />
+                      <Button content='UPDATE' icon={<Icon name='car' size="large" />} labelPosition='left' color="green" className="btn" onClick={(e) => this._show_update(e)} />
                       <Button content='CANCEL'  onClick={(e) => this._clear_map(e)} />
                      </div>
                     </Card.Content>
                     </Card>
                   </div>
               </div>
+
+              <div className="div-update-ride" id='div-update-ride'>
+              <Message positive>
+              <Grid columns={1} container>
+                <Grid.Row >
+                    
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Form>
+                    <Input
+                    name="paxMobile"
+                    type="text"
+                    label={{ icon: 'phone volume' }} 
+                    labelPosition="left corner"
+                    value={this.state.paxMobile}
+                    placeholder="passenger mobile"
+                    onChange={e => this.change(e)}
+                    size="large"
+                    fluid
+                    />
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>   
+                <Grid.Row className="row_sm"> 
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Form>
+                    <Input
+                    name="driverMobile"
+                    type="text"
+                    label={{ icon: 'phone volume' }} 
+                    labelPosition="left corner"
+                    value={this.state.driverMobile}
+                    placeholder="passenger mobile"
+                    onChange={e => this.change(e)}
+                    size="large"
+                    fluid
+                    />
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>
+                
+                <Grid.Row className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                    <Button className="btn_update"  content='UPDATE' icon='right arrow' labelPosition='right' color='green' size='small' onClick={e => this.onUpdate(e)}  fluid ></Button>
+                    </Grid.Column> 
+                </Grid.Row>
+
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                      <Button className="btn_create" color="orange" content='CREATE RIDE' icon='right arrow' labelPosition='right' size="small" onClick={(e) => this.manual_create_ride(e)} fluid></Button>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                      <Button  content='CANCEL' icon='left arrow' labelPosition='left' size="small" onClick={(e) => this._clear_map(e)} fluid></Button>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                     <div id='FormError' className='FormError'></div>
+                    </Grid.Column>
+                </Grid.Row>
+
+                </Grid>
+                </Message>
+                </div>
+
               <div className="mapid" id="mapid"></div>
             </div>
         );

@@ -229,6 +229,19 @@ body {
   visibility: hidden;
 }
 
+.div-update-ride {
+  color: #ffffff;
+  position: fixed;
+  bottom: 27%;
+  right: 45%;
+  transform: translate(50%, 0%);
+  width: 280px;
+  height: 151px;
+  z-index: 3010;
+  text-align: center;
+  visibility: hidden;
+}
+
 .ride-request-dashboard {
   color: #ffffff;
   position: fixed;

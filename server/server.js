@@ -447,6 +447,105 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
    }
 });
 
+app.post('/ride/updateRide', authUser, (req, res) => { 
+    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
+
+    let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
+    var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
+ 
+    body.pickup_latlng = _pickup_latlng;
+    body.dropoff_latlng = _dropoff_latlng;
+
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.users.findOne({
+            where : {mobile : body.user_id}, transaction: t 
+        }).then( (user) => {
+            if(user){
+              return models.drivers.findOne({
+                where : {mobile : body.driver_id}, transaction: t 
+              }).then((driver) => {
+                   if(driver) {
+                    return models.riderequests.update(
+                        { user_id : user.token, driver_id : driver.token, pickup_latlng : body.pickup_latlng, dropoff_latlng : body.dropoff_latlng, route_distance : body.route_distance, route_time : body.route_time, route_price : body.route_price},
+                        { where : {id : body.ride_id}, transaction: t }
+                        ).then((ride) => {
+                            if(ride) {
+                                return ride;
+                            } else {
+                                throw new Error('ride not updated');
+                            }
+                    });
+                   } else {
+                    res.sendStatus(402).send();
+                    throw new Error('driver not found');
+                   }
+              });
+            } else {
+                res.sendStatus(401).send();
+                throw new Error('user not found');
+            }
+        });
+      }).then(function (result) {
+          res.send(result);
+      }).catch(function (err) {
+          
+      });
+});
+
+app.post('/ride/manual_create_ride', authUser, (req, res) => { 
+    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
+
+    let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
+    var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
+ 
+    body.pickup_latlng = _pickup_latlng;
+    body.dropoff_latlng = _dropoff_latlng;
+
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.users.findOne({
+            where : {mobile : body.user_id}, transaction: t 
+        }).then( (user) => {
+            if(user){
+              return models.drivers.findOne({
+                where : {mobile : body.driver_id}, transaction: t 
+              }).then((driver) => {
+                   if(driver) {
+                    body.user_id = user.token;
+                    body.driver_id = driver.token;
+                    return models.riderequests.create(
+                       body ,
+                        { transaction: t }
+                        ).then((new_ride) => {
+                            if(new_ride) {
+                                return models.drivers.update(
+                                    { status: 1 },
+                                    { where: { token: driver.token } , transaction: t} 
+                                ).then(r1 => {
+                                    return r1
+                                });
+                            } else {
+                                throw new Error('driver not ready');
+                            }
+                    });
+                   } else {
+                    res.sendStatus(402).send();
+                    throw new Error('driver not found');
+                   }
+              });
+            } else {
+                res.sendStatus(401).send();
+                throw new Error('user not found');
+            }
+        });
+      }).then(function (result) {
+          res.send(result);
+      }).catch(function (err) {
+          
+      });
+});
+ 
 app.post('/ride/rideRequest2', authUser, (req, res) => {
    let body = _.pick(req.body, ['user_id','driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
    let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);

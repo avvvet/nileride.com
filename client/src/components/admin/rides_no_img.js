@@ -94,7 +94,7 @@ class RidesWithNoImage extends Component {
                 <Table.Cell>{ride.route_distance}</Table.Cell>
                 <Table.Cell>{this.timeConvert(Number.parseInt(ride.route_time))}</Table.Cell>
                 <Table.Cell>{ride.route_price}</Table.Cell>
-                <Table.Cell><Label color='blue' size='tiny' circular onClick={() => this._show_ride(ride.id)}>map</Label></Table.Cell> 
+                <Table.Cell><Label color='blue' size='tiny' circular onClick={() => this._show_ride(ride.id, ride)}>map</Label></Table.Cell> 
                 <Table.Cell>{ride.createdAt}</Table.Cell>
                 {ride.status === 2 || ride.status === 22 || ride.status === 222 ? 
                  <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._convert_to_ride(ride.id, ride.driver.token)} circular>accepted</Label></Table.Cell>
@@ -126,8 +126,8 @@ class RidesWithNoImage extends Component {
         } 
     }
 
-    _show_ride = (ride_id) => {
-        render(<RideControlMap ride_id={ride_id}></RideControlMap>,document.getElementById('ride_control'));
+    _show_ride = (ride_id, ride) => {
+        render(<RideControlMap ride_id={ride_id} ride={ride}></RideControlMap>,document.getElementById('ride_control'));
     }
 
     render(){
