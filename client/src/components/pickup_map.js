@@ -260,7 +260,7 @@ class PickUpMap extends Component {
                     count_driver = currentDrivers.length;
                     for (var i = 0; i < currentDrivers.length; i++) {
                         L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
-                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(currentDrivers[i].updatedAt, "YYYYMMDD").fromNow())
+                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                         .addTo(carMarkerGroup);
                     }
                 }
