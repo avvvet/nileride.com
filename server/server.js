@@ -1705,7 +1705,7 @@ app.get('/drivers', (req, res) => {
     var sequelize = models.sequelize;
     const Op = Sequelize.Op;
     models.drivers.findAll({ 
-        attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation'],
+        attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation', 'updatedAt'],
         where:[ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('DAY'), sequelize.col('updatedAt'), sequelize.fn("now")), {
             [Op.lte] : env.DRIVER_ONLINE_SINCE_DAY
         }), {verified: 1, status: 0, currentLocation: {[Op.ne]: null}}], 
@@ -1718,7 +1718,8 @@ app.get('/drivers', (req, res) => {
                  middleName: driver.middleName,
                  mobile: driver.mobile,
                  plateNo: driver.plaleNO,
-                 currentLocation : driver.currentLocation.coordinates
+                 currentLocation : driver.currentLocation.coordinates,
+                 updatedAt : driver.updatedAt
              }
             return tmpObj;
             

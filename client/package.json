@@ -13,6 +13,7 @@
     "leaflet-geosearch": "^2.7.0",
     "leaflet-routing-machine": "^3.2.12",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "nominatim-browser": "^2.0.2",
     "nominatim-geocode": "^1.1.0",
     "react": "^16.6.3",
