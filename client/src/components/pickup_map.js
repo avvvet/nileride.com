@@ -233,7 +233,7 @@ class PickUpMap extends Component {
                         });
 
                         L.marker([currentUsers[i].currentLocation[0],currentUsers[i].currentLocation[1]], {icon: user_icon})
-                        .bindPopup('የናይል ተሳፋሪ')
+                        .bindPopup('የናይል ተሳፋሪ' + '<br>' + moment(moment(currentUsers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                         .addTo(userMarkerGroup);
                     }
                 }

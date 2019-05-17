@@ -1676,10 +1676,13 @@ app.post('/drivers/nearest', (req, res) => {
 });
 
 app.get('/users_marker', (req, res) => {
+    var sequelize = models.sequelize;
     const Op = Sequelize.Op;
     models.users.findAll({ 
-        attributes: ['firstName', 'middleName', 'mobile', 'profile', 'hasProfile', 'currentLocation'],
-        where: {currentLocation: {[Op.ne]: null}}, 
+        attributes: ['firstName', 'middleName', 'mobile', 'profile', 'hasProfile', 'currentLocation', 'updatedAt'],
+        where: [ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('DAY'), sequelize.col('updatedAt'), sequelize.fn("now")), {
+            [Op.lte] : env.PASSENGER_ONLINE_SINCE_DAY
+        }), {currentLocation: {[Op.ne]: null}}], 
     }).then(users => {
         let data = [];
         var tmpObj;
@@ -1690,7 +1693,8 @@ app.get('/users_marker', (req, res) => {
                  mobile: user.mobile,
                  profile : user.profile,
                  hasProfile : user.hasProfile,
-                 currentLocation : user.currentLocation.coordinates
+                 currentLocation : user.currentLocation.coordinates,
+                 updatedAt : user.updatedAt
              }
             return tmpObj;
             
@@ -1709,6 +1713,34 @@ app.get('/drivers', (req, res) => {
         where:[ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('DAY'), sequelize.col('updatedAt'), sequelize.fn("now")), {
             [Op.lte] : env.DRIVER_ONLINE_SINCE_DAY
         }), {verified: 1, status: 0, currentLocation: {[Op.ne]: null}}], 
+    }).then(drivers => {
+        let data = [];
+        var tmpObj;
+        let objDrivers = drivers.map(driver => {
+             tmpObj = {
+                 firstName: driver.firstName,
+                 middleName: driver.middleName,
+                 mobile: driver.mobile,
+                 plateNo: driver.plaleNO,
+                 currentLocation : driver.currentLocation.coordinates,
+                 updatedAt : driver.updatedAt
+             }
+            return tmpObj;
+            
+        });
+       res.send(objDrivers);
+    });
+});
+
+//list of drivers for ride control status 0 ready and 2 (missed) 
+app.get('/drivers_for_ride_control', (req, res) => {
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+    models.drivers.findAll({ 
+        attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation', 'updatedAt'],
+        where:[ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('DAY'), sequelize.col('updatedAt'), sequelize.fn("now")), {
+            [Op.lte] : env.DRIVER_ONLINE_SINCE_DAY
+        }), {verified: 1, status: {[Op.or] : [0, 2]}, currentLocation: {[Op.ne]: null}}], 
     }).then(drivers => {
         let data = [];
         var tmpObj;

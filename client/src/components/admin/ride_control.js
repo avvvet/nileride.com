@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react'
 const env = require('../../env');
 var validator = require('validator');
+var moment = require('moment');
 
 var marker_a = L.icon({
     iconUrl: '/assets/marker_a.png',
@@ -113,7 +114,7 @@ class RideControlMap extends Component {
     getDrivers = () => {
         $.ajax({ 
             type:"GET",
-            url:"/drivers",
+            url:"/drivers_for_ride_control",
             contentType: "application/json",
             success: function(currentDrivers, textStatus, jqXHR) {
                 var carMarkerGroup = this.state.carMarkerGroup;
@@ -123,7 +124,10 @@ class RideControlMap extends Component {
                     count_driver = currentDrivers.length;
                     for (var i = 0; i < currentDrivers.length; i++) {
                         L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
-                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + ' ' + "<a href=tel:" + currentDrivers[i].mobile + ">" + currentDrivers[i].mobile + "</a>")
+                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + ' ' 
+                         + "<a href=tel:" + currentDrivers[i].mobile 
+                         + ">" + currentDrivers[i].mobile + "</a>" 
+                         + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                         .addTo(carMarkerGroup);
                     }
                 }
