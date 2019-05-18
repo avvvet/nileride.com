@@ -238,7 +238,7 @@ const getNearestDrivers = async (_pickup_latlng) => {
        attributes: ['token','currentLocation', 'firstName',[Sequelize.fn('ST_Distance_Sphere', Sequelize.literal('currentLocation'), _pickup_latlng),'distance']],
        where: [sequelize.where(distance, {
         [Op.lt] : env.NEAREST_DRIVER_RADIUS
-       }), sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('DAY'), sequelize.col('updatedAt'), sequelize.fn("now")), {
+       }), sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('HOUR'), sequelize.col('updatedAt'), sequelize.fn("now")), {
         [Op.lte] : env.DRIVER_ONLINE_SINCE_HOUR
     }), {verified: 1, status: 0, currentLocation: {[Op.ne]: null} }], 
        order: distance,
