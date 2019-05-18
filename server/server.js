@@ -1739,7 +1739,7 @@ app.get('/drivers_for_ride_control', (req, res) => {
     models.drivers.findAll({ 
         attributes: ['firstName', 'middleName', 'mobile', 'plateNO', 'currentLocation', 'updatedAt'],
         where:[ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('HOUR'), sequelize.col('updatedAt'), sequelize.fn("now")), {
-            [Op.lte] : env.DRIVER_ONLINE_SINCE_HOUR
+            [Op.lte] : env.DRIVER_ONLINE_SINCE_HOUR_RIDE_CONTROL
         }), {verified: 1, status: {[Op.or] : [0, 2]}, currentLocation: {[Op.ne]: null}}], 
     }).then(drivers => {
         let data = [];
