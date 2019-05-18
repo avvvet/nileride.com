@@ -124,12 +124,12 @@ body {
 }
 
 .user-info {
-  background-color: teal;
+  background-color: rgb(194, 240, 69);
   color: #ffffff;
   position: fixed;
   top: 3%;
-  right: 71%;
-  width: 120px;
+  right: 65%;
+  width: 142px;
   height: 30px;
   padding-top: 15px;
   padding-right: 3px;
@@ -808,9 +808,9 @@ input[type="file"] {
 
 .fast-nile {
   position: fixed;
-  bottom: 14%;
-  right: 81%;
-  z-index: 1900;
+  bottom: 36%;
+  right: 50%;
+  z-index: 3000;
   transform: translate(50%, 50%);
 }
 

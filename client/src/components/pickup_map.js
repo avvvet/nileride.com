@@ -599,6 +599,7 @@ class PickUpMap extends Component {
            document.getElementById('search_0').style.visibility = 'hidden';
            document.getElementById('search_1').style.visibility = 'hidden';
            document.getElementById('user-info').style.visibility = 'hidden';
+           document.getElementById('fast-nile').style.visibility = 'hidden';
            document.getElementById('user-manual').style.visibility = 'hidden';
            this.setState({
             is_this_login : false
@@ -635,6 +636,7 @@ class PickUpMap extends Component {
            document.getElementById('search_1').style.visibility = 'hidden';
            document.getElementById('user-info').style.visibility = 'hidden';
            document.getElementById('user-manual').style.visibility = 'hidden';
+           document.getElementById('fast-nile').style.visibility = 'hidden';
            document.getElementById('div-notification-2').style.visibility = 'visible';
            this.setState({
              is_this_login : true
@@ -1510,6 +1512,7 @@ class PickUpMap extends Component {
         document.getElementById('driver-page').style.visibility = 'hidden';
         document.getElementById('div-logo-user').style.visibility = 'hidden';
         document.getElementById('faq-page').style.visibility = 'hidden';
+        document.getElementById('fast-nile').style.visibility = 'hidden'
         render(<Faq></Faq>,document.getElementById('div-faq-txt'));
     }
 
@@ -1622,7 +1625,7 @@ class PickUpMap extends Component {
                                 </Label>  
                             :
                                 <Label size='mini' as='a' pointing='left' basic color="blue" onClick={(e) => this.pax_login(e)}>
-                                LOGIN
+                                ተሳፋሪ LOGIN
                                 </Label>
                             }
                             </Grid.Column>
@@ -1841,7 +1844,7 @@ class PickUpMap extends Component {
               </div>
 
               <div className="fast-nile" id="fast-nile">
-                 <Button content='አስቸኳይ' icon={<Icon name='car' size="large" />} labelPosition='left' color="blue" className="btn" size="mini" onClick={(e) => this._fast_nile(e)} />
+                 <Button content='ናይል ጥራ' icon={<Icon name='car' size="large" />} labelPosition='left' color='orange' className="btn" size="medium" onClick={(e) => this._fast_nile(e)} />
               </div>
 
               <div className="driver-page" id="driver-page">

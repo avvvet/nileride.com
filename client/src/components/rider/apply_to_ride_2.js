@@ -141,6 +141,7 @@ class ApplyToRide extends Component {
               }
               
               document.getElementById('user-info').style.visibility = 'visible';
+              document.getElementById('fast-nile').style.visibility = 'visible';
               document.getElementById('div-notification-2').style.visibility = 'hidden';
               render('', document.getElementById('div-notification-2'));
 
