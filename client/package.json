@@ -16,6 +16,7 @@
     "moment": "^2.24.0",
     "nominatim-browser": "^2.0.2",
     "nominatim-geocode": "^1.1.0",
+    "nosleep.js": "^0.9.0",
     "react": "^16.6.3",
     "react-bootstrap": "^0.32.4",
     "react-dom": "^16.6.3",
