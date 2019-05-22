@@ -12,7 +12,9 @@ import DriverRideCancel from './driver_ride_cancel';
 import MissedRide from './missed_ride'; 
 import DriverDashBoard from './driver_dashboard'
 import EndRide from './end_ride';
-
+import worker from './worker.js';
+import WebWorker from './WebWorker';
+import * as workerTimers from 'worker-timers';
 var validator = require('validator');
 
 const isCoordinates = require('is-coordinates');
@@ -195,6 +197,7 @@ class DriverLocation extends Component {
            code: '',
            plate_no : '',
            avg_rating : null,
+           msg : null,
        }
    }
    
@@ -266,7 +269,24 @@ class DriverLocation extends Component {
     
 //    }
 
+   handleSort(msg) {
+     this.worker.postMessage(msg);
+   }
+
    componentDidMount(){
+
+    this.worker = new WebWorker(worker);
+    this.worker.addEventListener('message', event => {
+        const msg = event.data;
+        this.setState({
+            msg: msg
+        });
+
+        console.log('yello green blue', msg);
+    });
+
+    this.handleSort('Lord Jesus');
+
     this.getDriver(localStorage.getItem("_auth_driver"));  
     this.getDriverRating(localStorage.getItem("_auth_driver")); 
     this.setState({
@@ -292,8 +312,8 @@ class DriverLocation extends Component {
         locationGroup : new L.LayerGroup().addTo(map)
     });
    
-    this.timerCheckForRide = setInterval(this.checkForRide, 5000);
-    this.timerDriverLocation = setInterval(this.driverCurrentLocation, 10000);
+    this.timerCheckForRide = workerTimers.setInterval(this.checkForRide, 5000);
+    this.timerDriverLocation = workerTimers.setInterval(this.driverCurrentLocation, 10000);
 
     map.on('locationfound', (e) => {
         var radius = e.accuracy / 1024;
@@ -337,7 +357,7 @@ class DriverLocation extends Component {
     });
 
     PromiseLocateDriver.then((r)=>{
-        if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
+       // if(!_.isEqual(this.state.current_latlng,this.state.last_current_latlng)){
             console.log('current latlng', this.state.current_latlng, this.state.last_current_latlng);
             var token = localStorage.getItem("_auth_driver");
             var current_latlng = {
@@ -358,7 +378,7 @@ class DriverLocation extends Component {
                 }.bind(this)
             });
             this.setState({last_current_latlng : this.state.current_latlng})
-        } 
+       // } 
     }); 
    }
 

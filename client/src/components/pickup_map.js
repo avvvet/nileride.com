@@ -350,7 +350,7 @@ class PickUpMap extends Component {
                     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
                 });
 
-                L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup);
+               // L.marker(e.latlng, {icon: user_icon}).addTo(locationGroup);
                 L.circle(e.latlng, radius).addTo(locationGroup);
                 //map.setView(e.latlng,15);
                 // ጌታ እየሱስ ይባረክ አባቴ ይህንን ሥራ አሳልፈህ ስለምትሰጠኝ አመሰግናለሁኝ አቅምን ጨምርልኝ    
