@@ -20,6 +20,7 @@ import * as workerTimers from 'worker-timers';
 var validator = require('validator');
 var NoSleep = require('nosleep.js');
 
+var noSleep = new NoSleep();
 
 const isCoordinates = require('is-coordinates');
 //const socket = socketClient('http://localhost:7000');
@@ -278,9 +279,9 @@ class DriverLocation extends Component {
    }
 
    componentDidMount(){
-    var noSleep = new NoSleep();
+    
     noSleep.enable();
-    console.log('no sleep', noSleep);
+    
     this.worker = new WebWorker(worker);
     this.worker.addEventListener('message', event => {
         const msg = event.data;
@@ -383,7 +384,8 @@ class DriverLocation extends Component {
                     console.error(xhr, status, err.toString());
                 }.bind(this)
             });
-            this.setState({last_current_latlng : this.state.current_latlng})
+            this.setState({last_current_latlng : this.state.current_latlng});
+            noSleep.enable();
        // } 
     }); 
    }
