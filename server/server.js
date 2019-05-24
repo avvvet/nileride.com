@@ -1703,6 +1703,33 @@ app.get('/users_marker', (req, res) => {
     });
 });
 
+app.get('/users_for_ride_control', (req, res) => {
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+    models.users.findAll({ 
+        attributes: ['firstName', 'middleName', 'mobile', 'profile', 'hasProfile', 'currentLocation', 'updatedAt'],
+        where: [ sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('MINUTE'), sequelize.col('updatedAt'), sequelize.fn("now")), {
+            [Op.lte] : 10
+        }), {currentLocation: {[Op.ne]: null}}], 
+    }).then(users => {
+        let data = [];
+        var tmpObj;
+        let objUsers = users.map(user => {
+             tmpObj = {
+                 firstName: user.firstName,
+                 middleName: user.middleName,
+                 mobile: user.mobile,
+                 profile : user.profile,
+                 hasProfile : user.hasProfile,
+                 currentLocation : user.currentLocation.coordinates,
+                 updatedAt : user.updatedAt
+             }
+            return tmpObj;
+            
+        });
+       res.send(objUsers);
+    });
+});
 
 //get drivers location  status 0 = waiting for job
 app.get('/drivers', (req, res) => {

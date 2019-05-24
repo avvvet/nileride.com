@@ -101,7 +101,9 @@ class RideControlMap extends Component {
         })
         this.getRide(this.props.ride_id);
         this.getDrivers();
+        
         this.timerDrivers = setInterval(this.getDrivers, 7000);
+        this.timerUsers = setInterval(this.getUsersMarker, 10000);
         console.log('rideddddd', this.props.ride.user.mobile);
     };
 
@@ -135,6 +137,52 @@ class RideControlMap extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log('getdrivers error', err.toString());
+                
+            }.bind(this)
+        });  
+    }
+
+    getUsersMarker = (map) => {
+        $.ajax({ 
+            type:"GET",
+            url:"/users_for_ride_control",
+            contentType: "application/json",
+            success: function(currentUsers, textStatus, jqXHR) {
+                var userMarkerGroup = this.state.userMarkerGroup;
+                userMarkerGroup.clearLayers();  //lets clear and update it 
+                var count_user = 0;
+                if(currentUsers){
+                    count_user = currentUsers.length;
+                    var img;
+                    for (var i = 0; i < currentUsers.length; i++) {
+                        if(currentUsers[i].hasProfile === true) {
+                            img = `<img src='/assets/profile/user/nileride-profile.png' />`
+                        } else {
+                            img = `<img src='/assets/profile/user/nileride-profile.png' />`
+                        }
+                        var user_icon = L.divIcon({
+                            html: img,
+                            shadowUrl: '',
+                            className: 'image-icon-user',
+                            iconSize:     [20, 20], // size of the icon
+                            shadowSize:   [50, 64], // size of the shadow
+                            iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+                            shadowAnchor: [4, 62],  // the same for the shadow
+                            popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+                        });
+
+                        L.marker([currentUsers[i].currentLocation[0],currentUsers[i].currentLocation[1]], {icon: user_icon})
+                        .bindPopup(currentUsers[i].firstName + ' ' + currentUsers[i].middleName + ' ' 
+                         + "<a href=tel:" + currentUsers[i].mobile 
+                         + ">" + currentUsers[i].mobile + "</a>" 
+                         + '<br>' + moment(moment(currentUsers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                        .addTo(userMarkerGroup);
+                    }
+                }
+
+            }.bind(this),
+            error: function(xhr, status, err) {
+               // console.log('passenger error', err.toString());
                 
             }.bind(this)
         });  
