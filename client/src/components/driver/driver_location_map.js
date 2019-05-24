@@ -385,9 +385,10 @@ class DriverLocation extends Component {
                 }.bind(this)
             });
             this.setState({last_current_latlng : this.state.current_latlng});
-            noSleep.enable();
+            
        // } 
     }); 
+    noSleep.enable();
    }
 
    driverRidesInfo = () => {
