@@ -13,10 +13,10 @@ class DriversWithNoImage extends Component {
             accountStatus : false
         }
     }
+    
     componentDidMount(){
         this.showDrivers();
     }
-
 
     showDrivers = () => {
         //$('.btn_apply').addClass("loading");

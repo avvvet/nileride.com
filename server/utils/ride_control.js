@@ -4,8 +4,44 @@ var _ = require('lodash');
 var {send_mail_ride_request} = require('./email');
 const env = require('../../env');
 
-
 const ride_control_auto = async () => {
+    var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
+
+    await sequelize.transaction( async t => {
+        return models.riderequests.findAll(
+            { 
+                where: [sequelize.where(sequelize.fn('TIMESTAMPDIFF', sequelize.literal('SECOND'), sequelize.col('createdAt'), sequelize.fn("now")), {
+                    [Op.gt] : env.MISSED_RIDE_DURATION
+                }), {status : 1}], 
+                transaction: t ,
+                raw : true
+            }
+        ).then(async rides => {
+            for(let ride of rides) {
+                return models.riderequests.update(
+                    { status: 2 },
+                    { where: {id : ride.id} , transaction: t} 
+                 ).then(r1 => {
+                    return models.drivers.update(
+                        { status: 2 },
+                        { where: {token: ride.driver_id, status: 1} , transaction: t} 
+                     ).then(r2 => {
+                         return r2;
+                     });
+                 });
+            }
+        });
+    }).then(function (result) {
+        console.log('t: commited');
+        return result;
+    }).catch(function (err) {
+      console.log('t: error', err)
+      return err;
+    });  
+}
+
+const ride_control_auto_continues = async () => {
     var sequelize = models.sequelize;
     const Op = Sequelize.Op;
 

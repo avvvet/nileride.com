@@ -11,7 +11,7 @@ const env = {
   NODE_ENV:'production',
   EMAIL_CC_A: 'avvvet@gmail.com',
   EMAIL_CC_B: 'natimancloud@gmail.com',
-  MISSED_RIDE_DURATION: 16,
+  MISSED_RIDE_DURATION: 20,
   NEAREST_DRIVER_RADIUS: 700,
   RIDE_PERCENTAGE: 0.19,
   DRIVER_ONLINE_SINCE_HOUR : 24,

@@ -642,22 +642,22 @@ app.post('/ride/rideRequest2', authUser, (req, res) => {
 
 
 app.post('/ride/accepted', (req, res) => {
-    var body = _.pick(req.body, ['status']);
+    var body = _.pick(req.body, ['ride_id']);
     var token = req.header('x-auth');
     const Op = Sequelize.Op;
     var sequelize = models.sequelize;
     return sequelize.transaction(function (t) {
         return models.riderequests.findOne({
-            where : {driver_id: token, status: 1}, transaction: t 
+            where : {id : body.ride_id}, transaction: t 
         }).then( (ride) => {
             if(ride){
               return models.riderequests.update(
                     { status: 7 },
-                    { where: { driver_id: token, status: 1} , transaction: t 
+                    { where: {id : body.ride_id} , transaction: t 
               }).then(result => {
                      if(result){
                        return models.riderequests.findOne({ 
-                            where : {driver_id: token, status: 7},
+                            where : {id : body.ride_id, status: 7},
                             include: [
                                 { model: models.users,
                                   attributes: ['firstName','middleName','mobile', 'profile']
@@ -865,7 +865,7 @@ app.post('/driver/ready_for_work', (req, res) => {
       });
 });
 
-app.post('/ride/convert_missed_to_ride', (req, res) => {
+app.post('/ride/manual_accept_ride', (req, res) => {
     var body = _.pick(req.body , ['id', 'driver_id']);
     var token = req.header('x-auth');
     var sequelize = models.sequelize;

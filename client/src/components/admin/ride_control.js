@@ -471,7 +471,7 @@ class RideControlMap extends Component {
             route_distance: this.state.route_distance,
             route_time: this.state.route_time,
             route_price: this.state.route_price,
-            status: 7
+            status: 1
         };
 
         $.ajax({ 
@@ -569,7 +569,7 @@ class RideControlMap extends Component {
                     label={{ icon: 'phone volume' }} 
                     labelPosition="left corner"
                     value={this.state.driverMobile}
-                    placeholder="passenger mobile"
+                    placeholder="driver mobile"
                     onChange={e => this.change(e)}
                     size="large"
                     fluid
@@ -578,16 +578,16 @@ class RideControlMap extends Component {
                     </Grid.Column>
                 </Grid.Row>
                 
+                <Grid.Row columns={1} className="row_sm">
+                    <Grid.Column mobile={18} tablet={18} computer={18}>
+                      <Button className="btn_create" color="orange" content='NEW RIDE CALL' icon='right arrow' labelPosition='right' size="small" onClick={(e) => this.manual_create_ride(e)} fluid></Button>
+                    </Grid.Column>
+                </Grid.Row>
+
                 <Grid.Row className="row_sm">
                     <Grid.Column mobile={18} tablet={18} computer={18}>
                     <Button className="btn_update"  content='UPDATE' icon='right arrow' labelPosition='right' color='green' size='small' onClick={e => this.onUpdate(e)}  fluid ></Button>
                     </Grid.Column> 
-                </Grid.Row>
-
-                <Grid.Row columns={1} className="row_sm">
-                    <Grid.Column mobile={18} tablet={18} computer={18}>
-                      <Button className="btn_create" color="orange" content='CREATE RIDE' icon='right arrow' labelPosition='right' size="small" onClick={(e) => this.manual_create_ride(e)} fluid></Button>
-                    </Grid.Column>
                 </Grid.Row>
 
                 <Grid.Row columns={1} className="row_sm">

@@ -4,7 +4,7 @@ import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
 import { Grid, Message, Button, Label ,Form, Image, Header, Icon, Rating } from 'semantic-ui-react'
 import L from 'leaflet';
 import $ from 'jquery';
-import _ from 'lodash';
+import _ from 'lodash'; 
 //import socketClient from 'socket.io-client';
 
 import VerificationRply from '../verfication_rply';
@@ -579,6 +579,7 @@ class DriverLocation extends Component {
     ride_alert = (ride) => {
             sound.volume(0.7, this.soundAccept);        
             this.setState({
+                ride_id : ride.id,
                 ridePrice: ride.route_price,
                 rideDistance: ride.route_distance,
                 rideTime: ride.route_time,
@@ -586,6 +587,9 @@ class DriverLocation extends Component {
                 userMobile: ride.user.mobile,
                 userPic: "/assets/profile/user/" + ride.user.profile,
             });
+     
+            document.getElementById("driver-dashboard").style.visibility = "hidden";
+            document.getElementById("missed-ride").style.visibility = "hidden";
             document.getElementById('check-ride-dashboard').style.visibility="visible";
             this.showPickUpLocation(ride.pickup_latlng.coordinates, this.state.current_latlng); 
             //clearInterval(this.timerCheckForRide);
@@ -595,14 +599,15 @@ class DriverLocation extends Component {
     acceptRide = (e) => {
         e.preventDefault(); 
         $('.btn_accept_ride').addClass("loading");
-        var driver = {
-            status : 7
+        var data = {
+            ride_id : this.state.ride_id
         };
+        console.log('bashakkaaa', data);
         $.ajax({ 
             type:"POST",
             url:"/ride/accepted",
             headers: { 'x-auth': localStorage.getItem("_auth_driver")},
-            data: JSON.stringify(driver), 
+            data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(ride, textStatus, jqXHR) {
                 //alert('Jesus');

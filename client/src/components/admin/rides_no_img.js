@@ -17,7 +17,7 @@ class RidesWithNoImage extends Component {
         this.showrides();
     }
 
-    _convert_to_ride = (ride_id, driver_id) => {    //this changes the ride to accepted 
+    _accept_ride = (ride_id, driver_id) => {    //this changes the ride to accepted 
         $('.'+ride_id).addClass("loading");
         if (window.confirm('Are you sure ?')) {
             var data = {
@@ -27,7 +27,7 @@ class RidesWithNoImage extends Component {
      
             $.ajax({ 
                 type:"POST",
-                url:"/ride/convert_missed_to_ride",
+                url:"/ride/manual_accept_ride",
                 headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
                 data: JSON.stringify(data), 
                 contentType: "application/json",
@@ -97,7 +97,7 @@ class RidesWithNoImage extends Component {
                 <Table.Cell><Label color='blue' size='tiny' circular onClick={() => this._show_ride(ride.id, ride)}>map</Label></Table.Cell> 
                 <Table.Cell>{ride.createdAt}</Table.Cell>
                 {ride.status === 2 || ride.status === 22 || ride.status === 222 ? 
-                 <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._convert_to_ride(ride.id, ride.driver.token)} circular>accepted</Label></Table.Cell>
+                 <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._accept_ride(ride.id, ride.driver.token)} circular>accept</Label></Table.Cell>
                  :
                  <Table.Cell textAlign="center"></Table.Cell>
                 }
