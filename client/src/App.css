@@ -800,16 +800,16 @@ input[type="file"] {
 
 .driver-page {
   position: fixed;
-  bottom: 29%;
-  right: 50%;
+  bottom: 6%;
+  right: 15%;
   z-index: 1900;
   transform: translate(50%, 50%);
 }
 
 .fast-nile {
   position: fixed;
-  bottom: 36%;
-  right: 50%;
+  top: 11.5%;
+  right: 16%;
   z-index: 3000;
   transform: translate(50%, 50%);
 }
@@ -833,10 +833,18 @@ input[type="file"] {
 
 .faq-page {
   position: fixed;
-  bottom: 23%;
-  right: 50%;
+  bottom: 6%;
+  left: 7%;
   z-index: 1900;
-  transform: translate(50%, 50%);
+  transform: translate(0%, 50%);
+}
+
+.driver-manual {
+  position: fixed;
+  bottom: 6%;
+  left: 42%;
+  z-index: 1900;
+  transform: translate(0%, 50%);
 }
 
 .div-faq-txt {
@@ -867,7 +875,7 @@ input[type="file"] {
 .search_0 {
   color: #5f5b5b;
   position: fixed;
-  top: 15%;
+  top: 12%;
   right: 50%;
   width: 295px;
   height: 48px;
@@ -879,7 +887,7 @@ input[type="file"] {
 .search_1 {
   color: #5f5b5b;
   position: fixed;
-  top: 15%;
+  top: 12%;
   right: 50%;
   width: 295px;
   height: 48px;

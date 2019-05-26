@@ -1634,8 +1634,6 @@ class PickUpMap extends Component {
                 </Grid>
               </div>
 
-             <div className='div-diff' id='div-diff'> <Label icon="time" content="በደቂቃ ሹፌር ያገኛሉ" color="purple" tag/></div>
-
               {this.state.isLogedIn === 'yes' ?  
               <div className="account-verify" id="account-verfiy">
                         <form>
@@ -1768,7 +1766,7 @@ class PickUpMap extends Component {
               </div>
               
               <div className="ride-request-dashboard shake-ride-request" id="ride-request-dashboard">
-                    እባኮትን ይጠብቁ ...
+                    calling ...
               </div>
 
               <div className="ride-route-status" id="ride-route-status"> 
@@ -1844,15 +1842,11 @@ class PickUpMap extends Component {
               </div>
 
               <div className="fast-nile" id="fast-nile">
-                 <Button content='ናይል ጥራ' icon={<Icon name='car' size="large" />} labelPosition='left' color='orange' className="btn" size="medium" onClick={(e) => this._fast_nile(e)} />
+                <Label  content='ናይል ጥራ' icon='car'  color='green' as="a" onClick={(e) => this._fast_nile(e)}/> 
               </div>
 
               <div className="driver-page" id="driver-page">
-                 <Button className="btn_apply"  as={NavLink} to='/driver/login' content='የሹፌር መግብያ' icon='right arrow' labelPosition='right'  color='teal' size='tiny' onClick={(e) => this.clearThisPage(e)}></Button>
-              </div>
-
-              <div className="user-manual" id="user-manual">
-                 <Label  content='አጠቃቀም' icon='help circle'  color='blue' as="a" href='/assets/pdf/nileride_passenger_manual.pdf' target="_blank" onClick={(e) => this._trafic_user_manual(e)}/>             
+                 <Label  content='ሹፌር' icon='user'  size='tiny' color='teal' as={NavLink} to='/driver/login' onClick={(e) => this.clearThisPage(e)}/> 
               </div>
 
               <div className="user-manual" id="user-manual">
@@ -1860,7 +1854,7 @@ class PickUpMap extends Component {
               </div>
 
               <div className="faq-page" id="faq-page">
-                 <Button className="btn_apply"  content='ተደጋጋሚ ጥያቄ' icon='right arrow' labelPosition='right'  color='green' size='tiny' onClick={(e) => this._show_faq(e)}></Button>
+                 <Label  content='ጥያቄ' icon='help'  size='tiny' color='olive' as="a"  onClick={(e) => this._show_faq(e)}/> 
               </div>
 
               <div id="div-faq-txt" className="div-faq-txt"></div>
