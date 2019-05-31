@@ -134,4 +134,30 @@ var send_mail_ride_request = (user,ride) => {
    });
   
 }
-module.exports = {send_mail, send_mail_driver, send_mail_user_change_password, send_mail_driver_change_password, send_mail_ride_request};
+
+var send_mail_driver_paid = (pay) => {
+  var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      auth: {
+             user: 'awetewa@gmail.com',
+             pass: 'Awet_003994'
+         }
+  });
+  
+  const mailOptions = {
+      from: 'dontreply@awetride.com', // sender address
+      to: env.EMAIL_CC_A + ',' + env.EMAIL_CC_B,
+      subject: 'driver paid - Thank you God', // Subject line
+      html: '<p>hallelujah, </p> <p> እናመሰግናለን ጌታ እየሱስ  <br> <p> እየሱስ ና ! name ' + pay.firstName +  ' mobile : ' + pay.mobile +  ' amount ' + pay.amount +  ' birr </p>'
+  };
+  
+  transporter.sendMail(mailOptions, function (err, info) {
+      if(err)
+        console.log('email', err)
+      else
+        console.log('email',info);
+   });
+  
+}
+module.exports = {send_mail, send_mail_driver, send_mail_user_change_password, send_mail_driver_change_password, send_mail_ride_request, send_mail_driver_paid};

@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
+import Pay from './pay';
 import MissedRide from './missed_ride'; 
 import DriverDashBoard from './driver_dashboard'
 import EndRide from './end_ride';
@@ -1279,7 +1280,7 @@ class DriverLocation extends Component {
     }
 
     render(){
-        console.log('this', parseFloat(this.state.avg_rating));
+       
         return(
             <div>
                 <div className="driver-dashboard" id="driver-dashboard">
@@ -1496,6 +1497,12 @@ class DriverLocation extends Component {
                 </Grid>
                 </div>
                 : '' }
+
+                {this.state.charge > env.DRIVER_PAYMENT_MIN_LIMIT && this.state.isLogedIn === true ?  
+                  <div id="pay" className="pay">
+                     <Pay charge={this.state.charge} driver_id ={localStorage.getItem("_auth_driver")} mobile = {this.state.driver.mobile} first_name = {this.state.driver.firstName}></Pay>
+                  </div>
+                : ''}
 
                 <div id="missed-ride" className="missed-ride"></div>
 

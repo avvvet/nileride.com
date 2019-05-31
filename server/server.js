@@ -23,7 +23,7 @@ var validator = require('validator');
 var Busboy = require('busboy');
 var {authDriver} = require('./middleware/_auth_driver');
 var {authUser} = require('./middleware/_auth_user');
-var {send_mail, send_mail_driver, send_mail_user_change_password, send_mail_driver_change_password} = require('./utils/email');
+var {send_mail, send_mail_driver, send_mail_user_change_password, send_mail_driver_change_password, send_mail_driver_paid} = require('./utils/email');
 var {setUserVerify, setDriverVerify} = require('./utils/verify');
 const {ride_control_auto, ride_request} = require('./utils/ride_control');
 const {add_trafic, get_trafic} = require('./utils/trafics');
@@ -1126,6 +1126,35 @@ app.post('/actual_ride/completed', (req, res) => {
         // Transaction has been rolled back
         // err is whatever rejected the promise chain returned to the transaction callback
       });
+});
+
+app.post('/driver/pay', (req, res) => {
+    var body = _.pick(req.body, ['driver_id','first_name', 'mobile', 'amount']);
+    var paymentObj = {
+        'pay_type': 2,
+        'driver_id': body.driver_id,
+        'ride_id': 1000,
+        'amount': 0.00,
+        'charge_dr': body.amount,
+        'charge_cr': 0.00,
+        'status': 0
+    }
+    
+    models.payments.create(
+          paymentObj
+        ).then((payment) => {
+            if(payment){
+                let pay = {
+                    firstName : body.first_name,
+                    mobile : body.mobile,
+                    amount : body.amount
+                }
+                send_mail_driver_paid(pay);
+                res.sendStatus(200).send();
+            } else {
+                res.sendStatus(400).send();
+            }     
+    });
 });
 
 app.post('/driver/ride/cancel', (req, res) => {

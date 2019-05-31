@@ -510,11 +510,6 @@ class RideControlMap extends Component {
                         <Card.Description>
                         
                         <Grid  divided>
-                            <Grid.Row columns={1}>
-                                <Grid.Column>
-                                <Label size="medium"><Icon color='green' size="large" name='map marker alternate' /><Icon color='red' size="large" name='map marker alternate' />ምልክቶችን በመግፋት ቦታ ያስተካክሉ ፡ ከጨረሱ ሹፊር ጥራ ይጫኑ ። ቢሳሳቱ ችግር የለም ! </Label>
-                                </Grid.Column>
-                            </Grid.Row>
                             <Grid.Row columns={3}>
                                 <Grid.Column>
                                    <h3>{this.state.route_price + ' ብር'}</h3>
@@ -531,8 +526,8 @@ class RideControlMap extends Component {
                     </Card.Content>
                     <Card.Content extra>
                      <div className='ui two buttons'>
-                      <Button content='UPDATE' icon={<Icon name='car' size="large" />} labelPosition='left' color="green" className="btn" onClick={(e) => this._show_update(e)} />
-                      <Button content='CANCEL'  onClick={(e) => this._clear_map(e)} />
+                      <Button size='tiny' content='UPDATE'  color="green" className="btn" onClick={(e) => this._show_update(e)} />
+                      <Button size='tiny' content='CANCEL'  onClick={(e) => this._clear_map(e)} />
                      </div>
                     </Card.Content>
                     </Card>
