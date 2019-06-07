@@ -61,6 +61,16 @@ var driver_icon = L.divIcon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
 });
+var controller_driver_icon = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-controller-driver',
+    iconSize:     [25, 25], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
 class PickUpMap extends Component {
     constructor(){
         super();
@@ -256,12 +266,19 @@ class PickUpMap extends Component {
                 carMarkerGroup.clearLayers();  //lets clear and update it 
                 var count_driver = 0;
                 if(currentDrivers){
-                    
-                    count_driver = currentDrivers.length;
                     for (var i = 0; i < currentDrivers.length; i++) {
-                        L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
-                        .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
-                        .addTo(carMarkerGroup);
+                        if(currentDrivers[i].mobile === '0911003994' || currentDrivers[i].mobile === '0987880729') {
+                            L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: controller_driver_icon})
+                            .bindPopup('nile controller '
+                            + "<a href=tel:" + currentDrivers[i].mobile 
+                            + ">" + currentDrivers[i].mobile + "</a>" 
+                            + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            .addTo(carMarkerGroup);
+                        } else {
+                            L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
+                            .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            .addTo(carMarkerGroup);
+                        }
                     }
                 }
 

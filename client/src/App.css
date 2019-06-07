@@ -771,6 +771,17 @@ input[type="file"] {
   box-shadow: 10px 10px 10px gray;
 }
 
+.image-icon-controller-driver img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgb(38, 147, 236);
+  box-shadow: 10px 10px 10px gray;
+}
+
 .card card-style-1 {
   background-color:rgb(236, 174, 38);
   box-shadow: 10px 10px 10px gray;
