@@ -5,6 +5,6 @@ const env = {
   LOCATION_ACCURACY: 3,
   RIDE_PER_KM: 10,
   RIDE_STARTING_PAYMENT: 50,
-  DRIVER_PAYMENT_MIN_LIMIT : 50
+  DRIVER_PAYMENT_MIN_LIMIT : 80
 };
 module.exports = env;
