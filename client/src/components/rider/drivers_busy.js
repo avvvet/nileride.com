@@ -86,11 +86,12 @@ class DriverBusy extends Component {
  
         $.ajax({ 
             type:"POST",
-            url:"/ride/convert_missed_to_ride",
+            url:"/ride/manual_accept_ride",
             headers: { 'x-auth': localStorage.getItem("_auth_user")},
             data: JSON.stringify(data), 
             contentType: "application/json",
             success: function(data, textStatus, jqXHR) {
+                console.log('data callback', data);
                 $('.btn_convert').removeClass("loading");
                 this.props.chkTimerRideStatus();
                 document.getElementById("ride-price-dashboard").style.visibility = "hidden";
