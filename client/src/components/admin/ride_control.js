@@ -337,9 +337,7 @@ class RideControlMap extends Component {
           }
          var price_per_km = env.RIDE_PER_KM;
          var _ride_price = ((_distance * price_per_km) + env.RIDE_STARTING_PAYMENT).toFixed(2);
-         if(_distance < 5) {
-            _ride_price = 70;
-          }
+         
          this.setState({
              route_distance : Number.parseFloat(_distance).toFixed(2),
              route_price : _ride_price,
