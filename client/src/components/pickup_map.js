@@ -530,7 +530,9 @@ class PickUpMap extends Component {
          }
         var price_per_km = env.RIDE_PER_KM;
         var _ride_price = ((_distance * price_per_km) + env.RIDE_STARTING_PAYMENT).toFixed(2);
-        
+        if(_distance < 5) {
+          _ride_price = 70;
+        }
         this.setState({
             route_distance : Number.parseFloat(_distance).toFixed(2),
             route_price : _ride_price,
@@ -732,9 +734,9 @@ class PickUpMap extends Component {
             driver_id: 0,
             pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
             dropoff_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
-            route_distance: 3.5,
+            route_distance: 5,
             route_time: 180,
-            route_price: 50,
+            route_price: 70,
             status: 1
         };
 
