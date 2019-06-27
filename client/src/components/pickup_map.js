@@ -305,12 +305,12 @@ class PickUpMap extends Component {
                 var carMarkerGroup = this.state.carMarkerGroup;
                 carMarkerGroup.clearLayers();  //lets clear and update it 
                 var count_driver = 0;
-                let now;
+                if(currentDrivers){
+                    let now;
                     let last_update;
                     let diff;
                     let diffDuration;
                     let total_minutes = 0;
-                if(currentDrivers){
                     for (var i = 0; i < currentDrivers.length; i++) {
                         now = moment();
                         last_update = moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD");
