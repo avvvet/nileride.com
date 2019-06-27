@@ -782,6 +782,50 @@ input[type="file"] {
   box-shadow: 10px 10px 10px gray;
 }
 
+.image-icon-green img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgba(30, 207, 7, 0.712);
+  box-shadow: 10px 10px 10px gray;
+}
+
+.image-icon-orange img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgba(236, 149, 18, 0.712);
+  box-shadow: 10px 10px 10px gray;
+}
+
+.image-icon-brown img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgba(94, 47, 25, 0.712);
+  box-shadow: 10px 10px 10px gray;
+}
+
+.image-icon-gray img {
+  height: 25px !important;
+  width: 25px !important;
+  border-radius: 50%;
+  border: solid;
+  border-width: 1px;
+  border-color: white;
+  background-color:rgba(175, 173, 170, 0.712);
+  box-shadow: 10px 10px 10px gray;
+}
+
 .card card-style-1 {
   background-color:rgb(236, 174, 38);
   box-shadow: 10px 10px 10px gray;

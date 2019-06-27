@@ -93,7 +93,6 @@ var driver_icon = L.divIcon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
 });
-
 const options_model = [
     { key: '1', text: 'VITZ', value: 'VITZ' },
     { key: '2', text: 'COROLLA', value: 'COROLLA' },

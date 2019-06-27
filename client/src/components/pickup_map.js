@@ -71,6 +71,46 @@ var controller_driver_icon = L.divIcon({
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
 });
+var driver_icon_green = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-green',
+    iconSize:     [25, 25], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
+var driver_icon_orange = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-orange',
+    iconSize:     [25, 25], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
+var driver_icon_brown = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-brown',
+    iconSize:     [25, 25], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
+var driver_icon_gray = L.divIcon({
+    html: img,
+    shadowUrl: '',
+    className: 'image-icon-gray',
+    iconSize:     [25, 25], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
+});
 class PickUpMap extends Component {
     constructor(){
         super();
@@ -265,8 +305,19 @@ class PickUpMap extends Component {
                 var carMarkerGroup = this.state.carMarkerGroup;
                 carMarkerGroup.clearLayers();  //lets clear and update it 
                 var count_driver = 0;
+                let now;
+                    let last_update;
+                    let diff;
+                    let diffDuration;
+                    let total_minutes = 0;
                 if(currentDrivers){
                     for (var i = 0; i < currentDrivers.length; i++) {
+                        now = moment();
+                        last_update = moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD");
+                        diff = now.diff(last_update);
+                        diffDuration = moment.duration(diff); //put it as duration
+                        total_minutes = diffDuration.days() * 24 * 60 + diffDuration.hours() * 60 + diffDuration.minutes();
+
                         if(currentDrivers[i].mobile === '0911003994' || currentDrivers[i].mobile === '0987880729') {
                             L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: controller_driver_icon})
                             .bindPopup('nile controller '
@@ -274,9 +325,24 @@ class PickUpMap extends Component {
                             + ">" + currentDrivers[i].mobile + "</a>" 
                             + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                             .addTo(carMarkerGroup);
+                        }    
+                        else if(total_minutes < 10 || total_minutes === 10){
+                            L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_green})
+                            .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            .addTo(carMarkerGroup);
+                        }
+                        else if(total_minutes > 10 && total_minutes < 240 || total_minutes === 240){
+                                L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_orange})
+                                .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                                .addTo(carMarkerGroup);  
+                        } 
+                        else if(total_minutes > 240 && total_minutes < 1440 || total_minutes === 1440){
+                                    L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_brown})
+                                    .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                                    .addTo(carMarkerGroup);         
                         } else {
-                            L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon})
-                            .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_gray})
+                            .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                             .addTo(carMarkerGroup);
                         }
                     }
