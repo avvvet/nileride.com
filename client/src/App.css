@@ -800,7 +800,7 @@ input[type="file"] {
   border: solid;
   border-width: 1px;
   border-color: white;
-  background-color:rgba(236, 149, 18, 0.712);
+  background-color:rgba(214, 176, 8, 0.712);
   box-shadow: 10px 10px 10px gray;
 }
 
@@ -811,7 +811,7 @@ input[type="file"] {
   border: solid;
   border-width: 1px;
   border-color: white;
-  background-color:rgba(245, 100, 33, 0.712);
+  background-color:rgba(245, 92, 21, 0.712);
   box-shadow: 10px 10px 10px gray;
 }
 

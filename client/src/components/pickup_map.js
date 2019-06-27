@@ -328,21 +328,21 @@ class PickUpMap extends Component {
                         }    
                         else if(total_minutes < 10 || total_minutes === 10){
                             L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_green})
-                            .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                             .addTo(carMarkerGroup);
                         }
-                        else if(total_minutes > 10 && total_minutes < 240 || total_minutes === 240){
+                        else if((total_minutes > 10 && total_minutes < 240 ) || total_minutes === 240){
                                 L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_orange})
-                                .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                                .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                                 .addTo(carMarkerGroup);  
                         } 
-                        else if(total_minutes > 240 && total_minutes < 1440 || total_minutes === 1440){
+                        else if((total_minutes > 240 && total_minutes < 1440) || total_minutes === 1440){
                                     L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_brown})
-                                    .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                                    .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                                     .addTo(carMarkerGroup);         
                         } else {
                             L.marker([currentDrivers[i].currentLocation[0],currentDrivers[i].currentLocation[1]], {icon: driver_icon_gray})
-                            .bindPopup(currentDrivers[i].firstName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
+                            .bindPopup(currentDrivers[i].firstName + ' ' + currentDrivers[i].middleName + '<br>' + moment(moment(currentDrivers[i].updatedAt).zone('+03:00'), "YYYYMMDD").fromNow())
                             .addTo(carMarkerGroup);
                         }
                     }
