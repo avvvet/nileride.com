@@ -45,6 +45,33 @@ class RidesWithNoImage extends Component {
         
     }
 
+    _complete_ride = (ride_id, driver_id) => {    //this changes the ride to completed  
+        $('.'+ride_id).addClass("loading");
+        if (window.confirm('Are you sure ride completed ?')) {
+            var data = {
+                ride_id : ride_id,
+                driver_id : driver_id
+            };
+     
+            $.ajax({ 
+                type:"POST",
+                url:"/ride/manual_ride_complete",
+                headers: { 'x-auth': sessionStorage.getItem("_auth_user")},
+                data: JSON.stringify(data), 
+                contentType: "application/json",
+                success: function(data, textStatus, jqXHR) {
+                    $('.'+ride_id).removeClass("loading");
+                    $('.'+ride_id).remove();
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    $('.btn_convert').removeClass("loading"); 
+                }.bind(this)
+            });  
+        } else {
+            $('.'+ride_id).removeClass("loading");
+        }
+    }
+
     showrides = () => {
         //$('.btn_apply').addClass("loading");
         var data = {};
@@ -96,11 +123,21 @@ class RidesWithNoImage extends Component {
                 <Table.Cell>{ride.route_price}</Table.Cell>
                 <Table.Cell><Label color='blue' size='tiny' circular onClick={() => this._show_ride(ride.id, ride)}>map</Label></Table.Cell> 
                 <Table.Cell>{ride.createdAt}</Table.Cell>
-                {ride.status === 2 || ride.status === 22 || ride.status === 222 ? 
-                 <Table.Cell textAlign='center'><Label className={ride.id} color='teal' size='tiny' onClick={() => this._accept_ride(ride.id, ride.driver.token)} circular>accept</Label></Table.Cell>
-                 :
-                 <Table.Cell textAlign="center"></Table.Cell>
-                }
+                
+                <Table.Cell>
+                    {ride.status === 2 || ride.status === 22 || ride.status === 222 ? 
+                      <Label className={ride.id} color='teal' size='tiny' onClick={() => this._accept_ride(ride.id, ride.driver.token)} circular>accept</Label>
+                    :
+                      ''
+                    }
+
+                    {ride.status === 7 || ride.status === 77 ? 
+                      <Label className={ride.id} color='blue' size='tiny' onClick={() => this._complete_ride(ride.id, ride.driver.token)} circular>finish</Label>
+                    :
+                      ''
+                    }
+                </Table.Cell>
+
                 <Table.Cell textAlign="center">{this.convert_status(ride.status)}</Table.Cell>
                 <Table.Cell collapsing textAlign='right'><Checkbox slider /></Table.Cell>
             </Table.Row>

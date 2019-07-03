@@ -1040,6 +1040,68 @@ app.post('/ride/completed', (req, res) => {
       });
 });
 
+app.post('/ride/manual_ride_complete', (req, res) => {   // for ride complete from ride control
+    var body = _.pick(req.body, ['status', 'driver_id', 'ride_id']);
+    var sequelize = models.sequelize;
+    return sequelize.transaction(function (t) {
+        return models.riderequests.findOne({
+            where : {id: body.ride_id, status: 7}  
+        }, {transaction: t}).then( (ride) => {
+            if(ride){
+              console.log('bashnkkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ride);
+              return models.riderequests.update(
+                    { status: 7777 },
+                    { where: { id: body.ride_id, status: 7 } } ,
+                    {transaction: t}
+                  ).then(result => {
+                     //return result;
+                     var paymentObj = {
+                         'pay_type': 1,
+                         'driver_id': ride.driver_id,
+                         'ride_id': ride.id,
+                         'amount': ride.route_price,
+                         'charge_dr': 0.00,
+                         'charge_cr': ride.route_price * env.RIDE_PERCENTAGE,
+                         'status': 0
+                     }
+                     var body = _.pick(paymentObj, ['pay_type','driver_id', 'ride_id', 'amount', 'charge_dr','charge_cr','status']);
+                     const payment = models.payments.build(body, {transaction: t}); 
+                    return payment.save().then((payment_data) => {
+                        return models.drivers.update(
+                            { status: 0 },
+                            { where: {token: body.driver_id, status: 1 } },
+                            {transaction: t}
+                        ).then(r => {
+                            if(r){
+                                return payment_data;
+                            } else {
+                                throw new Error('Transaction driver not updated');
+                            }
+                        })
+                     }).catch(err => {
+                         throw new Error(err);
+                     });
+                  }).catch(err => {
+                    return err;
+                  });
+            } else {
+                throw new Error('ride not found');
+            }
+        });
+      
+      }).then(function (result) {
+          res.send(result);
+          console.log('ride completed t commited', result);
+        // Transaction has been committed
+        // result is whatever the result of the promise chain returned to the transaction callback
+      }).catch(function (err) {
+        res.sendStatus(400).send();
+        console.log('ride completed rollback ', err);
+        // Transaction has been rolled back
+        // err is whatever rejected the promise chain returned to the transaction callback
+      });
+});
+
 app.post('/actual_ride/completed', (req, res) => {
     var sequelize = models.sequelize;
     var body = _.pick(req.body, ['status','dropoff_latlng', 'route_distance', 'route_time', 'route_price']);
