@@ -359,7 +359,7 @@ class DriverLocation extends Component {
    driverCurrentLocation = () => {
     let PromiseLocateDriver = new Promise((resolve, reject)=>{
             var map = this.state.map;
-            map.locate({setView: false, maxZoom: 15});
+            map.locate({setView: true, maxZoom: 15});
             resolve(true); 
     });
 
