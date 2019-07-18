@@ -448,7 +448,7 @@ app.post('/ride/rideRequest', authUser, (req, res) => {
 });
 
 app.post('/ride/updateRide', (req, res) => { 
-    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
+    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_waypoints', 'route_distance', 'route_time', 'route_price', 'status']);
 
     let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
     var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);
@@ -467,7 +467,7 @@ app.post('/ride/updateRide', (req, res) => {
               }).then((driver) => {
                    if(driver) {
                     return models.riderequests.update(
-                        { user_id : user.token, driver_id : driver.token, pickup_latlng : body.pickup_latlng, dropoff_latlng : body.dropoff_latlng, route_distance : body.route_distance, route_time : body.route_time, route_price : body.route_price},
+                        { user_id : user.token, driver_id : driver.token, pickup_latlng : body.pickup_latlng, dropoff_latlng : body.dropoff_latlng, route_waypoints : body.route_waypoints, route_distance : body.route_distance, route_time : body.route_time, route_price : body.route_price},
                         { where : {id : body.ride_id}, transaction: t }
                         ).then((ride) => {
                             if(ride) {
@@ -494,7 +494,7 @@ app.post('/ride/updateRide', (req, res) => {
 });
 
 app.post('/ride/manual_create_ride', (req, res) => { 
-    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_distance', 'route_time', 'route_price', 'status']);
+    let body = _.pick(req.body, ['ride_id', 'user_id', 'driver_id', 'pickup_latlng', 'dropoff_latlng', 'route_waypoints', 'route_distance', 'route_time', 'route_price', 'status']);
 
     let _pickup_latlng = Sequelize.fn('ST_GeomFromText', req.body.pickup_latlng);
     var _dropoff_latlng = Sequelize.fn('ST_GeomFromText', req.body.dropoff_latlng);

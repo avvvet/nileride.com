@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     driver_id: DataTypes.STRING,
     pickup_latlng: DataTypes.GEOMETRY('POINT'),
     dropoff_latlng: DataTypes.GEOMETRY('POINT'),
+    route_waypoints: DataTypes.STRING,
     route_distance: DataTypes.DECIMAL(10, 2),
     route_time: DataTypes.INTEGER,
     route_price: DataTypes.DECIMAL(10,2),

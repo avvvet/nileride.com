@@ -1176,6 +1176,7 @@ class PickUpMap extends Component {
     cancelRide = () => {
         document.getElementById('ride-price-dashboard').style.visibility = "hidden";
         document.getElementById('fast-nile').style.visibility = 'visible';
+        document.getElementById('call-nile').style.display = 'block';
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
@@ -1380,9 +1381,11 @@ class PickUpMap extends Component {
                 pickup_search_results : results
               });
               document.getElementById('search_result_pickup').style.visibility = 'visible';
+              document.getElementById('call-nile').style.display = 'none';
             });
         } else {
             $('.pickup_search').removeClass("loading");
+            document.getElementById('call-nile').style.display = 'block';
         }
     }
 
@@ -1474,6 +1477,7 @@ class PickUpMap extends Component {
                 });
                 //console.log('again winner');
                 document.getElementById('search_result_dropoff').style.visibility = 'visible';
+                document.getElementById('call-nile').style.display = 'none';
               } else {
                 $('.dropoff_search').removeClass("loading");
                 this.setState({
@@ -1481,6 +1485,7 @@ class PickUpMap extends Component {
                 });
                 //console.log('again again winner');
                 document.getElementById('search_result_dropoff').style.visibility = 'visible';
+                document.getElementById('call-nile').style.display = 'block';
               }
             });
         } else {
@@ -1488,6 +1493,7 @@ class PickUpMap extends Component {
                 dropoff_search_results : ''
               });
               document.getElementById('search_result_dropoff').style.visibility = 'visible';
+              document.getElementById('call-nile').style.display = 'block';
             $('.dropoff_search').removeClass("loading");
         }
     }
@@ -1940,6 +1946,11 @@ class PickUpMap extends Component {
                  <Label  content='ጥያቄ' icon='help'  size='tiny' color='olive' as="a"  onClick={(e) => this._show_faq(e)}/> 
               </div>
 
+              <div className="call-nile" id="call-nile">
+                 <a className='a-phone' href={'tel:+251993928777'}><Icon size='large' name="phone volume" inverted circular link color='green'></Icon></a>
+              </div>
+
+             
               <div id="div-faq-txt" className="div-faq-txt"></div>
 
               <div className="mapid" id="mapid"></div>

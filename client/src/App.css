@@ -230,11 +230,11 @@ body {
 .ride-price-dashboard {
   color: #ffffff;
   position: fixed;
-  bottom: 15%;
+  top: 15%;
   right: 45%;
   transform: translate(50%, 0%);
-  width: 336px;
-  height: 151px;
+  width: 240px;
+  height: 90px;
   z-index: 3010;
   text-align: center;
   visibility: hidden;
@@ -903,6 +903,17 @@ input[type="file"] {
   left: 7%;
   z-index: 1900;
   transform: translate(0%, 50%);
+}
+
+.call-nile {
+  position: fixed;
+  top: 28%;
+  left: 45%;
+  z-index: 3000;
+  transform: translate(0%, 50%);
+  box-shadow: 10px 10px 10px gray;
+  border-radius: 25px;
+  width: 40px;
 }
 
 .driver-manual {

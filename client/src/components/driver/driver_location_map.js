@@ -160,6 +160,7 @@ class DriverLocation extends Component {
             lat: 0,
             lng: 0
            },
+           route_waypoints : '',
            driver_id: '',
            markerGroup: '',
            locationGroup: '',
@@ -467,6 +468,7 @@ class DriverLocation extends Component {
                             lng : ride.pickup_latlng.coordinates[1]
                        },
                        dropoff_latlng: ride.dropoff_latlng.coordinates,
+                       route_waypoints : ride.route_waypoints,
                        stopMapViewFlag : true
                    });
                    let PromiseSetlatlng = new Promise((res,rej) => {
@@ -479,6 +481,7 @@ class DriverLocation extends Component {
                             lat : ride.dropoff_latlng.coordinates[0],
                             lng : ride.dropoff_latlng.coordinates[1]
                            },
+                           route_waypoints : ride.route_waypoints,
                            stopMapViewFlag : true
                        });
   
@@ -486,7 +489,7 @@ class DriverLocation extends Component {
                    });
   
                    PromiseSetlatlng.then(()=>{
-                       this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
+                       this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng, JSON.parse(this.state.route_waypoints));
                        clearInterval(this.timerCheckForRide);
                    })
                    
@@ -504,77 +507,6 @@ class DriverLocation extends Component {
     });  
       
  }
-
-   checkForRideOLd = () => {
-       
-        var driver = {
-            status : 1
-        };
-
-        $.ajax({
-            type:"POST",
-            url:"/ride/check_ride_driver",
-            headers: { 'x-auth': localStorage.getItem("_auth_driver")},
-            data: JSON.stringify(driver), 
-            contentType: "application/json"
-         })
-         .done( (ride) => {
-            console.log('done done', ride);
-         })
-         .fail(function (errorHandler, soapResponse, errorMsg) {
-             console.log('Error', errorMsg);
-         })
-         .always((ride) => {
-             console.log('always ', ride);
-             
-             if(!_.isNull(ride) && !_.isUndefined(ride.driver)) {
-                if(ride.status === 1) {
-                   this.ride_alert(ride);
-                } else if (ride.status === 7) {
-                    let PromiseOneTimeCall = new Promise((res,rej) => {
-                        clearInterval(this.timerCheckForRide);
-                        res(true);
-                    });
-                    PromiseOneTimeCall.then(() => {
-                        this.acceptRideAction(ride);
-                    });
-                } else if (ride.status === 77) {
-                    this.setState({
-                        ridePrice: ride.route_price,
-                        rideDistance: ride.route_distance,
-                        rideTime: ride.route_time,
-                        rideUser: ride.user.firstName + ' ' + ride.user.middleName,
-                        userMobile: ride.user.mobile,
-                        userPic: "/assets/profile/user/" + ride.user.profile,
-                        pickup_latlng : ride.pickup_latlng.coordinates,
-                        dropoff_latlng: ride.dropoff_latlng.coordinates,
-                        stopMapViewFlag : true
-                    });
-                    let PromiseSetlatlng = new Promise((res,rej) => {
-                        this.setState({
-                            pickup_latlng : ride.pickup_latlng.coordinates,
-                            dropoff_latlng: ride.dropoff_latlng.coordinates,
-                            stopMapViewFlag : true
-                        });
-
-                        res(true);
-                    });
-
-                    PromiseSetlatlng.then(()=>{
-                        this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
-                        clearInterval(this.timerCheckForRide);
-                    })
-                    
-                } else if (ride.driver.status === 2) {   //you have missed the ride 
-                    sound.volume(0,this.soundAccept);
-                    document.getElementById('check-ride-dashboard').style.visibility="hidden"; 
-                    document.getElementById('missed-ride').style.visibility="visible"; 
-                    render(<MissedRide reset_ride={this.reset_ride} ride = {ride}></MissedRide>,document.getElementById('missed-ride'));
-                }  
-             }
-             
-         }); 
-    }
 
     ride_alert = (ride) => {
             sound.volume(0.7, this.soundAccept);        
@@ -695,10 +627,10 @@ class DriverLocation extends Component {
         var driver = {
             status : 777
         };
-        this.end_trip(this.state.pickup_latlng, this.state.current_latlng)
+        this.end_trip(this.state.pickup_latlng, this.state.current_latlng, JSON.parse(this.state.route_waypoints));
     }
 
-    end_trip = (latlng1, latlng2) => {
+    end_trip = (latlng1, latlng2, route_waypoints) => {
         // alert('jesus');my lord help me 
         
          var map = this.state.map;
@@ -706,12 +638,20 @@ class DriverLocation extends Component {
              map.removeControl(this.routeControl);
              this.routeControl = null;
          }
- 
-         this.routeControl = L.Routing.control({
-             waypoints: [
-              L.latLng(latlng1),
-              L.latLng(latlng2)
-             ],
+
+        //this is to support old rides created before waypoints column added to db 
+        let waypoints;
+        if(route_waypoints === null){
+            waypoints = [
+                L.latLng(latlng1),
+                L.latLng(latlng2)
+            ]
+        } else {
+            waypoints = route_waypoints;
+        }
+
+        this.routeControl = L.Routing.control({
+             waypoints: waypoints,
              routeWhileDragging: false,
              addWaypoints : false, //disable adding new waypoints to the existing path
              show: false,
@@ -873,7 +813,7 @@ class DriverLocation extends Component {
             success: (_ride) => {
                 $('.btn_pax_found').removeClass("loading");
                 if(_ride){
-                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng);
+                    this.showDropOffLocation(this.state.pickup_latlng, this.state.dropoff_latlng, JSON.parse(_ride.route_waypoints));
                 }  
             },
             error: function(xhr, status, err) {
@@ -883,7 +823,6 @@ class DriverLocation extends Component {
         });  
     }
 
-    
     showPickUpLocation = (_pickup_latlng, current_latlng) => {
         var map = this.state.map;
         var markerGroup = this.state.markerGroup;
@@ -929,7 +868,7 @@ class DriverLocation extends Component {
          });
     }
 
-    showDropOffLocation = (latlng1,latlng2) => {
+    showDropOffLocation = (latlng1,latlng2, route_waypoints) => {
         
          let PromiseRemoveShowDropoff = new Promise((resolve, rejects) => {
             document.getElementById("driver-pax-action").style.visibility = "hidden";
@@ -947,27 +886,41 @@ class DriverLocation extends Component {
             .bindPopup("Final dropoff location.");
             //map.setView(latlng2,15);
             
-            this.showDropOffRoute(latlng1,latlng2);
+            this.showDropOffRoute(latlng1,latlng2, route_waypoints);
         });
     }
 
-    showDropOffRoute = (latlng1, latlng2) => {
+    showDropOffRoute = (latlng1, latlng2, route_waypoints) => {
         var map = this.state.map;
         if(this.routeControl){
             map.removeControl(this.routeControl);
             this.routeControl = null;
         }
+
+        //this is to support old rides created before waypoints column added to db 
+        let waypoints;
+        if(route_waypoints === null){
+            waypoints = [
+                L.latLng(latlng1),
+                L.latLng(latlng2)
+            ]
+        } else {
+            waypoints = route_waypoints;
+        }
+
         this.routeControl = L.Routing.control({
-            waypoints: [
-             L.latLng(latlng1),
-             L.latLng(latlng2)
-            ],
+            waypoints: waypoints,
             routeWhileDragging: false,
             addWaypoints : false, //disable adding new waypoints to the existing path
             show: false,
             showAlternatives: false,
-            createMarker: function (){
-                return null;
+            createMarker: function(i, wp, nWps) {    //እኔ ዝም ብዬ አመልካለሁ 
+                 
+                if (i === 0) {
+                    return L.marker(wp.latLng, {icon: marker_a , draggable: true});
+                } else {
+                    return L.marker(wp.latLng, {icon: marker_b , draggable: true });
+                }
             },
             lineOptions: {
                 styles: [{color: 'red', opacity: 1, weight: 3}]

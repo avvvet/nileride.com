@@ -97,6 +97,7 @@ class RideControlMap extends Component {
                 lat: 0,
                 lng: 0
             },
+            route_waypointsObj : '',
             route_price : 0,
             route_distance : 0,
             route_time : 0,
@@ -281,8 +282,10 @@ class RideControlMap extends Component {
                     _driverCurrentLocation : ride.driver.currentLocation.coordinates,
                     pickup_latlng : ride.pickup_latlng.coordinates,
                     dropoff_latlng : ride.dropoff_latlng.coordinates,
+                    _route_waypointsObj : ride.route_waypoints
                 });
-                this._ride_route(this.state.pickup_latlng, this.state.dropoff_latlng);
+                
+                this._ride_route(this.state.pickup_latlng, this.state.dropoff_latlng, JSON.parse(ride.route_waypoints));
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err.toString());
@@ -337,7 +340,7 @@ class RideControlMap extends Component {
     }
 
 
-    _ride_route = (latlng1, latlng2) => {
+    _ride_route = (latlng1, latlng2, route_waypoints) => {
         // alert('jesus');my lord help me 
          document.getElementById('ride-price-dashboard').style.visibility = "hidden";
          
@@ -346,14 +349,23 @@ class RideControlMap extends Component {
              map.removeControl(this.routeControl);
              this.routeControl = null;
          }
- 
-         this.routeControl = L.Routing.control({ 
-             waypoints: [
-              L.latLng(latlng1),
-              L.latLng(latlng2)
-             ],
+        
+        //this is to support old rides created before waypoints column added to db 
+        let waypoints;
+        if(route_waypoints === null){
+            waypoints = [
+                L.latLng(latlng1),
+                L.latLng(latlng2)
+            ]
+        } else {
+            waypoints = route_waypoints;
+        }
+
+
+        this.routeControl = L.Routing.control({ 
+             waypoints: waypoints,
              routeWhileDragging: false,
-             addWaypoints : false, //disable adding new waypoints to the existing path
+             addWaypoints : true, //disable adding new waypoints to the existing path
              show: false,
              showAlternatives: false,
              createMarker: function(i, wp, nWps) {    //እኔ ዝም ብዬ አመልካለሁ 
@@ -382,20 +394,30 @@ class RideControlMap extends Component {
      }
      
      routeFound =(e) => {
-         
+         console.log('ride', e.routes[0]);
          var markerGroup = this.state.markerGroup;
          markerGroup.clearLayers();
  
          var routes = e.routes;
          var _distance = routes[0].summary.totalDistance;
          var _ride_time = routes[0].summary.totalTime;
-         
+         console.log('ride', routes[0]);
          _distance = (_distance/1000).toFixed(2);
          var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
+
+         //lets hold all way point in single array 
+         let route_waypoints = routes[0].waypoints;
+         let waypoints = [];
+         route_waypoints.forEach(route_waypoint => {
+             waypoints.push(route_waypoint.latLng);
+         });
+         let waypointsObj = JSON.stringify(waypoints);
+
          //this holdes the new changes 
          this.setState({
              pickup_latlng : routes[0].waypoints[0].latLng,
-             dropoff_latlng : routes[0].waypoints[1].latLng
+             dropoff_latlng : routes[0].waypoints[1].latLng,
+             route_waypointsObj : waypointsObj
          });
          
          function timeConvert(n) {
@@ -503,6 +525,7 @@ class RideControlMap extends Component {
             route_distance: this.state.route_distance,
             route_time: this.state.route_time,
             route_price: this.state.route_price,
+            route_waypoints : this.state.route_waypointsObj,
             status: 1
         };
 
@@ -516,7 +539,10 @@ class RideControlMap extends Component {
                 console.log('test test', ride);
                 $('.btn_update').removeClass("loading");
                 if(!_.isNull(ride)) {
-                    this._clear_map();
+                    document.getElementById('ride-price-dashboard').style.visibility = 'visible';
+                    document.getElementById('div-update-ride').style.visibility = 'hidden';
+                    alert('Yes! updated');
+                    //this._clear_map();
                 } else {
                     alert('request not updated');
                 }
@@ -545,6 +571,7 @@ class RideControlMap extends Component {
             route_distance: this.state.route_distance,
             route_time: this.state.route_time,
             route_price: this.state.route_price,
+            route_waypoints : this.state.route_waypointsObj,
             status: 1
         };
 
@@ -557,7 +584,10 @@ class RideControlMap extends Component {
             success: function(ride, e) {
                 $('.btn_create').removeClass("loading");
                 if(!_.isNull(ride)) {
-                    this._clear_map();
+                    document.getElementById('ride-price-dashboard').style.visibility = 'visible';
+                    document.getElementById('div-update-ride').style.visibility = 'hidden';
+                    alert('request created !');
+                    //this._clear_map();
                 } else {
                     alert('request not updated');
                 }
@@ -579,29 +609,29 @@ class RideControlMap extends Component {
             <div>
                 <div className="ride-price-dashboard" id="ride-price-dashboard">
                 <div>
-                <Card color='teal'>
+                <Card color='teal' size='tiny'>
                     <Card.Content>       
                         <Card.Description>
                         
                         <Grid  divided>
                             <Grid.Row columns={3}>
                                 <Grid.Column>
-                                   <h3>{this.state.route_price + ' ብር'}</h3>
+                                   {this.state.route_price + ' ብር'}
                                 </Grid.Column>
                                 <Grid.Column>
-                                  <h3>{this.state.route_distance + ' ኪ/ሜ'}</h3>
+                                  {this.state.route_distance + ' ኪ/ሜ'}
                                 </Grid.Column>
                                 <Grid.Column>
-                                 <h3>{this.state.route_time_string} </h3>
+                                 {this.state.route_time_string}
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
                         </Card.Description>
                     </Card.Content>
-                    <Card.Content extra>
-                     <div className='ui two buttons'>
-                      <Button size='tiny' content='UPDATE'  color="green" className="btn" onClick={(e) => this._show_update(e)} />
-                      <Button size='tiny' content='CANCEL'  onClick={(e) => this._clear_map(e)} />
+                    <Card.Content>
+                     <div className='ui two buttons tiny'>
+                      <Button content='UPDATE'  color="green" className="btn" onClick={(e) => this._show_update(e)} />
+                      <Button content='CANCEL'  onClick={(e) => this._clear_map(e)} />
                      </div>
                     </Card.Content>
                     </Card>
