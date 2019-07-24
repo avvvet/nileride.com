@@ -16,7 +16,7 @@ import Notes from './components/driver/note';
 import Msg from './components/driver/msg';
 
 import './App.css';
-
+import './routing_machine.css';
 
 
 
