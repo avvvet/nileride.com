@@ -18,6 +18,7 @@ import RiderLoginForm from './rider/rider_login_2';
 import ApplyToRide from './rider/apply_to_ride_2';
 import Faq from './faq';
 
+const myMovingMarker = require('./moving_marker');
 const env = require('../env');
 var validator = require('validator');
 var moment = require('moment');
@@ -410,6 +411,57 @@ class PickUpMap extends Component {
     
         this.getDrivers(map);
         this.getUsersMarker(map);
+        
+        let l1 = {
+            lat : 8.986691,
+            lng : 38.793362 
+        }       
+        let l2 = {
+            lat : 9.037355,
+            lng : 38.752216 
+        }       
+        //this.findRoute(l1, l2);
+
+        var myMovingMarker = L.Marker.movingMarker([[8.986691, 38.793362],[9.037355, 38.752216]], [400000],
+             { 
+                loop : true,
+                icon: driver_icon
+             }
+        ).addTo(map);
+        myMovingMarker.start();
+       
+        var myMovingMarker2 = L.Marker.movingMarker([[9.037355, 38.752216], [8.986691, 38.793362]], [400000],
+            { 
+               loop : true,
+               icon: driver_icon
+            }
+       ).addTo(map);
+       myMovingMarker2.start();
+
+       
+        var myMovingMarker3 = L.Marker.movingMarker([[9.019212, 38.801289],[9.011955, 38.720483]], [300000],
+            { 
+               loop : true,
+               icon: driver_icon
+            }
+       ).addTo(map);
+       myMovingMarker3.start();
+
+       var myMovingMarker4 = L.Marker.movingMarker([[9.019212, 38.801289],[9.011955, 38.720483]], [400000],
+        { 
+           loop : true,
+           icon: driver_icon
+        }
+   ).addTo(map);
+   myMovingMarker4.start();
+
+   var myMovingMarker5 = L.Marker.movingMarker([[8.964669, 38.733285],[9.001365, 38.677768]], [300000],
+    { 
+       loop : true,
+       icon: driver_icon
+    }
+   ).addTo(map);
+   myMovingMarker5.start();
 
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
@@ -573,9 +625,9 @@ class PickUpMap extends Component {
         markerGroup.clearLayers();
 
         var routes = e.routes;
+        console.log('lord ', routes);
         var _distance = routes[0].summary.totalDistance;
         var _ride_time = routes[0].summary.totalTime;
-        
         _distance = (_distance/1000).toFixed(2);
         var  _ride_time_string = timeConvert(Number.parseInt(_ride_time));
         //this holdes the new changes 
@@ -612,6 +664,41 @@ class PickUpMap extends Component {
        //this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
     }
 
+    moving_marker_route = (latlng1, latlng2) => {
+        //alert('jesus'); //my lord help me 
+         var map = this.state.map;
+ 
+         this.routeControl = L.Routing.control({
+             waypoints: [
+              L.latLng(latlng1),
+              L.latLng(latlng2)
+             ],
+             routeWhileDragging: false,
+             addWaypoints : false, //disable adding new waypoints to the existing path
+             show: false,
+             showAlternatives: false,//እኔ ዝም ብዬ አመልካለሁ 
+             createMarker: null,
+             lineOptions: {
+                 styles: [{color: 'red', opacity: 1, weight: 1}]
+             },
+             router: L.Routing.osrmv1({
+                 serviceUrl: env.ROUTING_SERVICE
+             })
+         })
+         .on('routesfound', this.moving_marker_route_found)
+         .on('routingerror', (err) => {
+         })
+         .addTo(map);  
+     }
+     
+     moving_marker_route_found =(e) => {
+         var routes = e.routes;
+         var _distance = routes[0].summary.totalDistance;
+         var _ride_time = routes[0].summary.totalTime;
+         console.log('rooooooot', routes);
+        //lord your are God of order, I beg you father not now. THANK YOU FATHER - Let your will be done (Your will happened - Thank you father)
+    }
+ 
     nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
         var map = this.state.map;
         if(this._neearest_driver_routeControl){
