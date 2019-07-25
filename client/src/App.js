@@ -1,24 +1,31 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { render } from 'react-dom';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
-import Branch from './components/branch';
-import Menu from './components/menu';
-import PickUp from './components/pick_up';
-import DropOff from './components/drop_off';
-import DriverPage from './components/driver/driver_page';
-import DriverLogin from './components/driver/login';
-import RiderLogin from './components/rider/login';
-import AdminLogin from './components/admin/admin_login';
-import ControlPanel from './components/admin/control_panel';
-import Playground from './components/playground';
-import Notes from './components/driver/note';
-import Msg from './components/driver/msg';
+
+//import PickUp from './components/pick_up';
+// import DriverPage from './components/driver/driver_page';
+// import DriverLogin from './components/driver/login';
+// import RiderLogin from './components/rider/login';
+// import AdminLogin from './components/admin/admin_login';
+// import ControlPanel from './components/admin/control_panel';
+// import Playground from './components/playground';
+// import Notes from './components/driver/note';
+// import Msg from './components/driver/msg';
 
 import './App.css';
 import './routing_machine.css';
 
 
+const PickUp = lazy(() => import('./components/pick_up'));
+const DriverPage = lazy(() => import('./components/driver/driver_page'));
+const DriverLogin = lazy(() => import('./components/driver/login'));
+const RiderLogin = lazy(() => import('./components/rider/login'));
+const AdminLogin = lazy(() => import('./components/admin/admin_login'));
+const ControlPanel = lazy(() => import('./components/admin/control_panel'));
+const Playground = lazy(() => import('./components/playground'));
+const Notes = lazy(() => import('./components/driver/note'));
+const Msg = lazy(() => import('./components/driver/msg'));
 
 class App extends React.Component {
   constructor() {
@@ -39,6 +46,7 @@ class App extends React.Component {
       <div>
         <BrowserRouter>
           <div>
+          <Suspense fallback={<div>Loading...</div>}>
             <Switch>
                 <Route path="/" component={PickUp} exact />
                 
@@ -54,6 +62,7 @@ class App extends React.Component {
                 <Route path="/msg" component={Msg} exact />
                 
             </Switch>
+            </Suspense>
           </div>
         </BrowserRouter>  
         
