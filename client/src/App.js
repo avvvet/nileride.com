@@ -44,7 +44,7 @@ class App extends React.Component {
           <div>
           <Suspense fallback={<div id="div-boot" className="div-boot">
             <Image src='/assets/nile_ride_logo_blue.png' height={75} centered></Image> 
-            <Label color="green" pointing="above">ከዓለም ረዥሙ ወንዝ</Label>
+            <Label color="black" pointing="above">Loading...</Label>
           </div>}>
             <Switch>
                 <Route path="/" component={PickUp} exact />
