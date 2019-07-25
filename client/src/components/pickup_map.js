@@ -463,6 +463,38 @@ class PickUpMap extends Component {
    ).addTo(map);
    myMovingMarker5.start();
 
+   var myMovingMarker6 = L.Marker.movingMarker([[9.015389, 38.787273],[9.033158, 38.742287]], [300000],
+    { 
+       loop : true,
+       icon: driver_icon
+    }
+   ).addTo(map);
+   myMovingMarker6.start();
+
+   var myMovingMarker7 = L.Marker.movingMarker([[9.021939, 38.891083],[9.021637, 38.830733]], [200000],
+    { 
+       loop : true,
+       icon: driver_icon
+    }
+   ).addTo(map);
+   myMovingMarker7.start();
+
+   var myMovingMarker8 = L.Marker.movingMarker([[9.021637, 38.830733], [9.021939, 38.891083]], [500000],
+    { 
+       loop : true,
+       icon: driver_icon
+    }
+   ).addTo(map);
+   myMovingMarker8.start();
+
+   var myMovingMarker9 = L.Marker.movingMarker([[9.00369,38.694005], [8.999682, 38.740321], [8.946309, 38.743881]], [100000],
+    { 
+       loop : true,
+       icon: driver_icon
+    }
+   ).addTo(map);
+   myMovingMarker9.start();
+
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
             radius = radius.toFixed(2);
