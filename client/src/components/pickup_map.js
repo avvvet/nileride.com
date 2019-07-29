@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 
 import L from 'leaflet';
+import {Routing} from 'leaflet-routing-machine';
 import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react';
 import {NavLink, Redirect} from 'react-router-dom';
 
-import {Routing} from 'leaflet-routing-machine';
+
 import myMovingMarker from './moving_marker';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
@@ -586,7 +587,7 @@ class PickUpMap extends Component {
         markerGroup.clearLayers();
 
         var routes = e.routes;
-        console.log('lord ', routes);
+        
         var _distance = routes[0].summary.totalDistance;
         var _ride_time = routes[0].summary.totalTime;
         _distance = (_distance/1000).toFixed(2);
@@ -691,14 +692,14 @@ class PickUpMap extends Component {
                  serviceUrl: env.ROUTING_SERVICE
              })
          })
-         .on('routesfound', this.routeFound)
+         .on('routesfound', this.moving_marker_route_found)
          .on('routingerror', (err) => {
             
          })
          .addTo(map);  
      }
      
-     routeFound =(e) => {
+     moving_marker_route_found =(e) => {
         var map = this.state.map;
         var routes = e.routes;
         var _distance = routes[0].summary.totalDistance;
