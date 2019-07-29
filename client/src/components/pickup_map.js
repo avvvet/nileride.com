@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
+
 import L from 'leaflet';
 import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react';
 import {NavLink, Redirect} from 'react-router-dom';
+
 import {Routing} from 'leaflet-routing-machine';
+import myMovingMarker from './moving_marker';
 import * as Nominatim from "nominatim-browser";
 import $ from 'jquery';
 import _ from 'lodash';
@@ -18,7 +21,7 @@ import RiderLoginForm from './rider/rider_login_2';
 import ApplyToRide from './rider/apply_to_ride_2';
 import Faq from './faq';
 
-const myMovingMarker = require('./moving_marker');
+
 const env = require('../env');
 var validator = require('validator');
 var moment = require('moment');
@@ -411,89 +414,40 @@ class PickUpMap extends Component {
     
         this.getDrivers(map);
         this.getUsersMarker(map);
-        
-        let l1 = {
-            lat : 8.986691,
-            lng : 38.793362 
-        }       
-        let l2 = {
-            lat : 9.037355,
-            lng : 38.752216 
-        }       
-        //this.findRoute(l1, l2);
-
-        var myMovingMarker = L.Marker.movingMarker([[8.986691, 38.793362],[9.037355, 38.752216]], [400000],
-             { 
-                loop : true,
-                icon: driver_icon
-             }
-        ).addTo(map);
-        myMovingMarker.start();
        
-        var myMovingMarker2 = L.Marker.movingMarker([[9.037355, 38.752216], [8.986691, 38.793362]], [400000],
-            { 
-               loop : true,
-               icon: driver_icon
-            }
-       ).addTo(map);
-       myMovingMarker2.start();
-
+       let latlng =  [];
+       latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+      
+       latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-        var myMovingMarker3 = L.Marker.movingMarker([[9.019212, 38.801289],[9.011955, 38.720483]], [300000],
-            { 
-               loop : true,
-               icon: driver_icon
-            }
-       ).addTo(map);
-       myMovingMarker3.start();
+       latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       var myMovingMarker4 = L.Marker.movingMarker([[9.019212, 38.801289],[9.011955, 38.720483]], [400000],
-        { 
-           loop : true,
-           icon: driver_icon
-        }
-   ).addTo(map);
-   myMovingMarker4.start();
+       latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+   
+       latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-   var myMovingMarker5 = L.Marker.movingMarker([[8.964669, 38.733285],[9.001365, 38.677768]], [300000],
-    { 
-       loop : true,
-       icon: driver_icon
-    }
-   ).addTo(map);
-   myMovingMarker5.start();
+       latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-   var myMovingMarker6 = L.Marker.movingMarker([[9.015389, 38.787273],[9.033158, 38.742287]], [300000],
-    { 
-       loop : true,
-       icon: driver_icon
-    }
-   ).addTo(map);
-   myMovingMarker6.start();
+       latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+       
+       latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+       
+       latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+       
+       latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-   var myMovingMarker7 = L.Marker.movingMarker([[9.021939, 38.891083],[9.021637, 38.830733]], [200000],
-    { 
-       loop : true,
-       icon: driver_icon
-    }
-   ).addTo(map);
-   myMovingMarker7.start();
-
-   var myMovingMarker8 = L.Marker.movingMarker([[9.021637, 38.830733], [9.021939, 38.891083]], [500000],
-    { 
-       loop : true,
-       icon: driver_icon
-    }
-   ).addTo(map);
-   myMovingMarker8.start();
-
-   var myMovingMarker9 = L.Marker.movingMarker([[9.00369,38.694005], [8.999682, 38.740321], [8.946309, 38.743881]], [100000],
-    { 
-       loop : true,
-       icon: driver_icon
-    }
-   ).addTo(map);
-   myMovingMarker9.start();
+       latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
@@ -547,31 +501,6 @@ class PickUpMap extends Component {
 
         //my Lord is greate  - Jesus I call your name 
         map.on('click', (e) => {
-            // var markerGroup = this.state.markerGroup;
-            // this.setState({first_time_flag: false});
-            // if(this.state.pickup_flag === 'off'){
-            //     L.marker(e.latlng, {icon: marker_a}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your pickup </div>" + "<div class='popup-content'> driver will come here.</div>" );
-            //     this.setState({
-            //         pickup_flag : 'on',
-            //         pickup_latlng : e.latlng,
-            //         first_time_flag : true
-            //     });
-            //     this.getNearestDrivers(e.latlng);
-            // }
-            
-            // if(this.state.dropoff_flag === 'off' && this.state.pickup_flag === 'on' && this.state.first_time_flag === false){
-            //     L.marker(e.latlng, {icon: marker_b}).addTo(markerGroup).bindPopup("<div class='popup-title'> Your dropoff </div>" + "<div class='popup-content'> ride ends here.</div>" );
-            //     this.setState({
-            //         dropoff_flag: 'on',
-            //         dropoff_latlng: e.latlng
-            //     });
-            // }
-            
-            // if(this.state.dropoff_flag === 'on' && this.state.pickup_flag ==='on' & this.state.isRouteFound === false) {
-            //     var latlng1 = this.state.pickup_latlng;
-            //     var latlng2 = this.state.dropoff_latlng;
-            //     this.findRoute(latlng1, latlng2);
-            // }
             
         }); 
         
@@ -696,39 +625,106 @@ class PickUpMap extends Component {
        //this.nearestDriverRouteInfo(this.state.pickup_latlng, this.state._nearest_driver_latlng);
     }
 
-    moving_marker_route = (latlng1, latlng2) => {
-        //alert('jesus'); //my lord help me 
+    getMovingMarkerRide = (ride_id,l1, l2) => {
+        var objRideRequest = {
+            id : ride_id
+        };
+        console.log('ride ride', ride_id);
+        $.ajax({ 
+            type:"POST",
+            url:"/ride/id",
+            data: JSON.stringify(objRideRequest), 
+            contentType: "application/json",
+            success: function(ride, textStatus, jqXHR) {
+                console.log('returend', ride);
+                this.setState({
+                    _ride_id : ride.id,
+                    _driverImage: "/assets/profile/driver/" + ride.driver.profile,
+                    _driverName : ride.driver.firstName + ' ' + ride.driver.middleName,
+                    _driverCurrentLocation : ride.driver.currentLocation.coordinates,
+                    pickup_latlng : ride.pickup_latlng.coordinates,
+                    dropoff_latlng : ride.dropoff_latlng.coordinates,
+                    _route_waypointsObj : ride.route_waypoints
+                });
+                
+                this.moving_marker_route(l1, l2, null);
+                this.moving_marker_route(l2, l1, null);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
+   moving_marker_route = (latlng1, latlng2, route_waypoints) => {
+         // alert('jesus');my lord help me 
          var map = this.state.map;
- 
-         this.routeControl = L.Routing.control({
-             waypoints: [
-              L.latLng(latlng1),
-              L.latLng(latlng2)
-             ],
+         if(this.routeControl){
+             map.removeControl(this.routeControl);
+             this.routeControl = null;
+         }
+        
+        //this is to support old rides created before waypoints column added to db 
+        let waypoints;
+        if(route_waypoints === null){
+            waypoints = [
+                L.latLng(latlng1),
+                L.latLng(latlng2)
+            ]
+        } else {
+            waypoints = route_waypoints;
+        }
+
+        this.routeControl = L.Routing.control({ 
+             waypoints: waypoints,
              routeWhileDragging: false,
-             addWaypoints : false, //disable adding new waypoints to the existing path
+             addWaypoints : true, //disable adding new waypoints to the existing path
              show: false,
-             showAlternatives: false,//እኔ ዝም ብዬ አመልካለሁ 
-             createMarker: null,
+             showAlternatives: false,
+             createMarker: function() {    //እኔ ዝም ብዬ አመልካለሁ 
+                return null;
+             },
              lineOptions: {
-                 styles: [{color: 'red', opacity: 1, weight: 1}]
+                 styles: [{color: 'red', opacity: 1, weight: 0}]
              },
              router: L.Routing.osrmv1({
                  serviceUrl: env.ROUTING_SERVICE
              })
          })
-         .on('routesfound', this.moving_marker_route_found)
+         .on('routesfound', this.routeFound)
          .on('routingerror', (err) => {
+            
          })
          .addTo(map);  
      }
      
-     moving_marker_route_found =(e) => {
-         var routes = e.routes;
-         var _distance = routes[0].summary.totalDistance;
-         var _ride_time = routes[0].summary.totalTime;
-         console.log('rooooooot', routes);
-        //lord your are God of order, I beg you father not now. THANK YOU FATHER - Let your will be done (Your will happened - Thank you father)
+     routeFound =(e) => {
+        var map = this.state.map;
+        var routes = e.routes;
+        var _distance = routes[0].summary.totalDistance;
+        var _ride_time = routes[0].summary.totalTime;
+        let a = [];
+        let data = routes[0].coordinates;
+        data.forEach(c => {
+            let b = [];
+            b.push(c.lat,c.lng);
+            a.push(b)
+        });
+
+        let d = [];
+        a.forEach(element => {
+            d.push(1000);
+        });
+
+        var marker2 = L.Marker.movingMarker(a,
+            d, {
+                autostart: true,
+                icon: driver_icon,
+                loop : true
+            }
+        ).addTo(map);
+        //L.polyline(a, {color: 'red'}).addTo(map);
+        //lord your are God of order, I beg you father not now. THANK YOU FATHER - Let your will be done
     }
  
     nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
