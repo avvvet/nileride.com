@@ -438,9 +438,6 @@ class PickUpMap extends Component {
        latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
        this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-       
        latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
        this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
@@ -448,6 +445,12 @@ class PickUpMap extends Component {
        this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
        latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+       latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
+       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+       latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
        this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
         map.on('locationfound', (e) => {
@@ -714,7 +717,7 @@ class PickUpMap extends Component {
 
         let d = [];
         a.forEach(element => {
-            d.push(1000);
+            d.push(3000);
         });
 
         var marker2 = L.Marker.movingMarker(a,
