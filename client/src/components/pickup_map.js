@@ -416,42 +416,42 @@ class PickUpMap extends Component {
         this.getDrivers(map);
         this.getUsersMarker(map);
        
-       let latlng =  [];
-       latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    let latlng =  [];
+    //    latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
       
-       latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
    
-       latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
