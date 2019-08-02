@@ -414,7 +414,7 @@ class PickUpMap extends Component {
         });
     
        this.getDrivers(map);
-       this.getUsersMarker(map);
+       //this.getUsersMarker(map);
 
        let latlng =  [
        [8.986691, 38.793362],[9.037355, 38.752216],
