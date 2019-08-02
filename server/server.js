@@ -1045,13 +1045,13 @@ app.post('/ride/manual_ride_complete', (req, res) => {   // for ride complete fr
     var sequelize = models.sequelize;
     return sequelize.transaction(function (t) {
         return models.riderequests.findOne({
-            where : {id: body.ride_id, status: 7}  
+            where : {id: body.ride_id, status: {[Op.or] : [7, 77]}}  
         }, {transaction: t}).then( (ride) => {
             if(ride){
               console.log('bashnkkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ride);
               return models.riderequests.update(
                     { status: 7777 },
-                    { where: { id: body.ride_id, status: 7 } } ,
+                    { where: { id: body.ride_id} } ,
                     {transaction: t}
                   ).then(result => {
                      //return result;
