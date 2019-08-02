@@ -1043,6 +1043,7 @@ app.post('/ride/completed', (req, res) => {
 app.post('/ride/manual_ride_complete', (req, res) => {   // for ride complete from ride control
     var body = _.pick(req.body, ['status', 'driver_id', 'ride_id']);
     var sequelize = models.sequelize;
+    const Op = Sequelize.Op;
     return sequelize.transaction(function (t) {
         return models.riderequests.findOne({
             where : {id: body.ride_id, status: {[Op.or] : [7, 77]}}  
