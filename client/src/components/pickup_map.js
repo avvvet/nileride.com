@@ -415,43 +415,90 @@ class PickUpMap extends Component {
     
        this.getDrivers(map);
        this.getUsersMarker(map);
-       
-       let latlng =  [];
-       latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+       let latlng =  [
+       [8.986691, 38.793362],[9.037355, 38.752216],
+       [9.019212, 38.801289],[9.011955, 38.720483],
+       [8.964669, 38.733285],[9.001365, 38.677768],
+       [9.015389, 38.787273],[9.033158, 38.742287],
+       [9.021939, 38.891083],[9.021637, 38.830733],
+       [9.011822,38.720941],[8.981708, 38.763043],
+       [9.058538, 38.77627],[8.958267, 38.716202],
+       [9.05869, 38.879526],[8.994691, 38.794196],
+       [9.00054, 38.892162],[9.024706, 38.795997],
+       [9.024706, 38.795997],[8.986134, 38.768498],
+       [8.984005, 38.790831],[8.931865, 38.770095],
+       [8.982848, 38.787654],[9.002055, 38.842307],
+       [9.011785, 38.800925],[9.036678, 38.75227],
+       [8.986907, 38.758617],[8.991311, 38.788374],
+       [8.988713, 38.780882],[8.98434, 38.796485],
+      ]; 
+
+      var night_shift = moment('18:00', 'h:mma');
+      var morning_shift = moment('3:00', 'h:mma');
+      let  now = moment();
+
+    if(now.isBefore(night_shift) && now.isAfter(morning_shift)) {
+        latlng = _.shuffle(latlng);
+        for(var i = 0; i < latlng.length - 1 ; i = i + 2) {
+          this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
+        }
+    }
       
-       latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-       
-       latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //   latlng.forEach(element => {
+    //     this.getMovingMarkerRide(1062, element, );
+    //   });
+
+    //    let latlng =  [];
+    //    latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+      
+    //    latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+       
+    //    latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+    //    latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
    
-       latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
        
-       latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
 
-       latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
-       this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+    //    latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+    //    latlng = [[9.011785, 38.800925],[9.036678, 38.75227]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+    //    latlng = [[8.969453, 38.86133],[8.98228, 38.783307]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+    //    latlng = [[8.986907, 38.758617],[8.991311, 38.788374]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
+    //    latlng = [[8.988713, 38.780882],[8.98434, 38.796485]];
+    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
+
 
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
