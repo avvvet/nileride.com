@@ -432,6 +432,11 @@ class PickUpMap extends Component {
        [9.011785, 38.800925],[9.036678, 38.75227],
        [8.986907, 38.758617],[8.991311, 38.788374],
        [8.988713, 38.780882],[8.98434, 38.796485],
+       [9.017066, 38.73741],[8.992071, 38.724744],
+       [9.020505, 38.752288],[8.970201, 38.72941],
+       [9.020505, 38.752288],[8.970201, 38.72941],
+       [9.018178, 38.698308],[8.951082, 38.686464], 
+       [9.008564, 38.859134],[8.969503, 38.739395] 
       ]; 
 
       var night_shift = moment('18:00', 'h:mma');
@@ -445,61 +450,6 @@ class PickUpMap extends Component {
         }
     }
       
-
-    //   latlng.forEach(element => {
-    //     this.getMovingMarkerRide(1062, element, );
-    //   });
-
-    //    let latlng =  [];
-    //    latlng = [[8.986691, 38.793362],[9.037355, 38.752216]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-      
-    //    latlng = [[9.019212, 38.801289],[9.011955, 38.720483]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-       
-    //    latlng = [[8.964669, 38.733285],[9.001365, 38.677768]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[9.015389, 38.787273],[9.033158, 38.742287]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-   
-    //    latlng = [[9.021939, 38.891083],[9.021637, 38.830733]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[9.011822,38.720941],[8.981708, 38.763043]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[9.058538, 38.77627],[8.958267, 38.716202]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-       
-    //    latlng = [[9.05869, 38.879526],[8.994691, 38.794196]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-       
-    //    latlng = [[9.00054, 38.892162],[9.024706, 38.795997]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[9.024706, 38.795997],[8.986134, 38.768498]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[8.984005, 38.790831],[8.931865, 38.770095]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[8.982848, 38.787654],[9.002055, 38.842307]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[9.011785, 38.800925],[9.036678, 38.75227]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[8.969453, 38.86133],[8.98228, 38.783307]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[8.986907, 38.758617],[8.991311, 38.788374]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-    //    latlng = [[8.988713, 38.780882],[8.98434, 38.796485]];
-    //    this.getMovingMarkerRide(1062, latlng[0], latlng[1]);
-
-
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
             radius = radius.toFixed(2);
@@ -557,7 +507,7 @@ class PickUpMap extends Component {
         
         this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
         this.timerUserLocation = setInterval(this.userCurrentLocation, 15000);
-        this.timerUserMarker = setInterval(this.getUsersMarker, 10000);
+        //this.timerUserMarker = setInterval(this.getUsersMarker, 10000);
     };
  
     getUser = (token) => {
