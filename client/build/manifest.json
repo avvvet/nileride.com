@@ -5,7 +5,7 @@
   "background_color": "#9ad0fb",
   "display": "fullscreen",
   "orientation": "portrait",
-  "Scope": ".",
+  "Scope": "/driver",
   "start_url": "/",
   "icons": [
     {
