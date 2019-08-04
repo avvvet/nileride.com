@@ -5,8 +5,8 @@
   "background_color": "#9ad0fb",
   "display": "fullscreen",
   "orientation": "portrait",
-  "Scope": "/driver",
-  "start_url": "/",
+  "Scope": "/",
+  "start_url": "/?utm_source=a2hs",
   "icons": [
     {
       "src": "favicon.ico",
