@@ -443,12 +443,12 @@ class PickUpMap extends Component {
       var morning_shift = moment('3:00', 'h:mma');
       let  now = moment();
 
-    //if(now.isBefore(night_shift) && now.isAfter(morning_shift)) {
-        // latlng = _.shuffle(latlng);
-        // for(var i = 0; i < latlng.length - 1 ; i = i + 2) {
-        //   this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
-        // }
-    //}
+    if(now.isBefore(night_shift) && now.isAfter(morning_shift)) {
+        latlng = _.shuffle(latlng);
+        for(var i = 0; i < latlng.length - 1 ; i = i + 2) {
+          this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
+        }
+    }
       
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
