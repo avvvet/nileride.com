@@ -5,8 +5,8 @@
   "background_color": "#9ad0fb",
   "display": "fullscreen",
   "orientation": "portrait",
-  "Scope": "/",
-  "start_url": "/?utm_source=a2hs",
+  "Scope": "/maps/",
+  "start_url": "https://nileride.com",
   "icons": [
     {
       "src": "favicon.ico",
