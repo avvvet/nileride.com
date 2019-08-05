@@ -1223,7 +1223,8 @@ class DriverLocation extends Component {
             contentType: false,
             processData: false,
             success: function(data, textStatus, jqXHR) {
-                localStorage.setItem("_auth_driver", false);
+                //localStorage.setItem("_auth_driver", null);
+                localStorage.removeItem("_auth_driver");
             }.bind(this),
             error: function(xhr, status, err) {
                

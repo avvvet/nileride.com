@@ -4,6 +4,7 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {Image, Label} from 'semantic-ui-react'
 import './App.css';
 import './routing_machine.css';
+
 // import PickUp from './components/pick_up';
 // import DriverPage from './components/driver/driver_page';
 // import DriverLogin from './components/driver/login';

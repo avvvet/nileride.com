@@ -15,8 +15,8 @@ class DriverLogin extends Component {
    }
 
    render(){
-       if(localStorage.getItem("_auth_driver") === 'false') {
-        return <Redirect to='/driver/login'  />
+       if(localStorage.getItem("_auth_driver") === null) {
+        return <Redirect to='/'  />
        }
 
        return(

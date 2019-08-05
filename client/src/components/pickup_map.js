@@ -22,7 +22,6 @@ import RiderLoginForm from './rider/rider_login_2';
 import ApplyToRide from './rider/apply_to_ride_2';
 import Faq from './faq';
 
-
 const env = require('../env');
 var validator = require('validator');
 var moment = require('moment');
