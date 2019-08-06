@@ -174,6 +174,7 @@ class PickUpMap extends Component {
             markerGroup: '',
             carMarkerGroup: '',
             userMarkerGroup : '',
+            movingMarkerGroup : '',
             locationGroup: '',
             list: [],
             currentDrivers : [],
@@ -216,6 +217,7 @@ class PickUpMap extends Component {
             pickup_searchbox_selected : false,
             dropoff_searchbox_selected : false,
             is_this_login : '',
+            movingMarkerSatus : ''
         }
     }
 
@@ -393,6 +395,90 @@ class PickUpMap extends Component {
         });  
     }
 
+    getSetting = (id) => {
+        var obj = {
+            id : id
+        }
+        $.ajax({ 
+            type:"POST",
+            url:"/settings/get",
+            data: JSON.stringify(obj), 
+            contentType: "application/json",
+            success: function(setting, textStatus, jqXHR) {
+              if(setting){
+                  this.setState({
+                    movingMarkerSatus : setting.value
+                  });
+                  let latlng = [];
+                  if(setting.value === 1)  {
+                    latlng =  [
+                        [8.986691, 38.793362],[9.037355, 38.752216],
+                        [9.019212, 38.801289],[9.011955, 38.720483],
+                        [8.964669, 38.733285],[9.001365, 38.677768],
+                        [9.015389, 38.787273],[9.033158, 38.742287],
+                        [9.021939, 38.891083],[9.021637, 38.830733],
+                        [9.011822,38.720941],[8.981708, 38.763043],
+                        [9.058538, 38.77627],[8.958267, 38.716202],
+                        [9.05869, 38.879526],[8.994691, 38.794196],
+                        [9.00054, 38.892162],[9.024706, 38.795997],
+                        [9.024706, 38.795997],[8.986134, 38.768498],
+                        [8.984005, 38.790831],[8.931865, 38.770095],
+                        [8.982848, 38.787654],[9.002055, 38.842307],
+                        [9.011785, 38.800925],[9.036678, 38.75227],
+                        [8.986907, 38.758617],[8.991311, 38.788374],
+                        [8.988713, 38.780882],[8.98434, 38.796485],
+                        [9.017066, 38.73741],[8.992071, 38.724744],
+                        [9.020505, 38.752288],[8.970201, 38.72941],
+                        [9.020505, 38.752288],[8.970201, 38.72941],
+                        [9.018178, 38.698308],[8.951082, 38.686464], 
+                        [9.008564, 38.859134],[8.969503, 38.739395] 
+                       ]; 
+                    } else if(setting === 2) {
+                        latlng =  [
+                            [9.011822,38.720941],[8.981708, 38.763043],
+                            [9.058538, 38.77627],[8.958267, 38.716202],
+                            [9.05869, 38.879526],[8.994691, 38.794196],
+                            [9.00054, 38.892162],[9.024706, 38.795997],
+                            [9.024706, 38.795997],[8.986134, 38.768498],
+                            [8.984005, 38.790831],[8.931865, 38.770095],
+                            [8.982848, 38.787654],[9.002055, 38.842307],
+                            [9.011785, 38.800925],[9.036678, 38.75227]
+                           ]; 
+                    } else if(setting === 3) {
+                        latlng =  [
+                            [9.011822,38.720941],[8.981708, 38.763043],
+                            [9.058538, 38.77627],[8.958267, 38.716202],
+                            [9.05869, 38.879526],[8.994691, 38.794196],
+                            [9.00054, 38.892162],[9.024706, 38.795997],
+                            [9.024706, 38.795997],[8.986134, 38.768498],
+                            [8.984005, 38.790831],[8.931865, 38.770095],
+                            [8.982848, 38.787654],[9.002055, 38.842307],
+                            [9.011785, 38.800925],[9.036678, 38.75227]
+                           ]; 
+                    } else if (setting === 0) {
+                        latlng =  [
+                           ]; 
+                    }
+                       var night_shift = moment('18:00', 'h:mma');
+                       var morning_shift = moment('3:00', 'h:mma');
+                       let  now = moment();
+                 
+                     //if(now.isBefore(night_shift) && now.isAfter(morning_shift)) {
+                         latlng = _.shuffle(latlng);
+                         for(var i = 0; i < latlng.length - 1 ; i = i + 2) {
+                           this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
+                         }
+                     //}
+                  
+              }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                alert('errror');
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });  
+    }
+
     componentDidMount(){
         this.getUser(localStorage.getItem("_auth_user"));
         var map = L.map('mapid').setView([9.0092, 38.7645], 16);
@@ -409,46 +495,14 @@ class PickUpMap extends Component {
             markerGroup : new L.LayerGroup().addTo(map),
             locationGroup : new L.LayerGroup().addTo(map),
             carMarkerGroup : new L.LayerGroup().addTo(map),
-            userMarkerGroup : new L.LayerGroup().addTo(map)
+            userMarkerGroup : new L.LayerGroup().addTo(map),
+            movingMarkerGroup : new L.LayerGroup().addTo(map),
         });
     
        this.getDrivers(map);
        //this.getUsersMarker(map);
+        this.getSetting(1);
 
-       let latlng =  [
-       [8.986691, 38.793362],[9.037355, 38.752216],
-       [9.019212, 38.801289],[9.011955, 38.720483],
-       [8.964669, 38.733285],[9.001365, 38.677768],
-       [9.015389, 38.787273],[9.033158, 38.742287],
-       [9.021939, 38.891083],[9.021637, 38.830733],
-       [9.011822,38.720941],[8.981708, 38.763043],
-       [9.058538, 38.77627],[8.958267, 38.716202],
-       [9.05869, 38.879526],[8.994691, 38.794196],
-       [9.00054, 38.892162],[9.024706, 38.795997],
-       [9.024706, 38.795997],[8.986134, 38.768498],
-       [8.984005, 38.790831],[8.931865, 38.770095],
-       [8.982848, 38.787654],[9.002055, 38.842307],
-       [9.011785, 38.800925],[9.036678, 38.75227],
-       [8.986907, 38.758617],[8.991311, 38.788374],
-       [8.988713, 38.780882],[8.98434, 38.796485],
-       [9.017066, 38.73741],[8.992071, 38.724744],
-       [9.020505, 38.752288],[8.970201, 38.72941],
-       [9.020505, 38.752288],[8.970201, 38.72941],
-       [9.018178, 38.698308],[8.951082, 38.686464], 
-       [9.008564, 38.859134],[8.969503, 38.739395] 
-      ]; 
-
-      var night_shift = moment('18:00', 'h:mma');
-      var morning_shift = moment('3:00', 'h:mma');
-      let  now = moment();
-
-    if(now.isBefore(night_shift) && now.isAfter(morning_shift)) {
-        latlng = _.shuffle(latlng);
-        for(var i = 0; i < latlng.length - 1 ; i = i + 2) {
-          this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
-        }
-   }
-      
         map.on('locationfound', (e) => {
             var radius = e.accuracy / 1024;
             radius = radius.toFixed(2);
@@ -507,6 +561,7 @@ class PickUpMap extends Component {
         this.timerRideStatus = setInterval(this.checkRideStatus, 7000);
         this.timerUserLocation = setInterval(this.userCurrentLocation, 15000);
         //this.timerUserMarker = setInterval(this.getUsersMarker, 10000);
+        this.timerMovingMarker = setInterval(this.checkMovingMarkerUpdate, 20000);
     };
  
     getUser = (token) => {
@@ -699,7 +754,8 @@ class PickUpMap extends Component {
      }
      
      moving_marker_route_found =(e) => {
-        var map = this.state.map;
+        var movingMarkerGroup = this.state.userMarkerGroup;
+        
         var routes = e.routes;
         var _distance = routes[0].summary.totalDistance;
         var _ride_time = routes[0].summary.totalTime;
@@ -713,7 +769,7 @@ class PickUpMap extends Component {
 
         let d = [];
         a.forEach(element => {
-            d.push(3000);
+                d.push(3000);
         });
 
         var marker2 = L.Marker.movingMarker(a,
@@ -722,11 +778,45 @@ class PickUpMap extends Component {
                 icon: driver_icon_green,
                 loop : true
             }
-        ).bindPopup('driving').addTo(map);
+        ).bindPopup('driving').addTo(movingMarkerGroup);
         //L.polyline(a, {color: 'red'}).addTo(map);
         //lord your are God of order, I beg you father not now. THANK YOU FATHER - Let your will be done
     }
- 
+    
+    checkMovingMarkerUpdate = () => {
+        var obj = {
+            id : 1
+        }
+        console.log('update ', obj);
+        $.ajax({ 
+            type:"POST",
+            url:"/settings/get",
+            data: JSON.stringify(obj), 
+            contentType: "application/json",
+            success: function(setting, textStatus, jqXHR) {
+                console.log('successssssssss', setting);
+              if(setting){
+                  if(setting.value !== this.state.movingMarkerSatus)  {
+                    //clear and load the moving marker again 
+                     this.clearMovingMarker();
+                     this.getSetting(setting.value);
+                  } 
+                  this.setState({
+                    movingMarkerSatus : setting.value
+                  }); 
+              }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr, status, err.toString());
+            }.bind(this)
+        });
+    }
+
+    clearMovingMarker = () => {
+        var movingMarkerGroup = this.state.userMarkerGroup;
+        movingMarkerGroup.clearLayers();  //lets clear and update it 
+    }
+
     nearest_driver_eta = (user_pickup_latlng, nearest_driver_latlng) => {
         var map = this.state.map;
         if(this._neearest_driver_routeControl){

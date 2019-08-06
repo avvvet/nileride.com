@@ -26,6 +26,7 @@ models.ratings = require('../models/ratings')(sequelize, Sequelize);
 models.admins = require('../models/admins')(sequelize, Sequelize);
 models.trafics = require('../models/trafics')(sequelize, Sequelize);
 models.change_passwords = require('../models/change-passwords')(sequelize, Sequelize);
+models.settings = require('../models/settings')(sequelize, Sequelize);
 
 models.riderequests.belongsTo(models.users, {
   foreignKey: 'user_id',

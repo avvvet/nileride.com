@@ -2287,6 +2287,20 @@ app.get('/admin/get_trafic', (req, res) => {
   
 });
 
+//settings
+app.post('/settings/get', (req, res) => {
+    var body = _.pick(req.body, ['id']);
+        models.settings.findOne({
+            where : {id: body.id}  
+        }).then( (data) => {
+            if(data){
+              res.send(data);
+            } else {
+              res.sendStatus(401).send();
+            }
+        });
+});
+
 io.on('connect', (socket)=> {
    console.log('Client connected', socket.id);
    
