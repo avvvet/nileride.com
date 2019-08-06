@@ -473,7 +473,6 @@ class PickUpMap extends Component {
               }
             }.bind(this),
             error: function(xhr, status, err) {
-                alert('errror');
                 console.error(xhr, status, err.toString());
             }.bind(this)
         });  
@@ -787,14 +786,12 @@ class PickUpMap extends Component {
         var obj = {
             id : 1
         }
-        console.log('update ', obj);
         $.ajax({ 
             type:"POST",
             url:"/settings/get",
             data: JSON.stringify(obj), 
             contentType: "application/json",
             success: function(setting, textStatus, jqXHR) {
-                console.log('successssssssss', setting);
               if(setting){
                   if(setting.value !== this.state.movingMarkerSatus)  {
                     //clear and load the moving marker again 
