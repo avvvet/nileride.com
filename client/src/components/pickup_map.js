@@ -397,7 +397,7 @@ class PickUpMap extends Component {
 
     getSetting = (id) => {
         var obj = {
-            id : id
+            id : 1
         }
         $.ajax({ 
             type:"POST",
@@ -406,9 +406,6 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(setting, textStatus, jqXHR) {
               if(setting){
-                  this.setState({
-                    movingMarkerSatus : setting.value
-                  });
                   let latlng = [];
                   if(setting.value === 1)  {
                     latlng =  [
@@ -433,7 +430,7 @@ class PickUpMap extends Component {
                         [9.018178, 38.698308],[8.951082, 38.686464], 
                         [9.008564, 38.859134],[8.969503, 38.739395] 
                        ]; 
-                    } else if(setting === 2) {
+                    } else if(setting.value === 2) {
                         latlng =  [
                             [9.011822,38.720941],[8.981708, 38.763043],
                             [9.058538, 38.77627],[8.958267, 38.716202],
@@ -444,7 +441,7 @@ class PickUpMap extends Component {
                             [8.982848, 38.787654],[9.002055, 38.842307],
                             [9.011785, 38.800925],[9.036678, 38.75227]
                            ]; 
-                    } else if(setting === 3) {
+                    } else if(setting.value === 3) {
                         latlng =  [
                             [8.989369, 38.72837],[9.005113, 38.678037],
                             [8.937305, 38.729897],[9.018444, 38.736442],
@@ -452,7 +449,7 @@ class PickUpMap extends Component {
                             [9.011553, 38.758851],[9.011823, 38.720862],
                             [8.97991, 38.772896],[9.011553, 38.758851]
                            ]; 
-                    } else if(setting === 4) {
+                    } else if(setting.value === 4) {
                         latlng =  [
                             [9.05869, 38.879526],[8.994691, 38.794196],
                             [9.00054, 38.892162],[9.024706, 38.795997],
@@ -464,7 +461,7 @@ class PickUpMap extends Component {
                             [9.011785, 38.800925],[9.036678, 38.75227],
                             [8.986907, 38.758617],[8.991311, 38.788374]
                            ]; 
-                    } else if (setting === 0) {
+                    } else if (setting.value === 0) {
                         latlng =  [
                            ]; 
                     }
@@ -478,7 +475,9 @@ class PickUpMap extends Component {
                            this.getMovingMarkerRide(1062, latlng[i],latlng[i+1]);
                          }
                      //}
-                  
+                     this.setState({
+                        movingMarkerSatus : setting.value
+                      });
               }
             }.bind(this),
             error: function(xhr, status, err) {
@@ -802,7 +801,7 @@ class PickUpMap extends Component {
             contentType: "application/json",
             success: function(setting, textStatus, jqXHR) {
               if(setting){
-                  if(setting.value !== this.state.movingMarkerSatus)  {
+                  if(setting.value !== this.state.movingMarkerSatus){
                     //clear and load the moving marker again 
                      this.clearMovingMarker();
                      this.getSetting(setting.value);

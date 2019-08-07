@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import  {Route, Redirect, BrowserRouter, NavLink } from 'react-router-dom';
 import { Grid, Message, Button, Label ,Form, Image, Header, Icon, Rating } from 'semantic-ui-react'
 import L from 'leaflet';
+import {Routing} from 'leaflet-routing-machine';
 import $ from 'jquery';
 import _ from 'lodash'; 
 //import socketClient from 'socket.io-client';
@@ -473,6 +474,7 @@ class DriverLocation extends Component {
                    });
                    let PromiseSetlatlng = new Promise((res,rej) => {
                        this.setState({
+                           ride_id : ride.id,
                            pickup_latlng : {
                             lat : ride.pickup_latlng.coordinates[0],
                             lng : ride.pickup_latlng.coordinates[1]
@@ -595,22 +597,24 @@ class DriverLocation extends Component {
         };
         
         var objRideRequest = {
+            ride_id : this.state.ride_id,
             driver_id: localStorage.getItem("_auth_driver"),
             dropoff_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
             route_distance: 10,
             route_time: 480,
             route_price: 140,
-            status: 1
+            status: 777
         };
         $.ajax({ 
             type:"POST",
             url:"/ride/completed",
             headers: { 'x-auth': localStorage.getItem("_auth_driver")},
-            data: JSON.stringify(driver), 
+            data: JSON.stringify(objRideRequest), 
             contentType: "application/json",
             success: (_ride) => {
                 $('.btn_ride_completed').removeClass("loading");
                 if(_ride){
+                    //this.reset_ride();
                     this.rideCompletedAction(_ride);
                 }  
             },
@@ -715,20 +719,21 @@ class DriverLocation extends Component {
              route_time_string :_ride_time_string,
              isRouteFound : true 
          });
-
+         
          var objTrip = {
+            ride_id : this.state.ride_id,
             driver_id: localStorage.getItem("_auth_driver"),
             pickup_latlng: `POINT(${this.state.pickup_latlng.lat} ${this.state.pickup_latlng.lng})`, 
             dropoff_latlng: `POINT(${this.state.current_latlng.lat} ${this.state.current_latlng.lng})`,
             route_distance: this.state.route_distance,
             route_time: this.state.route_time,
             route_price: this.state.route_price,
-            status: 1
+            status: 77
         };
        
         $.ajax({ 
             type:"POST",
-            url:"/actual_ride/completed",
+            url:"/ride/completed",
             headers: { 'x-auth': localStorage.getItem("_auth_driver")},
             data: JSON.stringify(objTrip), 
             contentType: "application/json",
@@ -736,7 +741,7 @@ class DriverLocation extends Component {
                 $('.btn_ride_completed').removeClass("loading");
                 if(rtn){
                     document.getElementById('div-notification-1').style.visibility = 'visible';
-                    render(<EndRide final_ride={rtn}></EndRide>, document.getElementById('div-notification-1'));
+                    //render(<EndRide final_ride={rtn}></EndRide>, document.getElementById('div-notification-1'));
                     this.rideCompletedAction(rtn);
                 }  
             },
@@ -1550,7 +1555,7 @@ class DriverLocation extends Component {
                     </Grid.Row>
                     <Grid.Row className="row_sm">
                         <Grid.Column mobile={16} tablet={16} computer={16}>
-                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompletedManual(e)} fluid>ጉዞው አለቀ</Button>
+                          <Button className="btn_ride_completed" color="orange" size="medium"  onClick={(e) => this.rideCompleted(e)} fluid>ጉዞው አለቀ</Button>
                         </Grid.Column>
                     </Grid.Row>
                   </Grid>  
