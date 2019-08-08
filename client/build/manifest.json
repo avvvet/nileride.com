@@ -1,11 +1,11 @@
 {
-  "name": "ride maching web app",
+  "name": "nileride - ride maching web app",
   "short_name": "nileride",
   "theme_color": "#9ed0f8",
   "background_color": "#9ad0fb",
   "display": "fullscreen",
   "orientation": "portrait",
-  "Scope": "/driver/",
+  "Scope": "/",
   "start_url": "https://nileride.com/",
   "icons": [
     {
