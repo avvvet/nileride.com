@@ -73,7 +73,7 @@ class DriverRideCancel extends Component {
             error: function(xhr, status, err) {
                 $('.btn_reason_submit').removeClass("loading");
                 render(<div className="div-error">ኢንተርኒት መኖሩን እርግጠኛ ይሁኑ እንደገና ይሞክሩ !</div>,document.getElementById('div-error-reason'));
-            }.bind(this)
+            }
         });  
     }
 

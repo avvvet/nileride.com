@@ -1230,6 +1230,7 @@ class DriverLocation extends Component {
             success: function(data, textStatus, jqXHR) {
                 //localStorage.setItem("_auth_driver", null);
                 localStorage.removeItem("_auth_driver");
+                return <Redirect to='/'  />
             }.bind(this),
             error: function(xhr, status, err) {
                

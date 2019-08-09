@@ -68,7 +68,7 @@ class Rate extends Component {
             }.bind(this),
             error: function(xhr, status, err) {
                 e.target.disabled = false;
-            }.bind(this)
+            }
         });  
     }
 

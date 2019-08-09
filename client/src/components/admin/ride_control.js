@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import L from 'leaflet';
 import $ from 'jquery';
 import _ from 'lodash';
-import { Grid, Message, Form , Label, Button , Card, Image, Icon, Table, Input } from 'semantic-ui-react'
+import { Grid, Message, Form , Button , Card, Input } from 'semantic-ui-react'
 const env = require('../../env');
 var validator = require('validator');
 var moment = require('moment');
@@ -29,16 +29,6 @@ var marker_b = L.icon({
     popupAnchor:  [-1, -45] // point from which the popup should open relative to the iconAnchor
 });
 var img = `<img src='/assets/nile_ride_driver.png' />`;
-var driver_icon = L.divIcon({
-    html: img,
-    shadowUrl: '',
-    className: 'image-icon-driver',
-    iconSize:     [25, 25], // size of the icon
-    shadowSize:   [50, 64], // size of the shadow
-    iconAnchor:   [12, 14], // point of the icon which will correspond to marker's location
-    shadowAnchor: [4, 62],  // the same for the shadow
-    popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
-});
 var driver_icon_green = L.divIcon({
     html: img,
     shadowUrl: '',

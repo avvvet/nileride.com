@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "browserslist": "^4.6.6",
+    "caniuse-lite": "^1.0.30000989",
     "faker": "^4.1.0",
     "howler": "^2.1.0",
     "is-coordinates": "^2.0.2",
