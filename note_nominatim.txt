@@ -1,0 +1,52 @@
+nominatim 
+
+step 1 (1 min)
+sudo apt-get install -y build-essential cmake g++ libboost-dev libboost-system-dev \
+                        libboost-filesystem-dev libexpat1-dev zlib1g-dev libxml2-dev\
+                        libbz2-dev libpq-dev libproj-dev \
+                        postgresql-server-dev-10 postgresql-10-postgis-2.4 \
+                        postgresql-contrib-10 \
+                        apache2 php php-pgsql libapache2-mod-php php-pear php-db \
+                        php-intl git
+
+step 2 
+sudo useradd -d /srv/nominatim -s /bin/bash -m nominatim
+
+step 3 
+export USERNAME=nominatim
+export USERHOME=/srv/nominatim
+
+step 4 
+chmod a+x $USERHOME
+
+step 5 
+sudo systemctl restart postgresql
+
+
+setp 6
+cd $USERHOME
+wget https://nominatim.org/release/Nominatim-3.2.0.tar.bz2
+tar xf Nominatim-3.2.0.tar.bz2
+cd Nominatim-3.2.0
+
+mkdir build
+cd build
+cmake ..
+make
+
+setp 7 
+if you build it in this folder structure, the conf must be like this 
+/etc/apache2/conf-available# nano nominatim.conf
+<Directory "/srv/nominatim/Nominatim-3.2.0/build/website">
+  Options FollowSymLinks MultiViews
+  AddType text/html   .php
+  DirectoryIndex search.php
+  Require all granted
+</Directory>
+
+Alias /nominatim /srv/nominatim/Nominatim-3.2.0/build/website
+
+setp 8
+/build/settings/local.php
+<?php
+@define('CONST_Website_BaseURL', 'http://'.php_uname('n').'/nominatim/');

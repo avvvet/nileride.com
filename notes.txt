@@ -1,0 +1,283 @@
+#connecting digitalocean with ssh 
+on your local server run ssh-keygen   and copy the public key 
+
+then before creating your droplet copy your public key from your local server to the remote server ssh setting page and paste it there
+
+then ssh root@publicipaddress of droplet 
+
+#visual studio file watch size error 
+/etc$ nano sysctl.conf
+at the end of the file add 
+fs.inotify.max_user_watches=524288
+finaly run to load the setting
+sudo sysctl -p
+
+# copy /var/www/nileride.com to /var/www/bk
+cd /var/www
+cp -r nileride.com/. bk/nileride.com_16032019   (date month year)
+
+#backup mysql be the root drictory 
+mysqldump -u root -p awet_ride > /var/www/mysql_bk/awet_ride_27062019.sql
+
+
+#mysql restore
+mysql -u root -p awet_ride < /jss/mysql_bk/awet_ride_27062019.sql
+
+#copy file from remote to local - be in local directory
+sudo scp -r root@nileride.com:/var/www/mysql_bk/awet_ride_27062019.sql /jss/
+
+#copy profiel directory from server
+sudo scp -r root@nileride.com:/var/www/nileride.com/client/public/assets/profile /profile/
+
+#restart server
+sudo shutdown -r now
+
+#for first time 
+pm2 start server/server.js
+
+#npm2 restart
+pm2 restart server (server is your application name given by pm2 during intial start of the service)
+
+npm seems to work on glopal installation npm install -g pm2 
+
+#for running first time sequelize migration afer installing new mysql 
+first create the database - create database awet_ride;
+node_modules/.bin/sequelize db:migrate
+
+#nginx configuration
+you add your osrm.conf inside sites-available direcotry (osrm.conf is our configuration)
+then make a link to sites-enabled (sites-enabled is the working environment 
+ln -s /etc/nginx/sites-available/osrm.conf /etc/nginx/sites-enabled/
+
+# port kill
+fuser 8080/tcp
+fuser -k 8080/tcp
+
+#add swap in ubuntu for increased memory 
+sudo swapon --show                If the output is empty, it means that your system does not have swap space enabled.
+sudo fallocate -l 2G /swapfile    this will alocate 2G swap 
+sudo mkswap /swapfile             this will create the swap file  * you might see busy or permission errro no problem
+sudo swapon /swapfile             this Activate the swap file 
+sudo swapon --show                finally varify the swap file is listed 
+
+sudo nano /etc/fstab              to make the swap file permanent - I did not used this  ---- My lord you good good father I worish you lord forever -- please help angel
+/swapfile swap swap defaults 0 0  add the follwoing 
+
+#to remove swapfile - I did not used it 
+sudo swapoff -v /swapfile        Start by deactivating the swap space by typing
+sudo rm /swapfile                remove it 
+if you add swap file permantNext, remove the swap file entry /swapfile swap swap defaults 0 0 from the /etc/fstab file.
+
+
+#install map
+be inside /var/osrm/data directory 
+
+wget http://download.geofabrik.de/africa/ethiopia-latest.osm.pbf
+
+#setting OSRM - I used v5.20.0 step 1 
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-extract -p /opt/car.lua /data/ethiopia-latest.osm.pbf
+docker run -t -v $(pwd):/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/ethiopia-latest.osm.pbf
+
+# setp 2
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-partition /data/ethiopia-latest.osrm
+docker run -t -v $(pwd):/data osrm/osrm-backend osrm-partition /data/ethiopia-latest.osrm
+
+#step 3
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-customize /data/ethiopia-latest.osrm
+docker run -t -v $(pwd):/data osrm/osrm-backend osrm-customize /data/ethiopia-latest.osrm
+
+#to start the server
+docker run -t -i -p 5000:5000 -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-routed --algorithm mld /data/ethiopia-latest.osrm
+docker run -t -i -p 5000:5000 -v $(pwd):/data osrm/osrm-backend osrm-routed --algorithm mld /data/ethiopia-latest.osrm
+
+#stop docker continers 
+docker stop $(docker ps -aq)
+
+#disk spce 
+df -h
+
+#directory size
+du -csh
+
+# to stop and remove all
+docker rm -f $(docker ps -a -q); docker rmi $(docker images -q)
+
+#using vim 
+to insert press i
+to save shift :w
+to exit shift zz
+
+#to enable login using root - after login to your ubuntu cloud
+sudo vim /etc/ssh/sshd_config
+
+UsePam no
+PasswordAuthentication yes 
+
+(esc shift :wq  will save it)
+
+#pass
+777@vvvet_003994
+
+#repo on digitalocean
+cd /var
+mkdir repo && cd repo
+mkdir nileride.git && cd site.git
+git init --bare
+
+#hooks
+cd hooks
+
+cat > post-receive
+
+vim post-receive
+
+(to start editing press i)
+#!/bin/sh
+git --work-tree=/var/www/nileride.com --git-dir=/var/repo/nileride.git checkout -f
+#!/bin/sh
+git --work-tree=/var/www/nileride.com --git-dir=/var/repo/nileride.git checkout -f
+
+#!/bin/sh
+git --work-tree=/var/www/nileride.com --git-dir=/var/repo/nileride.git checkout -f
+
+(to save pres esc then shift :wq)
+
+chmod +x post-receive
+
+don't use sudo 
+# git clone using ssh from nileride  the repo is var/repo/nileride.git
+sudo git clone ssh://root@46.101.236.135:/var/repo/nileride.git
+
+#git remote  use sudo su then add 
+git remote add nileride ssh://root@46.101.236.135:/var/repo/nileride.git
+
+then exit sudo su and push with out using sudo 
+
+
+#create swap file
+sudo fallocate -l 4G /swapfile4G
+sudo mkswap /swapfile4G
+sudo swapon /swapfile4G
+sudo swapoff /swapfile # < old swapfile
+sudo rm /swapfile
+sudo swapon -s # verify 
+# After all edit your /etc/fstab, if you use it to turn on swap when reboot, to switch /swapfile to /swapfile4G
+
+
+"start": "PORT=80 react-scripts start",
+
+#copy from remote to local root directory
+sudo scp -r root@nileride.com:/var/www/nileride.com/client/public/assets /jss/
+
+
+#using squeilize for first time
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+FLUSH PRIVILEGES;
+
+#sequelize model generate
+sudo node_modules/.bin/sequelize model:generate --name change-passwords --attributes mobile:string,varify:string,status:string
+
+#how to squash mulitple merges to single 
+sudo git rebase -i origin HEAD
+
+#then to push insert the branh name 
+sudo git push origin -u 28-upgrade-to-sf-4-2
+
+# local master equal to remote 
+git reset --hard origin/master
+
+sudo apt-get install python-pip python-dev lsscsi
+sudo pip install py_sg
+sudo pip install py_sg
+~/wdpassport-utils.py -u
+@vv*t1979
+
+
+#God is good
+
+learn aws certication and achive it
+Server less computing
+devops - continues integrtion
+# OCT 03 2019 THANK YOU GOD - I HAVE STUDIED FOR AWS CERFICATION  
+
+#starting mongo database using terminal
+./mongod --dbpath /home/awet/mongo-data
+
+# to remove git add files 
+ git reset 
+
+#to run the tileserver
+sudo docker run --rm -it -v $(pwd):/data -p 8080:80 klokantech/openmaptiles-server
+
+#create react project
+npx create-react-app app-name
+
+#udemy video download
+udl https://www.udemy.com/COURSE_NAME
+
+# localstorage with expireation 
+// setter
+sessionStorage.setItem('myData', data);
+
+// getter
+sessionStorage.getItem('myData');
+
+#create react element
+const container = React.createElement('div', {}, title);
+
+#heroku
+ install the command line
+first time use 
+heroku create
+sudo git push heroku master 
+
+#git remote delte
+git remote rm destination
+
+#git remote add 
+
+#mysql login
+mysql --host=localhost --user=root --password=awetawet;
+
+#during sequelize installation 
+1 add in config.json "operatorsAliases": "Sequelize.Op"
+2.use mysql;
+update user set authentication_string=password('Awet_003994'),plugin='mysql_native_password' where user='root';
+flush privileges;
+
+#create new model with migration
+node_modules/.bin/sequelize model:generate --name RideRequest --attributes id:integer,user_id:integer,driver_id:integer,pickup_latlng:decimal,dropoff_latlng:decimal,distance:decimal,route_time:integer,price:decimal,status:integer
+
+#Lord may I preach the good news and the deep love of yours to your children with power - please Dec 05 2018
+
+#custom init of config, models , migrations 
+node_modules/.bin/sequelize init:config --config server/config/config
+
+marker = L.marker(e.latlng).addTo(markersLayer).bindPopup("<div class='popup-title'> Your pickup location is </div>" + "<div class='popup-content'>" + result.display_name + "</div>" ).openPopup();
+            
+
+console.log('resutl', ride.dataValues.pickup_latlng);
+
+#setting OSRM - I used v5.20.0
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-extract -p /opt/car.lua /data/ethiopia-latest.osm.pbf
+
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-partition /data/ethiopia-latest.osrm
+
+docker run -t -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-customize /data/ethiopia-latest.osrm
+
+#to start the server
+docker run -t -i -p 5000:5000 -v $(pwd):/data osrm/osrm-backend:v5.20.0 osrm-routed --algorithm mld /data/ethiopia-latest.osrm
+
+#how to update letsenrypt ssl 
+
+login to nileride server - you can be on the root directory
+certbot certonly --manual
+then create the files locally and push to server 
+after you have created the two fils locally - don't press continue but go locally and push the files to server
+then complete installation 
+
+#for autorenawal
+crontab -e  this will opent cron job list
+
+# Add the certbot command to run daily. In this example, we run the command every day at noon
+0 12 * * * /usr/bin/certbot renew --quiet
