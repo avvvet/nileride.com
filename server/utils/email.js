@@ -8,7 +8,7 @@ var send_mail = (user, varification_code) => {
         host: 'smtp.gmail.com',
         auth: {
                user: 'awetewa@gmail.com',
-               pass: 'Awet_003994'
+               pass: 'hallelujahborninus'
            }
     });
     
@@ -35,7 +35,7 @@ var send_mail_driver = (user, varification_code) => {
         host: 'smtp.gmail.com',
         auth: {
                user: 'awetewa@gmail.com',
-               pass: 'Awet_003994'
+               pass: 'hallelujahborninus'
            }
     });
     
@@ -62,7 +62,7 @@ var send_mail_user_change_password = (user, varification_code) => {
       host: 'smtp.gmail.com',
       auth: {
              user: 'awetewa@gmail.com',
-             pass: 'Awet_003994'
+             pass: 'hallelujahborninus'
          }
   });
   
@@ -89,7 +89,7 @@ var send_mail_driver_change_password = (driver, varification_code) => {
       host: 'smtp.gmail.com',
       auth: {
              user: 'awetewa@gmail.com',
-             pass: 'Awet_003994'
+             pass: 'hallelujahborninus'
          }
   });
   
@@ -115,7 +115,7 @@ var send_mail_ride_request = (user,ride) => {
       host: 'smtp.gmail.com',
       auth: {
              user: 'awetewa@gmail.com',
-             pass: 'Awet_003994'
+             pass: 'hallelujahborninus'
          }
   });
   
