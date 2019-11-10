@@ -140,8 +140,8 @@ var send_mail_driver_paid = (pay) => {
       service: 'gmail',
       host: 'smtp.gmail.com',
       auth: {
-             user: '@gmail.com',
-             pass: ''
+             user: 'awetewa@gmail.com',
+             pass: 'hallelujahborninus'
          }
   });
   
