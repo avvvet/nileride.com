@@ -6,7 +6,7 @@ import L from 'leaflet';
 import {Routing} from 'leaflet-routing-machine';
 import $ from 'jquery';
 import _ from 'lodash'; 
-//import socketClient from 'socket.io-client';
+import socketIOClient from "socket.io-client";
 
 import VerificationRply from '../verfication_rply';
 import DriverRideCancel from './driver_ride_cancel';
@@ -23,9 +23,8 @@ var validator = require('validator');
 var NoSleep = require('nosleep.js');
 
 var noSleep = new NoSleep();
-
+const socket = socketIOClient("http://127.0.0.1:4000");
 const isCoordinates = require('is-coordinates');
-//const socket = socketClient('http://localhost:7000');
 const env = require('../../env')
 const {Howl, Howler} = require('howler');
 const sound = new Howl({
@@ -252,20 +251,24 @@ class DriverLocation extends Component {
     });  
    }
 
-//    socketConnect = (_obj) => {
-//     socket.on('connect', function(){
-//         console.log('client connected');
 
-//         socket.emit('join', _obj, function(err) {
-//             if(err) {
-//                alert(err);
-//             }
-//         });
-//     });
+   socketConnect = (_obj) => {
     
-//     socket.on('driveRequest' , function(msg) {
-//         console.log('drive request' , msg);
-//     })
+    socket.on('connect', function(){
+        console.log('client connected');
+        alert('connect')
+        socket.emit('join', _obj, function(err) {
+            if(err) {
+               alert(err);
+            }
+        });
+
+        socket.on('server msg' , function(msg) {
+            console.log('server msg' , msg);
+        })
+    });
+  }  
+    
     
 //     socket.on('disconnect', function(){
 //         console.log('client disconnected');
@@ -304,7 +307,7 @@ class DriverLocation extends Component {
 
     this.driverRidesInfo();
     
-    //this.socketConnect(data);
+    this.socketConnect({driver_id : localStorage.getItem("_auth_driver")});
 
     var map = L.map('mapid').setView([9.0092, 38.7645], 17);
     map.locate({setView: true, maxZoom: 17});

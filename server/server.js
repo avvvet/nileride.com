@@ -67,6 +67,7 @@ setInterval(() => {
 //var server = http.createServer(app);
 var io = socketIO(httpServer);
 
+
 const clientPath = path.join(__dirname, '../client/build');
 app.use(express.static(clientPath, { dotfiles: 'allow' } ));
 
@@ -2300,28 +2301,24 @@ app.post('/settings/get', (req, res) => {
         });
 });
 
-io.on('connect', (socket)=> {
-   console.log('Client connected', socket.id);
+io.on('connection', (socket)=> {
+   console.log('******  ******* Client connected', socket.id);
    
    socket.on('join', (_obj, callback) => {
+       console.log('++++++++++++ join');
      if(_obj.driver_id === '') {
          callback('driver not valid');
      }
-
-     socket.join('4141');
+     socket.join(_obj.driver_id);
+     console.log('driver joined ', _obj.driver_id);
    });  
-   
 });
 
-
-driveRequest = () => {
-    io.on('connect', (socket) => {
-        io.to('4141').emit('driveRequest', {
-            msg : 'test test'
-        });
-    });
-}
-
+setInterval(function(){
+    let driver_token = 'eyJhbGciOiJIUzI1NiJ9.MDkxMTAwMzk5NA.jtNQa-lslYVCJYAN-KcHM_rJyIT459WpaOlWC02TDGE';
+    var message = "peace and happines";
+    io.sockets.to(driver_token).emit('server msg', message);
+}, 5000);
 
 if(env.NODE_ENV === 'production') {
     httpServer.listen(4000, () => {

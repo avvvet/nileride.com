@@ -6,9 +6,6 @@ import {Button, Image, Badge, Grid, Row, Col} from 'react-bootstrap';
 import * as Nominatim from "nominatim-browser";
 import GeometryUtil from 'leaflet-geometryutil';
 import {Routing} from 'leaflet-routing-machine';
-import socketClient from 'socket.io-client';
-
-const socket = socketClient('http://localhost:5000');
 
 class DropOffMap extends Component {
     constructor(){
@@ -39,8 +36,7 @@ class DropOffMap extends Component {
                 plate: '',
                 car_pic : '',
                 driver_pic : ''
-            },
-            socket_data : ''
+            }
         }
 
         this.rideRequest = this.rideRequest.bind(this);
@@ -67,9 +63,6 @@ class DropOffMap extends Component {
                 console.log("Nearest driver", data);
                 document.getElementById('div-request').style.visibility = 'visible';
                 this.setState({driver: data});
-                socket.emit('request_driver', {
-                    msg : 'test'
-                });
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err.toString());
